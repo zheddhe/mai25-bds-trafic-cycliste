@@ -1,0 +1,3 @@
+data:
+  input:
+    velib_data: "resources/input/velib-disponibilite-en-temps-reel.csv"
