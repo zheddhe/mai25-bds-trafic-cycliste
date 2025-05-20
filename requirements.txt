@@ -1,11 +1,11 @@
 # dependencies management for pip
-pandas>=2.2.2
-PyYAML>=6.0.1
-numpy>=1.26.4
-matplotlib>=3.8.4
-seaborn>=0.13.2
-setuptools>=78.1.0
-plotly>=6.0.1
-bokeh>=3.7.3
-pyproj>=3.7.1
-requests>=2.32.3
+pandas==2.2.2
+PyYAML==6.0.1
+numpy==1.26.4
+matplotlib==3.8.4
+seaborn==0.13.2
+setuptools==78.1.0
+plotly==6.0.1
+bokeh==3.7.3
+pyproj==3.7.1
+requests==2.32.3
