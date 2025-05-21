@@ -20,8 +20,8 @@ This project is structured around a three-phase machine learning pipeline:
 ```text
 avr25-mle-velib/
 ├── README.md              # Project documentation (this file)
-├── requirements.txt       # Python dependencies
-├── setup.py               # Package configuration for installation
+├── requirements.txt       # Python dependencies (for dev with pip install -r requirements.txt)
+├── pyproject.toml         # Meta information and dependencies (for build with pip install .)
 │
 ├── config/                # Static configuration files (YAML, JSON, etc.)
 │   └── config.yaml
@@ -31,7 +31,10 @@ avr25-mle-velib/
 │   ├── ...
 │
 ├── tests/                 # Unit and integration tests
-│   └── test_core.py
+│   ├── test_core.py
+│   ├── ...
 │
 └── notebooks/             # Jupyter notebooks for exploratory analysis
-    └── 00_exploratory_analysis.ipynb
+    ├── 00_exploratory_analysis.ipynb
+    ├── ...
+

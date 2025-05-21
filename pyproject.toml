@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools~=80.8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "avr25-mle-velib"
+version = "0.1.0"
+description = "velib data science project for MLE april 2025 promotion"
+authors = [
+    {name = "Rémy CANAL", email = "remy.canal@live.fr"},
+    {name = "Elias DJOUADI", email = "dummy@mail.com"},
+    {name = "Raphaël PARMENTIER", email = "dummy@mail.com"},
+]
+requires-python = "~=3.13"
+license = {text = "MIT"}
+
+dependencies = [
+    "pandas~=2.2.3",
+    "PyYAML~=6.0.2",
+    "numpy~=2.2.4",
+    "matplotlib~=3.10.1",
+    "seaborn~=0.13.2",
+    "plotly~=6.1.1",
+    "bokeh~=3.7.3",
+    "pyproj~=3.7.1",
+    "requests~=2.32.3"
+]
+classifiers = [
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent"
+]
+
+[tool.setuptools]
+packages = {find = {}}
+include-package-data = true

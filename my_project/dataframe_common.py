@@ -6,8 +6,9 @@ import pandas as pd
 import numpy as np
 import requests
 
-begin_sep = "--------------------\n"
-end_sep =   "\n********************"
+# Constant
+BEGIN_SEP = "--------------------\n"
+END_SEP = "\n********************"
 
 
 def load_dataset_from_config(data_name, *args, **kwargs):
@@ -124,12 +125,12 @@ def print_general_info(df):
         print("Erreur : DataFrame invalide")
         return
 
-    print(begin_sep,"This data set has",df.shape[0],"rows and",df.shape[1], "columns",end_sep)
-    print(begin_sep,"Quantitative variables description:",end_sep)
+    print(BEGIN_SEP, "This data set has", df.shape[0], "rows and", df.shape[1], "columns", END_SEP)
+    print(BEGIN_SEP, "Quantitative variables description:", END_SEP)
     print(df.select_dtypes(include=np.number).describe())
-    print(begin_sep,"Quantitative variables basic correlation:",end_sep)
+    print(BEGIN_SEP, "Quantitative variables basic correlation:", END_SEP)
     print(df.select_dtypes(include=np.number).corr())
-    print(begin_sep,"Information:",end_sep)
+    print(BEGIN_SEP, "Information:", END_SEP)
     df.info()
     detect_duplicates_and_na(df)
 
@@ -150,8 +151,8 @@ def detect_duplicates_and_na(df, subset=None, nan_placeholder="__MISSING__"):
     """
     # work with sub dataset if provided
     df_sub = df.copy() if subset is None else df[subset].copy()
-    print(begin_sep,f"Number of Row(s) with at least one NaN detection: {df_sub.isna().any(axis=1).sum()}",end_sep)
-    print(begin_sep,f"Number of Row(s) with only NaN detection: {df_sub.isna().all(axis=1).sum()}",end_sep)
+    print(BEGIN_SEP, f"Number of Row(s) with at least one NaN detection: {df_sub.isna().any(axis=1).sum()}", END_SEP)
+    print(BEGIN_SEP, f"Number of Row(s) with only NaN detection: {df_sub.isna().all(axis=1).sum()}", END_SEP)
     df_sub_filled = df_sub.copy()
     for col in df_sub_filled.columns:
         if df_sub_filled[col].dtype != 'number':
@@ -160,7 +161,7 @@ def detect_duplicates_and_na(df, subset=None, nan_placeholder="__MISSING__"):
             df_sub_filled[col] = df_sub_filled[col].fillna(-9999999)
     keep_first = df_sub_filled.duplicated(subset=subset, keep='first').sum()
     keep_false = df_sub_filled.duplicated(subset=subset, keep=False).sum()
-    print(begin_sep,f"Number of duplicated Row(s) (Nan treated as equal): {keep_first} unique and {keep_false} total",end_sep)
+    print(BEGIN_SEP, f"Number of duplicated Row(s) (Nan treated as equal): {keep_first} unique and {keep_false} total", END_SEP)
     if keep_false != 0:
         print(detect_and_compare_na_duplicates_verbose(df_sub, nan_placeholder=nan_placeholder))
     return None
@@ -203,7 +204,7 @@ def detect_and_compare_na_duplicates_verbose(df, nan_placeholder="__MISSING__"):
 
     results = []
 
-    print(begin_sep,"Duplicated row(s) information when Nan values in columns bypassed (NaN treated as equal):",end_sep)
+    print(BEGIN_SEP, "Duplicated row(s) information when Nan values in columns bypassed (NaN treated as equal):", END_SEP)
     for idx in duplicate_indices:
         # Cherche le doublon correspondant précédent
         target_row = df_filled.loc[idx]
