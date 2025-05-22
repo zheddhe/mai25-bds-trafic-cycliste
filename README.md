@@ -26,15 +26,16 @@ avr25-mle-velib/
 ├── config/                # Static configuration files (YAML, JSON, etc.)
 │   └── config.yaml
 │
-├── my_project/            # Main source code (Python modules and logic)
+├── smartcheck/            # Main source code (Python modules and logic)
 │   ├── __init__.py
+│   ├── dataframe_common.py
 │   ├── ...
 │
-├── tests/                 # Unit and integration tests
-│   ├── test_core.py
+├── tests/                 # Unit and integration tests (with pytest)
+│   ├── test_dataframe_common.py
 │   ├── ...
 │
-└── notebooks/             # Jupyter notebooks for exploratory analysis
+└── notebooks/             # Jupyter notebooks for exploratory analysis phase
     ├── 00_exploratory_analysis.ipynb
     ├── ...
 

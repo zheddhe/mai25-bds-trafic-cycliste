@@ -1,0 +1,295 @@
+import os
+import io
+import re
+import logging
+import pandas as pd
+import numpy as np
+import requests
+from smartcheck.paths import PROJECT_ROOT, load_config
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+
+# Constants
+GOOGLE_DRIVE_PREFIX = "https://drive.google.com"
+GOOGLE_DRIVE_DOWNLOAD_BASE = "https://drive.google.com/uc?export=download"
+
+
+def _extract_google_drive_file_id(url):
+    try:
+        return url.split('/d/')[1].split('/')[0]
+    except IndexError:
+        logger.error("Unable to extract file ID from Google Drive URL.")
+        return None
+
+
+def _download_google_drive_file(file_id):
+    session = requests.Session()
+    response = session.get(GOOGLE_DRIVE_DOWNLOAD_BASE, params={'id': file_id}, stream=True)
+    content = response.text
+
+    if content.lstrip().lower().startswith('<!doctype html'):
+        form_url = re.search(r'<form[^>]+action="([^"]+)"', content)
+        confirm_token = re.search(r'name="confirm"\s+value="([^"]+)"', content)
+        uuid_token = re.search(r'name="uuid"\s+value="([^"]+)"', content)
+
+        if form_url and confirm_token and uuid_token:
+            action_url = form_url.group(1)
+            params = {
+                'id': file_id,
+                'export': 'download',
+                'confirm': confirm_token.group(1),
+                'uuid': uuid_token.group(1)
+            }
+            logger.info("Big file mechanism : Attempting download from confirmation URL.")
+            response = session.get(action_url, params=params, stream=True)
+            if response.status_code == 200 and not response.text.lstrip().lower().startswith('<!doctype html'):
+                return response.text
+            else:
+                logger.error("HTML response received again. Download failed.")
+                return None
+        else:
+            logger.error("Required confirmation fields not found. File may not be shared publicly.")
+            return None
+    else:
+        return content
+
+
+def _load_data_from_string(content, format_type="csv", *args, **kwargs):
+    try:
+        if format_type == "csv":
+            return pd.read_csv(io.StringIO(content), *args, **kwargs)
+        elif format_type == "json":
+            return pd.read_json(io.StringIO(content), *args, **kwargs)
+        else:
+            logger.error(f"Unsupported format '{format_type}' for string input.")
+            return None
+    except Exception as e:
+        logger.error(f"Error reading {format_type.upper()} content: {e}")
+        return None
+
+
+def _load_data_from_local(path, format_type, *args, **kwargs):
+    full_path = os.path.join(PROJECT_ROOT, path)
+    logger.info(f"Resolved local file path: {full_path}")
+    if not os.path.exists(full_path):
+        logger.error(f"File not found at: {full_path}")
+        logger.debug(f"Current directory contents: {os.listdir()}")
+        return None
+    try:
+        if format_type == "csv":
+            return pd.read_csv(str(full_path), *args, **kwargs)
+        elif format_type == "json":
+            return pd.read_json(str(full_path), *args, **kwargs)
+        elif format_type in {"xlsx", "xls"}:
+            return pd.read_excel(full_path, *args, **kwargs)
+        else:
+            logger.error(f"Unsupported file format: {format_type}")
+            return None
+    except Exception as e:
+        logger.error(f"Error reading local file: {e}")
+        return None
+
+
+def _infer_file_format(path):
+    return path.split(".")[-1].lower()
+
+
+def load_dataset_from_config(data_name, *args, **kwargs):
+    """
+    Load a dataset from config, supporting local files and Google Drive.
+    Supports CSV, JSON, Excel (.xls/.xlsx).
+
+    :param data_name: Dataset name in config['data']['input']
+    :param args: Positional arguments passed to pandas
+    :param kwargs: Keyword arguments passed to pandas
+    :return: pandas.DataFrame or None
+    """
+    config = load_config()
+    file_path = config["data"]["input"].get(data_name)
+
+    if not file_path:
+        logger.error(f"Dataset '{data_name}' not found in configuration.")
+        return None
+    else:
+        logger.info(f"File path resolved from configuration : {file_path}.")
+
+    if file_path.startswith(GOOGLE_DRIVE_PREFIX):
+        file_id = _extract_google_drive_file_id(file_path)
+        if not file_id:
+            return None
+        else:
+            logger.info(f"File ID extracted from URL: {file_id}")
+        content = _download_google_drive_file(file_id)
+        return _load_data_from_string(content, *args, **kwargs) if content else None
+    else:
+        format_type = _infer_file_format(file_path)
+        return _load_data_from_local(file_path, format_type, *args, **kwargs)
+
+BEGIN_SEP = "--------------------"
+END_SEP = "********************"
+
+
+def log_general_info(df: pd.DataFrame) -> None:
+    """
+    Logs general information about a DataFrame including shape, statistics, correlations, and duplicates/NAs.
+
+    :param df: The DataFrame to analyze.
+    :type df: pandas.DataFrame
+    :return: None
+    :rtype: None
+    """
+    if df is None:
+        logger.error("Invalid DataFrame provided.")
+        return
+
+    logger.info(f"{BEGIN_SEP}\nDataset shape: {df.shape[0]} rows x {df.shape[1]} columns\n{END_SEP}")
+    logger.info(f"{BEGIN_SEP}\nQuantitative variable description:\n{df.select_dtypes(include=np.number).describe()}\n{END_SEP}")
+    logger.info(f"{BEGIN_SEP}\nQuantitative correlation matrix:\n{df.select_dtypes(include=np.number).corr()}\n{END_SEP}")
+    logger.info(f"{BEGIN_SEP}\nDataFrame info:\n")
+    df.info()
+    logger.info(END_SEP)
+
+    detect_duplicates_and_missing(df)
+
+
+def detect_duplicates_and_missing(df: pd.DataFrame, subset=None, nan_placeholder="__MISSING__") -> None:
+    """
+    Detects and logs statistics about NaNs and duplicate rows in a DataFrame.
+
+    :param df: The DataFrame to analyze.
+    :type df: pandas.DataFrame
+    :param subset: Optional list of columns to use for duplicate detection.
+    :type subset: list or None
+    :param nan_placeholder: Placeholder string used to replace NaN values in non-numeric columns.
+    :type nan_placeholder: str
+    :return: None
+    :rtype: None
+    """
+    df_sub = df.copy() if subset is None else df[subset].copy()
+
+    logger.info(f"{BEGIN_SEP}\nRows with at least one NaN: {df_sub.isna().any(axis=1).sum()}\n{END_SEP}")
+    logger.info(f"{BEGIN_SEP}\nRows with all values NaN: {df_sub.isna().all(axis=1).sum()}\n{END_SEP}")
+
+    df_sub_filled = df_sub.copy()
+    for col in df_sub_filled.columns:
+        if df_sub_filled[col].dtype != 'number':
+            df_sub_filled[col] = df_sub_filled[col].fillna(nan_placeholder)
+        else:
+            df_sub_filled[col] = df_sub_filled[col].fillna(-9999999)
+
+    dup_keep_first = df_sub_filled.duplicated(subset=subset, keep='first').sum()
+    dup_keep_false = df_sub_filled.duplicated(subset=subset, keep=False).sum()
+
+    logger.info(f"{BEGIN_SEP}\nDuplicate rows (NaN treated as equal): {dup_keep_first} unique, {dup_keep_false} total\n{END_SEP}")
+
+    if dup_keep_false > 0:
+        duplicate_details = detect_and_compare_duplicates(df_sub, nan_placeholder)
+        if not duplicate_details.empty:
+            logger.info(f"Detailed duplicate rows with differing NaN columns:\n{duplicate_details}")
+        else:
+            logger.info("No duplicated rows with differing NaN columns:")
+
+
+def detect_and_compare_duplicates(df: pd.DataFrame, nan_placeholder="__MISSING__") -> pd.DataFrame:
+    """
+    Identifies duplicates in a DataFrame, treating NaNs as equal, and compares them to report differences.
+
+    :param df: The DataFrame to analyze for duplicate rows.
+    :type df: pandas.DataFrame
+    :param nan_placeholder: Placeholder string to use temporarily for missing values.
+    :type nan_placeholder: str
+    :return: A DataFrame with details of duplicate pairs and columns with differing values (specifically NaNs).
+    :rtype: pandas.DataFrame
+    """
+    df_filled = df.copy()
+    for col in df_filled.columns:
+        if df_filled[col].dtype != 'number':
+            df_filled[col] = df_filled[col].fillna(nan_placeholder)
+        else:
+            df_filled[col] = df_filled[col].fillna(-9999999)
+
+    duplicated_mask = df_filled.duplicated(keep='first')
+    duplicate_indices = df_filled[duplicated_mask].index
+
+    duplicated_all_mask = df_filled.duplicated(keep=False)
+    duplicate_all_indices = df_filled[duplicated_all_mask].index
+
+    results = []
+
+    for idx in duplicate_indices:
+        target_row = df_filled.loc[idx]
+        candidates = df_filled[df_filled.index.isin(duplicate_all_indices)]
+        candidates = candidates[candidates.eq(target_row).all(axis=1)]
+
+        if not candidates.empty:
+            original_idx = candidates.index[0]
+            row1 = df.loc[original_idx]
+            row2 = df.loc[idx]
+
+            differing_cols = [
+                col for col in df.columns if pd.isna(row1[col]) or pd.isna(row2[col])
+            ]
+
+            if differing_cols:
+                results.append({
+                    'original_index': original_idx,
+                    'duplicate_index': idx,
+                    'nan_columns': differing_cols,
+                })
+
+    return pd.DataFrame(results)
+
+
+def display_variable_info(data):
+    """
+    Log detailed information about unique values and their distribution
+    for a pandas Series or DataFrame. If a DataFrame is provided, each column
+    is analyzed independently.
+
+    :param data: pandas.Series or pandas.DataFrame to analyze
+    :type data: Union[pd.Series, pd.DataFrame]
+    :raises TypeError: If the input is not a Series or DataFrame
+    """
+    if isinstance(data, pd.Series):
+        logger.info(f"Analysis for Series [{data.name}]:")
+        unique_values = pd.Series(data.unique()).sort_values(na_position='last').tolist()
+        logger.info(f"Sorted unique values: {unique_values}")
+        logger.info(f"Value distribution:\n{data.value_counts()}")
+    elif isinstance(data, pd.DataFrame):
+        logger.info("Analysis for DataFrame:")
+        for col in data.columns:
+            logger.info(f"Analysis for column [{col}]:")
+            unique_values = pd.Series(data[col].unique()).sort_values(na_position='last').tolist()
+            logger.info(f"Sorted unique values: {unique_values}")
+            logger.info(f"Value distribution:\n{data[col].value_counts()}")
+    else:
+        raise TypeError("Input must be a pandas Series or DataFrame.")
+
+
+def compare_row_differences(df, row_index1, row_index2):
+    """
+    Compares the values of two specified rows in a DataFrame and identifies the columns
+    where the values differ. Logs the column names with differences and the corresponding
+    values from both rows.
+
+    :param df: The DataFrame containing the data to compare.
+    :type df: pandas.DataFrame
+    :param row_index1: The index of the first row.
+    :type row_index1: int
+    :param row_index2: The index of the second row.
+    :type row_index2: int
+    :return: A list of column names where the values differ between the two rows.
+    :rtype: list
+    """
+    differences = df.loc[row_index1] != df.loc[row_index2]
+    differing_columns = df.columns[differences].tolist()
+
+    if differing_columns:
+        logger.info(f"Differences between rows {row_index1} and {row_index2}:")
+        logger.info(df.loc[[row_index1, row_index2], differing_columns].to_string())
+    else:
+        logger.info(f"No differences found between rows {row_index1} and {row_index2}.")
+
+    return differing_columns
