@@ -1,33 +1,29 @@
-import os
 import yaml
-
-# Current directory (smartcheck/)
-CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
+import os
+import importlib.resources
 
 # Project root directory
-PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir))
-
-# Useful paths
-CONFIG_DIR = os.path.join(PROJECT_ROOT, 'config')
-CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.yaml')
-
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir))
 
 def load_config():
     """
-    Loads the main YAML configuration file.
+    Loads the main YAML configuration file from smartcheck.resources.
 
     Returns:
-        dict: Contents of the YAML file.
+        dict: Contents of the YAML config.
 
     Raises:
-        FileNotFoundError: If the configuration file does not exist.
-        ValueError: If the YAML file is invalid.
+        FileNotFoundError: If the file is missing.
+        ValueError: If the file content is invalid or not a dict.
     """
-    if not os.path.exists(CONFIG_PATH):
-        raise FileNotFoundError(f"Configuration file not found: {CONFIG_PATH}")
-
-    with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
-        try:
-            return yaml.safe_load(file)
-        except yaml.YAMLError as error:
-            raise ValueError(f"YAML parsing error in {CONFIG_PATH}: {error}")
+    try:
+        config_path = importlib.resources.files("smartcheck.resources").joinpath("config.yaml")
+        with config_path.open("r", encoding="utf-8") as file:
+            data = yaml.safe_load(file)
+            if not isinstance(data, dict):
+                raise ValueError("YAML config content must be a dictionary.")
+            return data
+    except FileNotFoundError:
+        raise FileNotFoundError("Configuration file 'config.yaml' not found.")
+    except yaml.YAMLError as e:
+        raise ValueError(f"Error parsing YAML: {e}")

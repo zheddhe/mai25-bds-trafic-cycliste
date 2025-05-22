@@ -1,16 +1,8 @@
 import os
 import pytest
 from smartcheck.paths import (
-    CONFIG_PATH,
     load_config
 )
-
-
-# === Tests for CONFIG_PATH ===
-class TestConfigPath:
-    def test_config_path_exists(self):
-        assert os.path.exists(CONFIG_PATH)
-
 
 # === Tests for load_config ===
 class TestLoadConfig:
