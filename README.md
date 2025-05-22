@@ -1,6 +1,6 @@
 # `avr25-mle-velib` 🚲
 
-<!--
+<!-- TODO: add a codecov account and report it
 [![codecov](https://codecov.io/gh/USERNAME/REPO/branch/main/graph/badge.svg)](https://codecov.io/gh/USERNAME/REPO)
 -->
 [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/test.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)
@@ -74,7 +74,7 @@ avr25-mle-velib/
 
 ```bash
 # Clone the repo
-git clone https://github.com/USERNAME/REPO.git
+git clone https://github.com/zheddhe/avr25-mle-velib.git
 cd avr25-mle-velib
 
 # Install in editable mode with dev tools
@@ -85,7 +85,7 @@ pip install -e .[dev]
 
 ## 🚀 Usage
 
-You can import and use the main components as a Python module:
+You can import and use the main parts as a Python module:
 
 ```python
 from smartcheck.dataframe_common import load_dataset_from_config
@@ -137,7 +137,9 @@ Open `htmlcov/index.html` for a visual report.
 
 - GitHub Actions runs all tests and reports coverage on every push/pull request.
 - Configuration file: `.github/workflows/test.yml`
+<!-- TODO: add a codecov account and report it
 - Coverage report is sent to Codecov (badge above).
+-->
 
 ---
 
@@ -147,7 +149,6 @@ Open `htmlcov/index.html` for a visual report.
 |--------------------|--------------------------------------------|
 | `pytest`           | Test runner                                |
 | `pytest-cov`       | Test coverage reporting                    |
-| `pre-commit`       | Code checks + auto-tests before commit     |
 | `importlib.resources` | Access bundled config files safely     |
 
 ---
