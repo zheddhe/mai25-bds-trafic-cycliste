@@ -14,7 +14,8 @@ logging.basicConfig(level=logging.INFO, format='[%(levelname)s]-[%(asctime)s] %(
 # Constants
 GOOGLE_DRIVE_PREFIX = "https://drive.google.com"
 GOOGLE_DRIVE_DOWNLOAD_BASE = "https://drive.google.com/uc?export=download"
-
+NUMERIC_PLACEHOLDER = np.inf
+STRING_PLACEHOLDER = "__MISSING__"
 
 def _extract_google_drive_file_id(url):
     try:
@@ -128,7 +129,7 @@ def load_dataset_from_config(data_name, *args, **kwargs):
         return _load_data_from_local(file_path, format_type, *args, **kwargs)
 
 
-def log_general_info(df: pd.DataFrame) -> None:
+def log_general_info(df) -> None:
     """
     Logs general information about a DataFrame including shape, statistics, correlations, and duplicates/NAs.
 
@@ -150,95 +151,81 @@ def log_general_info(df: pd.DataFrame) -> None:
     buffer.close()
     logger.info("DataFrame Info:\n%s", info_str)
 
-    detect_duplicates_and_missing(df)
 
-
-def detect_duplicates_and_missing(df: pd.DataFrame, subset=None, nan_placeholder="__MISSING__") -> None:
+def detect_and_log_duplicates_and_missing(df, subset=None):
     """
-    Detects and logs statistics about NaNs and duplicate rows in a DataFrame.
+    Analyzes a DataFrame to detect missing values and duplicate rows, and logs summary statistics.
+
+    This function:
+    - Counts rows with at least one missing value (NaN).
+    - Counts rows where all values are missing.
+    - Detects duplicate rows treating NaNs as equal.
+    - Logs the resulting statistics.
 
     :param df: The DataFrame to analyze.
     :type df: pandas.DataFrame
-    :param subset: Optional list of columns to use for duplicate detection.
-    :type subset: list or None
-    :param nan_placeholder: Placeholder string used to replace NaN values in non-numeric columns.
-    :type nan_placeholder: str
-    :return: None
-    :rtype: None
+    :param subset: Optional list of columns to use for duplicate detection. If None, all columns are used.
+    :type subset: list[str] or None
+    :return: Tuple of (number of unique duplicates, total number of duplicates) treating NaNs as equal.
+    :rtype: tuple[int, int]
     """
-    df_sub = df.copy() if subset is None else df[subset].copy()
+    df_sub = df if subset is None else df[subset]
 
-    logger.info(f"Rows with at least one NaN: {df_sub.isna().any(axis=1).sum()}")
-    logger.info(f"Rows with all values NaN: {df_sub.isna().all(axis=1).sum()}")
+    missing_any = df_sub.isna().any(axis=1).sum()
+    missing_all = df_sub.isna().all(axis=1).sum()
 
-    df_sub_filled = df_sub.copy()
-    for col in df_sub_filled.columns:
-        if df_sub_filled[col].dtype != 'number':
-            df_sub_filled[col] = df_sub_filled[col].fillna(nan_placeholder)
+    logger.info(f"Rows with at least one NaN: {missing_any}")
+    logger.info(f"Rows with all values NaN: {missing_all}")
+
+    df_filled = df.copy()
+    for col in df_sub.columns:
+        if pd.api.types.is_numeric_dtype(df_filled[col]):
+            df_filled[col] = df_filled[col].fillna(NUMERIC_PLACEHOLDER)
         else:
-            df_sub_filled[col] = df_sub_filled[col].fillna(-9999999)
+            df_filled[col] = df_filled[col].fillna(STRING_PLACEHOLDER)
 
-    dup_keep_first = df_sub_filled.duplicated(subset=subset, keep='first').sum()
-    dup_keep_false = df_sub_filled.duplicated(subset=subset, keep=False).sum()
+    dup_keep_first = df_filled.duplicated(subset=subset, keep='first').sum()
+    dup_keep_false = df_filled.duplicated(subset=subset, keep=False).sum()
 
-    logger.info(f"Duplicate rows (NaN treated as equal): {dup_keep_first} unique, {dup_keep_false} total")
+    logger.info(f"Duplicate rows (NaNs treated as equal): {dup_keep_first} unique, {dup_keep_false} total")
 
-    if dup_keep_false > 0:
-        duplicate_details = detect_and_compare_duplicates(df_sub, nan_placeholder)
-        if not duplicate_details.empty:
-            logger.info(f"Detailed duplicate rows with differing NaN columns:\n{duplicate_details}")
-        else:
-            logger.info("No duplicated rows with differing NaN columns:")
+    return dup_keep_first, dup_keep_false
 
 
-def detect_and_compare_duplicates(df: pd.DataFrame, nan_placeholder="__MISSING__") -> pd.DataFrame:
+def duplicates_index_map(df):
     """
-    Identifies duplicates in a DataFrame, treating NaNs as equal, and compares them to report differences.
+    Identifies and logs groups of duplicate rows in a DataFrame, treating NaNs as equal.
 
-    :param df: The DataFrame to analyze for duplicate rows.
-    :type df: pandas.DataFrame
-    :param nan_placeholder: Placeholder string to use temporarily for missing values.
-    :type nan_placeholder: str
-    :return: A DataFrame with details of duplicate pairs and columns with differing values (specifically NaNs).
-    :rtype: pandas.DataFrame
+    - Replaces NaNs with fixed placeholders to allow duplicate comparison.
+    - Groups and logs the indices of duplicate rows.
+    - Returns a list of lists, each containing the indices of a duplicate group.
+
+    :param df: DataFrame to analyze.
+    :type df: pd.DataFrame
+    :return: List of duplicate row index groups.
+    :rtype: list[list[int]]
     """
     df_filled = df.copy()
+
     for col in df_filled.columns:
-        if df_filled[col].dtype != 'number':
-            df_filled[col] = df_filled[col].fillna(nan_placeholder)
-        else:
+        if pd.api.types.is_numeric_dtype(df_filled[col]):
             df_filled[col] = df_filled[col].fillna(-9999999)
+        else:
+            df_filled[col] = df_filled[col].fillna("__MISSING__")
 
-    duplicated_mask = df_filled.duplicated(keep='first')
-    duplicate_indices = df_filled[duplicated_mask].index
+    # Find all duplicate rows (treating NaNs as equal)
+    duplicates_mask = df_filled.duplicated(keep=False)
+    duplicates_df = df_filled[duplicates_mask]
 
-    duplicated_all_mask = df_filled.duplicated(keep=False)
-    duplicate_all_indices = df_filled[duplicated_all_mask].index
+    # Group by full row content
+    grouped = duplicates_df.groupby(list(duplicates_df.columns))
 
-    results = []
+    duplicate_groups = [list(group.index) for _, group in grouped]
 
-    for idx in duplicate_indices:
-        target_row = df_filled.loc[idx]
-        candidates = df_filled[df_filled.index.isin(duplicate_all_indices)]
-        candidates = candidates[candidates.eq(target_row).all(axis=1)]
+    for group in duplicate_groups:
+        logger.debug(f"Duplicate group indexes: {group}")
 
-        if not candidates.empty:
-            original_idx = candidates.index[0]
-            row1 = df.loc[original_idx]
-            row2 = df.loc[idx]
-
-            differing_cols = [
-                col for col in df.columns if pd.isna(row1[col]) or pd.isna(row2[col])
-            ]
-
-            if differing_cols:
-                results.append({
-                    'original_index': original_idx,
-                    'duplicate_index': idx,
-                    'nan_columns': differing_cols,
-                })
-
-    return pd.DataFrame(results)
+    return duplicate_groups
 
 
 def display_variable_info(data):
