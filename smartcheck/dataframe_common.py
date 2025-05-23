@@ -9,7 +9,7 @@ from smartcheck.paths import PROJECT_ROOT, load_config
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s]-[%(asctime)s] %(message)s')
 
 # Constants
 GOOGLE_DRIVE_PREFIX = "https://drive.google.com"
@@ -127,9 +127,6 @@ def load_dataset_from_config(data_name, *args, **kwargs):
         format_type = _infer_file_format(file_path)
         return _load_data_from_local(file_path, format_type, *args, **kwargs)
 
-BEGIN_SEP = "--------------------"
-END_SEP = "********************"
-
 
 def log_general_info(df: pd.DataFrame) -> None:
     """
@@ -144,12 +141,14 @@ def log_general_info(df: pd.DataFrame) -> None:
         logger.error("Invalid DataFrame provided.")
         return
 
-    logger.info(f"{BEGIN_SEP}\nDataset shape: {df.shape[0]} rows x {df.shape[1]} columns\n{END_SEP}")
-    logger.info(f"{BEGIN_SEP}\nQuantitative variable description:\n{df.select_dtypes(include=np.number).describe()}\n{END_SEP}")
-    logger.info(f"{BEGIN_SEP}\nQuantitative correlation matrix:\n{df.select_dtypes(include=np.number).corr()}\n{END_SEP}")
-    logger.info(f"{BEGIN_SEP}\nDataFrame info:\n")
-    df.info()
-    logger.info(END_SEP)
+    logger.info(f"Dataset shape: {df.shape[0]} rows x {df.shape[1]} columns")
+    logger.info(f"Quantitative variable description:\n{df.select_dtypes(include=np.number).describe()}")
+    logger.info(f"Quantitative correlation matrix:\n{df.select_dtypes(include=np.number).corr()}")
+    buffer = io.StringIO()
+    df.info(buf=buffer)
+    info_str = buffer.getvalue()
+    buffer.close()
+    logger.info("DataFrame Info:\n%s", info_str)
 
     detect_duplicates_and_missing(df)
 
@@ -169,8 +168,8 @@ def detect_duplicates_and_missing(df: pd.DataFrame, subset=None, nan_placeholder
     """
     df_sub = df.copy() if subset is None else df[subset].copy()
 
-    logger.info(f"{BEGIN_SEP}\nRows with at least one NaN: {df_sub.isna().any(axis=1).sum()}\n{END_SEP}")
-    logger.info(f"{BEGIN_SEP}\nRows with all values NaN: {df_sub.isna().all(axis=1).sum()}\n{END_SEP}")
+    logger.info(f"Rows with at least one NaN: {df_sub.isna().any(axis=1).sum()}")
+    logger.info(f"Rows with all values NaN: {df_sub.isna().all(axis=1).sum()}")
 
     df_sub_filled = df_sub.copy()
     for col in df_sub_filled.columns:
@@ -182,7 +181,7 @@ def detect_duplicates_and_missing(df: pd.DataFrame, subset=None, nan_placeholder
     dup_keep_first = df_sub_filled.duplicated(subset=subset, keep='first').sum()
     dup_keep_false = df_sub_filled.duplicated(subset=subset, keep=False).sum()
 
-    logger.info(f"{BEGIN_SEP}\nDuplicate rows (NaN treated as equal): {dup_keep_first} unique, {dup_keep_false} total\n{END_SEP}")
+    logger.info(f"Duplicate rows (NaN treated as equal): {dup_keep_first} unique, {dup_keep_false} total")
 
     if dup_keep_false > 0:
         duplicate_details = detect_and_compare_duplicates(df_sub, nan_placeholder)
