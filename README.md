@@ -1,6 +1,6 @@
 # `avr25-mle-velib` 🚲
 
-[![codecov](https://codecov.io/gh/zheddhe/avr25-mle-velib/branch/main/graph/badge.svg)](https://codecov.io/gh/zheddhe/avr25-mle-velib)
+[![codecov](https://codecov.io/gh/zheddhe/avr25-mle-velib/graph/badge.svg?token=6TLD3FM08Z)](https://codecov.io/gh/zheddhe/avr25-mle-velib)
 > [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_main.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)  
 > [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_branch.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)  
 > 📦 A machine learning pipeline for analyzing Velib data  
