@@ -1,14 +1,8 @@
 # `avr25-mle-velib` 🚲
 
-CI Main Branch
+[![codecov](https://codecov.io/gh/zheddhe/avr25-mle-velib/branch/main/graph/badge.svg)](https://codecov.io/gh/zheddhe/avr25-mle-velib)
 > [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_main.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)  
-> [![codecov](https://codecov.io/gh/zheddhe/avr25-mle-velib/branch/main/graph/badge.svg)](https://codecov.io/gh/zheddhe/avr25-mle-velib)
-CI Feature Branches
 > [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_branch.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)  
-
-
-branch [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/test.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)
-
 > 📦 A machine learning pipeline for analyzing Velib data  
 > Developed during the April 2025 MLE training program.
 
