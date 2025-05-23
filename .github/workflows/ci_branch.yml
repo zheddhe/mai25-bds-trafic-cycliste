@@ -1,12 +1,15 @@
 name: Run Tests & Coverage
 
-on: [push, pull_request]
-
+on:
+  push:
+    branches-ignore:
+      - main
+      
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -21,15 +24,10 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest --cov=smartcheck --cov-report=term --cov-report=xml
+          pytest
 
       - name: Upload HTML coverage report locally
         uses: actions/upload-artifact@v4
         with:
           name: htmlcov
           path: htmlcov
-
-#      - name: Upload coverage to Codecov
-#        uses: codecov/codecov-action@v4
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
