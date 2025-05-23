@@ -1,9 +1,13 @@
 # `avr25-mle-velib` 🚲
 
-<!-- TODO: add a codecov account and report it
-[![codecov](https://codecov.io/gh/USERNAME/REPO/branch/main/graph/badge.svg)](https://codecov.io/gh/USERNAME/REPO)
--->
-[![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/test.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)
+CI Main Branch
+> [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_main.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)  
+> [![codecov](https://codecov.io/gh/zheddhe/avr25-mle-velib/branch/main/graph/badge.svg)](https://codecov.io/gh/zheddhe/avr25-mle-velib)
+CI Feature Branches
+> [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_branch.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)  
+
+
+branch [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/test.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)
 
 > 📦 A machine learning pipeline for analyzing Velib data  
 > Developed during the April 2025 MLE training program.
@@ -50,15 +54,17 @@ avr25-mle-velib/
 ├── smartcheck/                # Core source code
 │   ├── __init__.py
 │   ├── dataframe_common.py
-│   ├── paths.py
+│   ├── ...
 │   └── resources/
 │       └── config.yaml
 │
 ├── tests/                     # Unit tests (pytest)
-│   └── test_dataframe_common.py
+│   ├── test_dataframe_common.py
+│   └── ...
 │
 ├── notebooks/                 # Jupyter Notebooks
-│   └── 00_exploratory_analysis.ipynb
+│   ├── 00_exploratory_analysis.ipynb
+│   └── ...
 │
 ├── pyproject.toml             # Build config
 ├── requirements.txt           # Alternative dev install

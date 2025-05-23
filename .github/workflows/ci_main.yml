@@ -1,4 +1,4 @@
-name: Tests & Coverage
+name: Tests & Coverage Main branch
 
 on:
   push: # Full Feedback on Push on main branch
@@ -28,7 +28,8 @@ jobs:
           pip install .[dev]
 
       - name: Run tests with coverage
-        run: pytest
+        run: |
+          pytest
 
       - name: Upload HTML coverage report locally
         uses: actions/upload-artifact@v4
@@ -36,7 +37,7 @@ jobs:
           name: htmlcov
           path: htmlcov
 
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v4
-      #   with:
-      #     token: ${{ secrets.CODECOV_TOKEN }} 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} 

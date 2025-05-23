@@ -1,7 +1,7 @@
-name: Run Tests & Coverage
+name: Tests & Coverage Feature branch
 
 on:
-  push:
+  push: # Full Feedback on Push on feature branch
     branches-ignore:
       - main
       
