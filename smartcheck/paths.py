@@ -1,20 +1,33 @@
-import yaml
 import os
+import sys
+import yaml
 import importlib.resources
 
 # Project root directory
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
-def load_config():
+def get_full_path(relative_path: str) -> str:
     """
-    Loads the main YAML configuration file from smartcheck.resources.
+    Construct the absolute path to a file given its relative path from the project root.
+
+    Args:
+        relative_path (str): Relative path to a file from the project root.
 
     Returns:
-        dict: Contents of the YAML config.
+        str: Absolute path to the specified file.
+    """
+    return os.path.join(PROJECT_ROOT, relative_path)
+
+def load_config() -> dict:
+    """
+    Load the main YAML configuration file from the 'smartcheck.resources' package.
+
+    Returns:
+        dict: Parsed configuration data.
 
     Raises:
-        FileNotFoundError: If the file is missing.
-        ValueError: If the file content is invalid or not a dict.
+        FileNotFoundError: If the configuration file does not exist.
+        ValueError: If the YAML content is invalid or not a dictionary.
     """
     try:
         config_path = importlib.resources.files("smartcheck.resources").joinpath("config.yaml")

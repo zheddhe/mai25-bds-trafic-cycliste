@@ -1,7 +1,35 @@
+import os
 import pytest
 import importlib.resources
-from smartcheck.paths import load_config
 from pathlib import Path
+from smartcheck.paths import (
+    PROJECT_ROOT,
+    load_config, 
+    get_full_path    
+)
+
+# === Test Class for get_full_path ===
+class TestGetFullPath:
+
+    # === Tests ===
+    @pytest.mark.parametrize(
+        "relative_path",
+        [
+            "data/file.csv",
+            "config/settings.yaml",
+            "logs/output.log"
+        ]
+    )
+    def test_get_full_path_resolves_correctly(self, relative_path):
+        result = get_full_path(relative_path)
+        expected = os.path.join(PROJECT_ROOT, relative_path)
+        assert result == expected
+        assert result.startswith(PROJECT_ROOT)
+        assert relative_path in result
+
+    def test_get_full_path_with_empty_string(self):
+        result = get_full_path("")
+        assert os.path.normpath(result) == os.path.normpath(PROJECT_ROOT)
 
 # === Test Class for load_config ===
 class TestLoadConfig:

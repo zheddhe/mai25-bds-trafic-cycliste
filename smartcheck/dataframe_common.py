@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 import numpy as np
 import requests
-from smartcheck.paths import PROJECT_ROOT, load_config
+from smartcheck.paths import load_config, get_full_path
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -18,14 +18,31 @@ NUMERIC_PLACEHOLDER = np.inf
 STRING_PLACEHOLDER = "__MISSING__"
 
 def _extract_google_drive_file_id(url):
+    """
+    Extract the file ID from a Google Drive URL.
+
+    Args:
+        url (str): Google Drive file URL.
+
+    Returns:
+        str or None: Extracted file ID, or None if extraction fails.
+    """
     try:
         return url.split('/d/')[1].split('/')[0]
     except IndexError:
         logger.error("Unable to extract file ID from Google Drive URL.")
         return None
 
-
 def _download_google_drive_file(file_id):
+    """
+    Download a file from Google Drive, handling large file confirmation if needed.
+
+    Args:
+        file_id (str): ID of the Google Drive file.
+
+    Returns:
+        str or None: File content as string if successful, else None.
+    """
     session = requests.Session()
     response = session.get(GOOGLE_DRIVE_DOWNLOAD_BASE, params={'id': file_id}, stream=True)
     content = response.text
@@ -56,8 +73,17 @@ def _download_google_drive_file(file_id):
     else:
         return content
 
-
 def _load_data_from_string(content, format_type="csv", *args, **kwargs):
+    """
+    Load data from a string content in CSV or JSON format.
+
+    Args:
+        content (str): The content string of the file.
+        format_type (str): Format of the data ('csv' or 'json').
+
+    Returns:
+        pd.DataFrame or None: Loaded DataFrame if successful, else None.
+    """
     try:
         if format_type == "csv":
             return pd.read_csv(io.StringIO(content), *args, **kwargs)
@@ -70,9 +96,18 @@ def _load_data_from_string(content, format_type="csv", *args, **kwargs):
         logger.error(f"Error reading {format_type.upper()} content: {e}")
         return None
 
-
 def _load_data_from_local(path, format_type, *args, **kwargs):
-    full_path = os.path.join(PROJECT_ROOT, path)
+    """
+    Load a dataset from a local path.
+
+    Args:
+        path (str): Relative path to the file.
+        format_type (str): File format ('csv', 'json', 'xlsx', 'xls').
+
+    Returns:
+        pd.DataFrame or None: Loaded DataFrame if successful, else None.
+    """
+    full_path = get_full_path(path)
     logger.info(f"Resolved local file path: {full_path}")
     if not os.path.exists(full_path):
         logger.error(f"File not found at: {full_path}")
@@ -92,20 +127,29 @@ def _load_data_from_local(path, format_type, *args, **kwargs):
         logger.error(f"Error reading local file: {e}")
         return None
 
-
 def _infer_file_format(path):
-    return path.split(".")[-1].lower()
+    """
+    Infer file format from file extension.
 
+    Args:
+        path (str): File path.
+
+    Returns:
+        str: File extension in lowercase.
+    """
+    return path.split(".")[-1].lower()
 
 def load_dataset_from_config(data_name, *args, **kwargs):
     """
-    Load a dataset from config, supporting local files and Google Drive.
-    Supports CSV, JSON, Excel (.xls/.xlsx).
+    Load a dataset based on configuration, from either local file or Google Drive.
 
-    :param data_name: Dataset name in config['data']['input']
-    :param args: Positional arguments passed to pandas
-    :param kwargs: Keyword arguments passed to pandas
-    :return: pandas.DataFrame or None
+    Args:
+        data_name (str): Dataset name as specified in config['data']['input'].
+        *args: Additional positional arguments for pandas loader.
+        **kwargs: Additional keyword arguments for pandas loader.
+
+    Returns:
+        pd.DataFrame or None: Loaded DataFrame if successful, else None.
     """
     config = load_config()
     file_path = config["data"]["input"].get(data_name)
@@ -128,15 +172,15 @@ def load_dataset_from_config(data_name, *args, **kwargs):
         format_type = _infer_file_format(file_path)
         return _load_data_from_local(file_path, format_type, *args, **kwargs)
 
-
 def log_general_info(df) -> None:
     """
-    Logs general information about a DataFrame including shape, statistics, correlations, and duplicates/NAs.
+    Log general information about a DataFrame.
 
-    :param df: The DataFrame to analyze.
-    :type df: pandas.DataFrame
-    :return: None
-    :rtype: None
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        None
     """
     if df is None:
         logger.error("Invalid DataFrame provided.")
@@ -151,23 +195,16 @@ def log_general_info(df) -> None:
     buffer.close()
     logger.info("DataFrame Info:\n%s", info_str)
 
-
 def detect_and_log_duplicates_and_missing(df, subset=None):
     """
-    Analyzes a DataFrame to detect missing values and duplicate rows, and logs summary statistics.
+    Detect and log missing values and duplicate rows in a DataFrame.
 
-    This function:
-    - Counts rows with at least one missing value (NaN).
-    - Counts rows where all values are missing.
-    - Detects duplicate rows treating NaNs as equal.
-    - Logs the resulting statistics.
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+        subset (list[str] or None): Columns to check for duplicates. If None, all columns are used.
 
-    :param df: The DataFrame to analyze.
-    :type df: pandas.DataFrame
-    :param subset: Optional list of columns to use for duplicate detection. If None, all columns are used.
-    :type subset: list[str] or None
-    :return: Tuple of (number of unique duplicates, total number of duplicates) treating NaNs as equal.
-    :rtype: tuple[int, int]
+    Returns:
+        tuple[int, int]: Number of unique duplicates and total duplicates.
     """
     df_sub = df if subset is None else df[subset]
 
@@ -191,19 +228,15 @@ def detect_and_log_duplicates_and_missing(df, subset=None):
 
     return dup_keep_first, dup_keep_false
 
-
 def duplicates_index_map(df):
     """
-    Identifies and logs groups of duplicate rows in a DataFrame, treating NaNs as equal.
+    Identify and group indices of duplicate rows in a DataFrame.
 
-    - Replaces NaNs with fixed placeholders to allow duplicate comparison.
-    - Groups and logs the indices of duplicate rows.
-    - Returns a list of lists, each containing the indices of a duplicate group.
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
 
-    :param df: DataFrame to analyze.
-    :type df: pd.DataFrame
-    :return: List of duplicate row index groups.
-    :rtype: list[list[int]]
+    Returns:
+        list[list[int]]: List of lists, each containing indices of a duplicate group.
     """
     df_filled = df.copy()
 
@@ -213,13 +246,9 @@ def duplicates_index_map(df):
         else:
             df_filled[col] = df_filled[col].fillna("__MISSING__")
 
-    # Find all duplicate rows (treating NaNs as equal)
     duplicates_mask = df_filled.duplicated(keep=False)
     duplicates_df = df_filled[duplicates_mask]
-
-    # Group by full row content
     grouped = duplicates_df.groupby(list(duplicates_df.columns))
-
     duplicate_groups = [list(group.index) for _, group in grouped]
 
     for group in duplicate_groups:
@@ -227,16 +256,15 @@ def duplicates_index_map(df):
 
     return duplicate_groups
 
-
 def display_variable_info(data):
     """
-    Log detailed information about unique values and their distribution
-    for a pandas Series or DataFrame. If a DataFrame is provided, each column
-    is analyzed independently.
+    Display information about unique values and distribution of a Series or DataFrame.
 
-    :param data: pandas.Series or pandas.DataFrame to analyze
-    :type data: Union[pd.Series, pd.DataFrame]
-    :raises TypeError: If the input is not a Series or DataFrame
+    Args:
+        data (pd.Series or pd.DataFrame): Data to analyze.
+
+    Raises:
+        TypeError: If input is not a Series or DataFrame.
     """
     if isinstance(data, pd.Series):
         logger.info(f"Analysis for Series [{data.name}]:")
@@ -253,21 +281,17 @@ def display_variable_info(data):
     else:
         raise TypeError("Input must be a pandas Series or DataFrame.")
 
-
 def compare_row_differences(df, row_index1, row_index2):
     """
-    Compares the values of two specified rows in a DataFrame and identifies the columns
-    where the values differ. Logs the column names with differences and the corresponding
-    values from both rows.
+    Compare values of two rows in a DataFrame and log column-wise differences.
 
-    :param df: The DataFrame containing the data to compare.
-    :type df: pandas.DataFrame
-    :param row_index1: The index of the first row.
-    :type row_index1: int
-    :param row_index2: The index of the second row.
-    :type row_index2: int
-    :return: A list of column names where the values differ between the two rows.
-    :rtype: list
+    Args:
+        df (pd.DataFrame): DataFrame containing the rows.
+        row_index1 (int): Index of the first row.
+        row_index2 (int): Index of the second row.
+
+    Returns:
+        list: Column names where the values differ.
     """
     differences = df.loc[row_index1] != df.loc[row_index2]
     differing_columns = df.columns[differences].tolist()
