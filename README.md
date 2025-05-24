@@ -17,8 +17,6 @@
 - [Configuration](#-configuration)
 - [Testing](#-testing)
 - [Continuous Integration](#-continuous-integration)
-- [Tooling](#-tooling)
-- [License](#-license)
 - [Contributors](#-contributors)
 
 ---
@@ -45,40 +43,75 @@ This project implements a 3-phase machine learning and MLOps pipeline:
 
 ```text
 avr25-mle-velib/
-├── smartcheck/                # Core source code
+├── smartcheck/                # Module source code
 │   ├── __init__.py
-│   ├── dataframe_common.py
+│   ├── [modules].py
 │   ├── ...
 │   └── resources/
 │       └── config.yaml
 │
-├── tests/                     # Unit tests (pytest)
-│   ├── test_dataframe_common.py
+├── tests/                     # Module Unit tests (with pytest)
+│   ├── test_[modules].py
 │   └── ...
 │
-├── notebooks/                 # Jupyter Notebooks
-│   ├── 00_exploratory_analysis.ipynb
+├── notebooks/                 # Module Jupyter Notebooks (not packaged in builds)
+│   ├── [notebook].ipynb
 │   └── ...
 │
-├── pyproject.toml             # Build config
-├── requirements.txt           # Alternative dev install
 ├── README.md                  # Project doc (this file)
-├── .coveragerc                # Coverage settings
-├── MANIFEST.in                # Package data inclusion
-└── .github/workflows/test.yml # CI config
+├── LICENSE                    # MIT license file
+├── requirements.txt           # basic module tracking (used with pip)
+├── MANIFEST.in                # Package resource description (for setuptools used by pyproject)
+├── pyproject.toml             # python project configuration file (for python and pip)
+├── noxfile.py                 # NOX virtual env setup and session
+└── .coveragerc                # Test Coverage specific settings
 ```
 
 ---
 
-## ⚙️ Installation
+## 🛠️ Installation
 
+### 📦 Cloner le dépôt
 ```bash
-# Clone the repo
 git clone https://github.com/zheddhe/avr25-mle-velib.git
 cd avr25-mle-velib
+```
 
-# Install in editable mode with dev tools
+---
+
+### ⚙️ Option 1 : Avec [NOX](https://nox.thea.codes/) (gestion multi-environnements virtuels)
+```bash
+# Prérequis : Assurez-vous d’avoir Python et pip à jour
+python -m pip install --upgrade pip
+pip install nox
+
+# Installation + Build + Tests avec couverture
+nox -s full --reuse-existing
+
+# Nettoyage complet (y compris les environnements .nox/*)
+nox -s clean_all
+
+# Nettoyage partiel du projet (sans supprimer les environnements .nox/*)
+nox -s clean_project
+```
+
+---
+
+### ⚙️ Option 2 : Avec un environnement virtuel classique (.venv)
+```bash
+# Prérequis : Assurez-vous d’avoir Python et pip à jour
+python -m pip install --upgrade pip
+
+# Créer et activer un environnement virtuel (exemple avec venv)
+python -m venv .venv
+source .venv/bin/activate  # sous Linux/macOS
+# .venv\Scripts\activate    # sous Windows
+
+# Installation en mode développement
 pip install -e .[dev]
+
+# Lancer les tests avec couverture
+pytest --cov=src tests/
 ```
 
 ---
@@ -117,46 +150,22 @@ with importlib.resources.files("smartcheck.resources").joinpath("config.yaml").o
 
 ## ✅ Testing
 
-Run all tests:
+Run all tests with coverage:
 
 ```bash
 pytest
 ```
 
-Run with coverage:
-
-```bash
-pytest --cov=smartcheck --cov-report=term --cov-report=html
-```
-
-Open `htmlcov/index.html` for a visual report.
+Open `htmlcov/index.html` for a visual local report.
 
 ---
 
 ## 🔄 Continuous Integration
 
-- GitHub Actions runs all tests and reports coverage on every push/pull request.
-- Configuration file: `.github/workflows/test.yml`
-<!-- TODO: add a codecov account and report it
-- Coverage report is sent to Codecov (badge above).
--->
-
----
-
-## 🧰 Tooling
-
-| Tool               | Purpose                                    |
-|--------------------|--------------------------------------------|
-| `pytest`           | Test runner                                |
-| `pytest-cov`       | Test coverage reporting                    |
-| `importlib.resources` | Access bundled config files safely     |
-
----
-
-## 📄 License
-
-MIT License © 2025  
-Developed as part of the MLE April 2025 promotion.
+- GitHub Actions runs all tests and reports coverage.
+-- On main branch for push and pull requests with configuration file: `.github/workflows/ci_main.yml` 
+-- On issue branches with configuration file `.github/workflows/ci_branch.yml`
+- Coverage report is sent to Codecov (badge above) for main branch activity only.
 
 ---
 
