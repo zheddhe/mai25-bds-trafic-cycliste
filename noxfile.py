@@ -1,9 +1,10 @@
-import nox # type: ignore
+import nox  # type: ignore
 import shutil
 from pathlib import Path
 
 # Python version(s) to use for test sessions
 PYTHON_VERSIONS = ["3.13"]
+
 
 def remove_paths(session, paths):
     for path in paths:
@@ -22,6 +23,7 @@ def remove_paths(session, paths):
     for cache in Path(".").rglob("__pycache__"):
         shutil.rmtree(cache)
 
+
 @nox.session(python=PYTHON_VERSIONS)
 def clean_project(session):
     """Remove temporary files and build artifacts (cross-platform, without .nox)."""
@@ -34,6 +36,7 @@ def clean_project(session):
         "avr25_mle_velib.egg-info",
     ]
     remove_paths(session, paths)
+
 
 @nox.session(python=PYTHON_VERSIONS)
 def clean_all(session):
@@ -49,18 +52,21 @@ def clean_all(session):
     ]
     remove_paths(session, paths)
 
+
 @nox.session(python=PYTHON_VERSIONS)
 def build(session):
-    """Build the project (sdist + wheel)."""
+    """Run code linting and full test suite with coverage and HTML report."""
+    session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
+    session.install(".[dev]")
+    session.run("flake8")
+    session.run("pytest")
+    session.log("✅ Build session complete. Coverage report in htmlcov/index.html")
+
+
+@nox.session(python=PYTHON_VERSIONS)
+def package(session):
+    """Package the project (sdist + wheel)."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
     session.install("build")
     session.run("python", "-m", "build")
-    session.log("✅ Build session complete.")
-
-@nox.session(python=PYTHON_VERSIONS)
-def full(session):
-    """Run full test suite with coverage and HTML report in a single session."""
-    session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
-    session.install(".", ".[dev]")
-    session.run("pytest")
-    session.log("✅ Full session complete. Coverage report in htmlcov/index.html")
+    session.log("✅ Package session complete.")

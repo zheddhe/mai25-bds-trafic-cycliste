@@ -1,144 +1,117 @@
-# `avr25-mle-velib` 🚲
+# 🚲 AVR25 MLE Vélib Project
 
 [![codecov](https://codecov.io/gh/zheddhe/avr25-mle-velib/graph/badge.svg?token=6TLD3FM08Z)](https://codecov.io/gh/zheddhe/avr25-mle-velib)
-> [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_main.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)  
-> [![CI](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_branch.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)  
-> 📦 A machine learning pipeline for analyzing Velib data  
-> Developed during the April 2025 MLE training program.
+[![CI Main](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_main.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)
+[![CI Branch](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_branch.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)
+
+> A machine learning pipeline for analyzing Vélib bike-sharing data.  
+> Developed as part of the April 2025 Machine Learning Engineering (MLE) training program.
 
 ---
 
-## 🧠 Table of Contents
+## 🧭 Overview
 
-- [Overview](#-overview)
-- [Project Structure](#-project-structure)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Configuration](#-configuration)
-- [Testing](#-testing)
-- [Continuous Integration](#-continuous-integration)
-- [Contributors](#-contributors)
+This project implements a full machine learning and MLOps pipeline in three main stages:
 
----
-
-## 🧠 Overview
-
-This project implements a 3-phase machine learning and MLOps pipeline:
-
-### 📐 Phase 1 – Data Product Management
+### 1. 📐 Data Product Management
 - Define business goals
 - Scope the data lifecycle
 
-### 📊 Phase 2 – Data Science
-- Data analysis & visualization
-- Modeling and evaluation
+### 2. 📊 Data Science
+- Data analysis and visualization
+- Model development and evaluation
 
-### ⚙️ Phase 3 – MLOps
+### 3. ⚙️ MLOps
 - Code packaging and automation
-- Reproducibility and testing
+- Reproducibility and continuous testing
 
 ---
 
-## 🏗️ Project Structure
+## 🧱 Project Structure
 
-```text
+```
 avr25-mle-velib/
-├── smartcheck/                # Module source code
-│   ├── __init__.py
+├── smartcheck/         # Source code
 │   ├── [modules].py
-│   ├── ...
 │   └── resources/
 │       └── config.yaml
-│
-├── tests/                     # Module Unit tests (with pytest)
-│   ├── test_[modules].py
-│   └── ...
-│
-├── notebooks/                 # Module Jupyter Notebooks (not packaged in builds)
-│   ├── [notebook].ipynb
-│   └── ...
-│
-├── README.md                  # Project doc (this file)
-├── LICENSE                    # MIT license file
-├── requirements.txt           # basic module tracking (used with pip)
-├── MANIFEST.in                # Package resource description (for setuptools used by pyproject)
-├── pyproject.toml             # python project configuration file (for python and pip)
-├── noxfile.py                 # NOX virtual env setup and session
-└── .coveragerc                # Test Coverage specific settings
+├── tests/              # Unit tests (pytest)
+├── notebooks/          # Jupyter notebooks (not packaged)
+├── README.md           # Project documentation
+├── LICENSE             # MIT license
+├── requirements.txt    # Pip requirements
+├── MANIFEST.in         # Packaging resources for setuptools
+├── pyproject.toml      # Python project configuration
+├── noxfile.py          # NOX session configuration
+└── .coveragerc         # Coverage configuration
 ```
 
 ---
 
-## 🛠️ Installation
+## ⚙️ Installation
 
-### 📦 Cloner le dépôt
+### Option 1: Using NOX (recommended for multi-environment workflows)
+
 ```bash
-git clone https://github.com/zheddhe/avr25-mle-velib.git
-cd avr25-mle-velib
-```
-
----
-
-### ⚙️ Option 1 : Avec [NOX](https://nox.thea.codes/) (gestion multi-environnements virtuels)
-```bash
-# Prérequis : Assurez-vous d’avoir Python et pip à jour
+# Prerequisites
 python -m pip install --upgrade pip
 pip install nox
 
-# Installation + Build + Tests avec couverture
-nox -s full --reuse-existing
+# Full build (clean/build/package)
+nox
 
-# Nettoyage complet (y compris les environnements .nox/*)
+# Redo Install development dependencies and test only
+nox -s build --reuse-existing
+
+# Clean environments and project files
 nox -s clean_all
-
-# Nettoyage partiel du projet (sans supprimer les environnements .nox/*)
 nox -s clean_project
+
+# Build final package
+nox -s package
 ```
 
----
+### Option 2: Using native python and its native virtual environment
 
-### ⚙️ Option 2 : Avec un environnement virtuel classique (.venv)
 ```bash
-# Prérequis : Assurez-vous d’avoir Python et pip à jour
+# Prerequisites
 python -m pip install --upgrade pip
-
-# Créer et activer un environnement virtuel (exemple avec venv)
 python -m venv .venv
-source .venv/bin/activate  # sous Linux/macOS
-# .venv\Scripts\activate    # sous Windows
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 
-# Installation en mode développement
+# Install development dependencies and test
 pip install -e .[dev]
+pytest
+flake8
 
-# Lancer les tests avec couverture
-pytest --cov=src tests/
+# Build final package
+python -m build
 ```
 
 ---
 
 ## 🚀 Usage
 
-You can import and use the main parts as a Python module:
+You can import the module in Python:
 
 ```python
 from smartcheck.dataframe_common import load_dataset_from_config
-
 df = load_dataset_from_config("velib_dispo_data", sep=";")
 ```
 
-You can also run experiments or analyses directly in Jupyter Notebooks.
+Or explore notebooks in the `notebooks/` directory.
 
 ---
 
-## ⚙️ Configuration
+## 🔧 Configuration
 
-Configuration is loaded from a YAML file located at:
+All configuration settings are in:
 
 ```
 smartcheck/resources/config.yaml
 ```
 
-Use `importlib.resources` to access it safely:
+Access safely with:
 
 ```python
 import importlib.resources
@@ -148,24 +121,14 @@ with importlib.resources.files("smartcheck.resources").joinpath("config.yaml").o
 
 ---
 
-## ✅ Testing
-
-Run all tests with coverage:
-
-```bash
-pytest
-```
-
-Open `htmlcov/index.html` for a visual local report.
-
----
-
 ## 🔄 Continuous Integration
 
-- GitHub Actions runs all tests and reports coverage.
--- On main branch for push and pull requests with configuration file: `.github/workflows/ci_main.yml` 
--- On issue branches with configuration file `.github/workflows/ci_branch.yml`
-- Coverage report is sent to Codecov (badge above) for main branch activity only.
+GitHub Actions executes all tests and tracks code coverage:
+
+- `ci_main.yml`: for main branch activity (push, PR)
+- `ci_branch.yml`: for all other branches
+
+Coverage data is sent to [Codecov](https://codecov.io/gh/zheddhe/avr25-mle-velib).
 
 ---
 
