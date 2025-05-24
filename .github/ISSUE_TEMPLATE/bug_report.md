@@ -5,9 +5,6 @@ title: "[BUG] ---a compléter---"
 labels: bug
 assignees: ''
 ---
-<!-- Rappel des labels disponibles    : https://github.com/zheddhe/avr25-mle-velib/labels -->
-<!-- Rappel des assignees disponibles : https://github.com/zheddhe/avr25-mle-velib/settings/access -->
-<!-- Rappel des projets disponibles   : https://github.com/zheddhe/avr25-mle-velib/projects -->
 ## Description du bug
 
 Décris le problème rencontré.
