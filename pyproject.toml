@@ -13,20 +13,23 @@ authors = [
     {name = "Raphaël PARMENTIER", email = "dummy@mail.com"},
 ]
 requires-python = "~=3.13"
-license = {text = "MIT"}
+license = "MIT"
 dependencies = [
+    # dependencies for data science
     "pandas~=2.2.3",
-    "PyYAML~=6.0.2",
     "numpy~=2.2.4",
     "matplotlib~=3.10.1",
     "seaborn~=0.13.2",
     "plotly~=6.1.1",
     "bokeh~=3.7.3",
-    "pyproj~=3.7.1",
-    "requests~=2.32.3",
     "statsmodels~=0.14.1",
+    # dependencies for configuration management
+    "pyproj~=3.7.1",
+    "PyYAML~=6.0.2",
+    "importlib~=1.0.4",
     "logging~=0.4.9",
-    "importlib~=1.0.4"
+    # dependencies for web communication
+    "requests~=2.32.3",
 ]
 classifiers = [
     "Programming Language :: Python :: 3.13",
@@ -36,11 +39,20 @@ classifiers = [
 # dependencies activated with "pip install .[dev]"
 [project.optional-dependencies]
 dev = [
+    # dependencies for local testing and coverage tracking
     "pytest~=8.3.5",
     "coverage~=7.8.1",
     "pytest_cov~=6.1.1",
-    "notebook~=7.4.2"
+    # dependencies for jupyter notebooks
+    "notebook~=7.4.2",
 ]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown" 
+
+[project.urls]
+"Source" = "https://github.com/zheddhe/avr25-mle-velib"
 
 
 [tool.setuptools]
@@ -51,6 +63,7 @@ include-package-data = true
 "smartcheck" = ["resources/*.yaml"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=smartcheck --cov-report=term --cov-report=html --cov-report=xml --cov-report=annotate"
+addopts = "--cov=smartcheck --cov-report=term --cov-report=html --cov-report=annotate --cov-config=.coveragerc"
 testpaths = ["tests"]
 pythonpath = ["."]
+

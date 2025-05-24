@@ -1,0 +1,25 @@
+[run]
+branch = True
+source = smartcheck
+omit =
+    **/__init__.py
+    */tests/*
+    */.venv/*
+    */site-packages/*
+
+[report]
+show_missing = True
+skip_covered = False
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError
+    except ImportError
+
+[html]
+directory = htmlcov
+
+[paths]
+source =
+    smartcheck
+    */site-packages

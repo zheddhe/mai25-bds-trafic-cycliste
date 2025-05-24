@@ -5,6 +5,7 @@ import logging
 import pandas as pd
 import numpy as np
 import requests
+import unicodedata
 from smartcheck.paths import load_config, get_full_path
 
 # Configure logging
@@ -303,3 +304,31 @@ def compare_row_differences(df, row_index1, row_index2):
         logger.info(f"No differences found between rows {row_index1} and {row_index2}.")
 
     return differing_columns
+
+import unicodedata
+import re
+
+
+def normalize_column_names(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Convert DataFrame column names to snake_case and remove accents.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with original column names.
+
+    Returns:
+        pd.DataFrame: A copy of the DataFrame with normalized column names.
+    """
+    def normalize(col: str) -> str:
+        # Remove accents by normalizing Unicode characters
+        col = unicodedata.normalize('NFKD', col).encode('ascii', 'ignore').decode('utf-8')
+        # Replace any non-word characters (punctuation, etc.) with spaces
+        col = re.sub(r"[^\w\s]", " ", col)
+        # Convert spaces to underscores and lowercase everything
+        col = re.sub(r"\s+", "_", col).lower()
+        # Remove leading/trailing underscores
+        return col.strip("_")
+
+    df = df.copy()
+    df.columns = [normalize(col) for col in df.columns]
+    return df

@@ -13,13 +13,15 @@ from smartcheck.dataframe_common import (
     detect_and_log_duplicates_and_missing,
     duplicates_index_map,
     display_variable_info,
-    compare_row_differences
+    compare_row_differences,
+    normalize_column_names
 )
 
 
 # === Test class for _extract_google_drive_file_id ===
 class TestExtractGoogleDriveFileId:
 
+    # === Tests ===
     def test_valid_url(self):
         url = "https://drive.google.com/file/d/1234567890/view?usp=sharing"
         file_id = _extract_google_drive_file_id(url)
@@ -450,3 +452,37 @@ class TestCompareRowDifferences:
     def test_index_out_of_bounds(self, sample_dataframe):
         with pytest.raises(KeyError):
             compare_row_differences(sample_dataframe, 0, 10)
+
+# === Test class for normalize_column_names ===
+class TestNormalizeColumnNames:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def df_original(self):
+        return pd.DataFrame(columns=[
+            "Borne de paiement disponible",
+            "État Général",
+            "N° Station",
+            "Adresse (complète)",
+            "Type_d'utilisation"
+        ])
+
+    @pytest.fixture
+    def expected_columns(self):
+        return [
+            "borne_de_paiement_disponible",
+            "etat_general",
+            "n_station",
+            "adresse_complete",
+            "type_d_utilisation"
+        ]
+
+    # === Tests ===
+    def test_columns_are_normalized(self, df_original, expected_columns):
+        df_normalized = normalize_column_names(df_original)
+        assert list(df_normalized.columns) == expected_columns
+
+    def test_result_is_dataframe_copy(self, df_original):
+        df_normalized = normalize_column_names(df_original)
+        assert df_normalized is not df_original  # ensure it's a new object
+        assert isinstance(df_normalized, pd.DataFrame)
