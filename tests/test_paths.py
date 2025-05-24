@@ -4,9 +4,10 @@ import importlib.resources
 from pathlib import Path
 from smartcheck.paths import (
     PROJECT_ROOT,
-    load_config, 
-    get_full_path    
+    load_config,
+    get_full_path
 )
+
 
 # === Test Class for get_full_path ===
 class TestGetFullPath:
@@ -30,6 +31,7 @@ class TestGetFullPath:
     def test_get_full_path_with_empty_string(self):
         result = get_full_path("")
         assert os.path.normpath(result) == os.path.normpath(PROJECT_ROOT)
+
 
 # === Test Class for load_config ===
 class TestLoadConfig:
@@ -65,13 +67,17 @@ class TestLoadConfig:
         bad_yaml.write_text("- item1\n- item2", encoding="utf-8")
 
         class DummyFiles:
+
             def joinpath(self, filename):
                 return bad_yaml
 
-        # create a temporary test mock of the importlib.resources.files to create an error case scenario
-        monkeypatch.setattr(importlib.resources, "files", lambda *args, **kwargs: DummyFiles())
+        # create a temporary test mock of the importlib.resources.files to create
+        # an error case scenario
+        monkeypatch.setattr(importlib.resources, "files",
+                            lambda *args, **kwargs: DummyFiles())
 
-        with pytest.raises(ValueError, match="YAML config content must be a dictionary"):
+        with pytest.raises(ValueError,
+                           match="YAML config content must be a dictionary"):
             load_config()
 
     def test_yaml_invalid_syntax(self, tmp_path, monkeypatch):
@@ -79,22 +85,30 @@ class TestLoadConfig:
         invalid_yaml.write_text("key: value: other", encoding="utf-8")
 
         class DummyFiles:
+
             def joinpath(self, filename):
                 return invalid_yaml
 
-        # create a temporary test mock of the importlib.resources.files to create an error case scenario
-        monkeypatch.setattr(importlib.resources, "files", lambda *args, **kwargs: DummyFiles())
+        # create a temporary test mock of the importlib.resources.files to
+        # create an error case scenario
+        monkeypatch.setattr(importlib.resources, "files",
+                            lambda *args, **kwargs: DummyFiles())
 
         with pytest.raises(ValueError, match="Error parsing YAML"):
             load_config()
 
     def test_yaml_file_not_found(self, monkeypatch):
+
         class DummyFiles:
+
             def joinpath(self, filename):
                 return Path("nonexistent.yaml")
 
-        # create a temporary test mock of the importlib.resources.files to create an error case scenario
-        monkeypatch.setattr(importlib.resources, "files", lambda *args, **kwargs: DummyFiles())
+        # create a temporary test mock of the importlib.resources.files to
+        # create an error case scenario
+        monkeypatch.setattr(importlib.resources, "files",
+                            lambda *args, **kwargs: DummyFiles())
 
-        with pytest.raises(FileNotFoundError, match="Configuration file 'config.yaml' not found."):
+        with pytest.raises(FileNotFoundError,
+                           match="Configuration file 'config.yaml' not found."):
             load_config()

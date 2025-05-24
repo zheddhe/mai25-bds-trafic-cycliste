@@ -10,13 +10,15 @@ from smartcheck.paths import load_config, get_full_path
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='[%(levelname)s]-[%(asctime)s] %(message)s')
+logging.basicConfig(level=logging.INFO,
+                    format='[%(levelname)s]-[%(asctime)s] %(message)s')
 
 # Constants
 GOOGLE_DRIVE_PREFIX = "https://drive.google.com"
 GOOGLE_DRIVE_DOWNLOAD_BASE = "https://drive.google.com/uc?export=download"
 NUMERIC_PLACEHOLDER = np.inf
 STRING_PLACEHOLDER = "__MISSING__"
+
 
 def _extract_google_drive_file_id(url):
     """
@@ -34,6 +36,7 @@ def _extract_google_drive_file_id(url):
         logger.error("Unable to extract file ID from Google Drive URL.")
         return None
 
+
 def _download_google_drive_file(file_id):
     """
     Download a file from Google Drive, handling large file confirmation if needed.
@@ -45,7 +48,8 @@ def _download_google_drive_file(file_id):
         str or None: File content as string if successful, else None.
     """
     session = requests.Session()
-    response = session.get(GOOGLE_DRIVE_DOWNLOAD_BASE, params={'id': file_id}, stream=True)
+    response = session.get(GOOGLE_DRIVE_DOWNLOAD_BASE,
+                           params={'id': file_id}, stream=True)
     content = response.text
 
     if content.lstrip().lower().startswith('<!doctype html'):
@@ -61,18 +65,26 @@ def _download_google_drive_file(file_id):
                 'confirm': confirm_token.group(1),
                 'uuid': uuid_token.group(1)
             }
-            logger.info("Big file mechanism : Attempting download from confirmation URL.")
+            logger.info(
+                "Big file mechanism : "
+                "Attempting download from confirmation URL."
+            )
             response = session.get(action_url, params=params, stream=True)
-            if response.status_code == 200 and not response.text.lstrip().lower().startswith('<!doctype html'):
+            if (response.status_code == 200 and not
+                    response.text.lstrip().lower().startswith('<!doctype html')):
                 return response.text
             else:
                 logger.error("HTML response received again. Download failed.")
                 return None
         else:
-            logger.error("Required confirmation fields not found. File may not be shared publicly.")
+            logger.error(
+                "Required confirmation fields not found. "
+                "File may not be shared publicly."
+            )
             return None
     else:
         return content
+
 
 def _load_data_from_string(content, format_type="csv", *args, **kwargs):
     """
@@ -91,11 +103,14 @@ def _load_data_from_string(content, format_type="csv", *args, **kwargs):
         elif format_type == "json":
             return pd.read_json(io.StringIO(content), *args, **kwargs)
         else:
-            logger.error(f"Unsupported format '{format_type}' for string input.")
+            logger.error(
+                f"Unsupported format '{format_type}' for string input."
+            )
             return None
     except Exception as e:
         logger.error(f"Error reading {format_type.upper()} content: {e}")
         return None
+
 
 def _load_data_from_local(path, format_type, *args, **kwargs):
     """
@@ -128,6 +143,7 @@ def _load_data_from_local(path, format_type, *args, **kwargs):
         logger.error(f"Error reading local file: {e}")
         return None
 
+
 def _infer_file_format(path):
     """
     Infer file format from file extension.
@@ -139,6 +155,7 @@ def _infer_file_format(path):
         str: File extension in lowercase.
     """
     return path.split(".")[-1].lower()
+
 
 def load_dataset_from_config(data_name, *args, **kwargs):
     """
@@ -173,6 +190,7 @@ def load_dataset_from_config(data_name, *args, **kwargs):
         format_type = _infer_file_format(file_path)
         return _load_data_from_local(file_path, format_type, *args, **kwargs)
 
+
 def log_general_info(df) -> None:
     """
     Log general information about a DataFrame.
@@ -188,13 +206,17 @@ def log_general_info(df) -> None:
         return
 
     logger.info(f"Dataset shape: {df.shape[0]} rows x {df.shape[1]} columns")
-    logger.info(f"Quantitative variable description:\n{df.select_dtypes(include=np.number).describe()}")
-    logger.info(f"Quantitative correlation matrix:\n{df.select_dtypes(include=np.number).corr()}")
+    description = df.select_dtypes(include=np.number).describe()
+    logger.info(
+        f"Quantitative variable description:\n{description}")
+    correlation = df.select_dtypes(include=np.number).corr()
+    logger.info(f"Quantitative correlation matrix:\n{correlation}")
     buffer = io.StringIO()
     df.info(buf=buffer)
     info_str = buffer.getvalue()
     buffer.close()
     logger.info("DataFrame Info:\n%s", info_str)
+
 
 def detect_and_log_duplicates_and_missing(df, subset=None):
     """
@@ -202,7 +224,8 @@ def detect_and_log_duplicates_and_missing(df, subset=None):
 
     Args:
         df (pd.DataFrame): The DataFrame to analyze.
-        subset (list[str] or None): Columns to check for duplicates. If None, all columns are used.
+        subset (list[str] or None): Columns to check for duplicates. If None,
+        all columns are used.
 
     Returns:
         tuple[int, int]: Number of unique duplicates and total duplicates.
@@ -225,9 +248,13 @@ def detect_and_log_duplicates_and_missing(df, subset=None):
     dup_keep_first = df_filled.duplicated(subset=subset, keep='first').sum()
     dup_keep_false = df_filled.duplicated(subset=subset, keep=False).sum()
 
-    logger.info(f"Duplicate rows (NaNs treated as equal): {dup_keep_first} unique, {dup_keep_false} total")
+    logger.info(
+        "Duplicate rows (NaNs treated as equal): "
+        f"{dup_keep_first} unique, {dup_keep_false} total"
+    )
 
     return dup_keep_first, dup_keep_false
+
 
 def duplicates_index_map(df):
     """
@@ -257,6 +284,7 @@ def duplicates_index_map(df):
 
     return duplicate_groups
 
+
 def display_variable_info(data):
     """
     Display information about unique values and distribution of a Series or DataFrame.
@@ -269,18 +297,27 @@ def display_variable_info(data):
     """
     if isinstance(data, pd.Series):
         logger.info(f"Analysis for Series [{data.name}]:")
-        unique_values = pd.Series(data.unique()).sort_values(na_position='last').tolist()
+        unique_values = (
+            pd.Series(data.unique())
+            .sort_values(na_position='last')
+            .tolist()
+        )
         logger.info(f"Sorted unique values: {unique_values}")
         logger.info(f"Value distribution:\n{data.value_counts()}")
     elif isinstance(data, pd.DataFrame):
         logger.info("Analysis for DataFrame:")
         for col in data.columns:
             logger.info(f"Analysis for column [{col}]:")
-            unique_values = pd.Series(data[col].unique()).sort_values(na_position='last').tolist()
+            unique_values = (
+                pd.Series(data[col].unique())
+                .sort_values(na_position='last')
+                .tolist()
+            )
             logger.info(f"Sorted unique values: {unique_values}")
             logger.info(f"Value distribution:\n{data[col].value_counts()}")
     else:
         raise TypeError("Input must be a pandas Series or DataFrame.")
+
 
 def compare_row_differences(df, row_index1, row_index2):
     """
@@ -298,15 +335,18 @@ def compare_row_differences(df, row_index1, row_index2):
     differing_columns = df.columns[differences].tolist()
 
     if differing_columns:
-        logger.info(f"Differences between rows {row_index1} and {row_index2}:")
+        logger.info(
+            "Differences between rows "
+            f"{row_index1} and {row_index2}:"
+        )
         logger.info(df.loc[[row_index1, row_index2], differing_columns].to_string())
     else:
-        logger.info(f"No differences found between rows {row_index1} and {row_index2}.")
+        logger.info(
+            "No differences found between rows "
+            f"{row_index1} and {row_index2}."
+        )
 
     return differing_columns
-
-import unicodedata
-import re
 
 
 def normalize_column_names(df: pd.DataFrame) -> pd.DataFrame:
@@ -319,9 +359,14 @@ def normalize_column_names(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: A copy of the DataFrame with normalized column names.
     """
+
     def normalize(col: str) -> str:
         # Remove accents by normalizing Unicode characters
-        col = unicodedata.normalize('NFKD', col).encode('ascii', 'ignore').decode('utf-8')
+        col = (
+            unicodedata.normalize('NFKD', col)
+            .encode('ascii', 'ignore')
+            .decode('utf-8')
+        )
         # Replace any non-word characters (punctuation, etc.) with spaces
         col = re.sub(r"[^\w\s]", " ", col)
         # Convert spaces to underscores and lowercase everything

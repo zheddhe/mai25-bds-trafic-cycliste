@@ -22,6 +22,7 @@ from smartcheck.dataframe_common import (
 class TestExtractGoogleDriveFileId:
 
     # === Tests ===
+
     def test_valid_url(self):
         url = "https://drive.google.com/file/d/1234567890/view?usp=sharing"
         file_id = _extract_google_drive_file_id(url)
@@ -86,17 +87,20 @@ class TestDownloadGoogleDriveFile:
 
     @pytest.fixture
     def patch_session(self, mock_session):
-        with patch("smartcheck.dataframe_common.requests.Session", return_value=mock_session):
+        with patch("smartcheck.dataframe_common.requests.Session",
+                   return_value=mock_session):
             yield mock_session
 
     # === Tests ===
-    def test_download_simple_file(self, patch_session, mock_response, simple_file_content):
+    def test_download_simple_file(self, patch_session,
+                                  mock_response, simple_file_content):
         mock_response.text = simple_file_content
         content = _download_google_drive_file("fake_id")
         assert content == simple_file_content
         patch_session.get.assert_called_once()
 
-    def test_download_big_file_with_confirmation(self, patch_session, html_big_file, final_file_content):
+    def test_download_big_file_with_confirmation(self, patch_session,
+                                                 html_big_file, final_file_content):
         patch_session.get.side_effect = [
             Mock(text=html_big_file),
             Mock(status_code=200, text=final_file_content)
@@ -105,7 +109,8 @@ class TestDownloadGoogleDriveFile:
         assert content == final_file_content
         assert patch_session.get.call_count == 2
 
-    def test_download_big_file_confirmation_failed(self, patch_session, html_big_file, error_html, caplog):
+    def test_download_big_file_confirmation_failed(self, patch_session,
+                                                   html_big_file, error_html, caplog):
         patch_session.get.side_effect = [
             Mock(text=html_big_file),
             Mock(status_code=200, text=error_html)
@@ -114,7 +119,8 @@ class TestDownloadGoogleDriveFile:
         assert content is None
         assert "Download failed" in caplog.text
 
-    def test_download_missing_confirmation_fields(self, patch_session, mock_response, html_missing_fields, caplog):
+    def test_download_missing_confirmation_fields(self, patch_session, mock_response,
+                                                  html_missing_fields, caplog):
         mock_response.text = html_missing_fields
         content = _download_google_drive_file("fake_id")
         assert content is None
@@ -167,7 +173,8 @@ class TestLoadDataFromString:
 class TestLoadDataFromLocal:
 
     # === Tests ===
-    @patch("smartcheck.dataframe_common.os.path.exists", return_value=True)
+    @patch("smartcheck.dataframe_common.os.path.exists",
+           return_value=True)
     @patch("smartcheck.dataframe_common.pd.read_csv")
     def test_load_csv(self, mock_read_csv, mock_exists):
         mock_read_csv.return_value = pd.DataFrame({"a": [1]})
@@ -175,7 +182,8 @@ class TestLoadDataFromLocal:
         assert isinstance(df, pd.DataFrame)
         mock_read_csv.assert_called_once()
 
-    @patch("smartcheck.dataframe_common.os.path.exists", return_value=True)
+    @patch("smartcheck.dataframe_common.os.path.exists",
+           return_value=True)
     @patch("smartcheck.dataframe_common.pd.read_json")
     def test_load_json(self, mock_read_json, mock_exists):
         mock_read_json.return_value = pd.DataFrame({"b": [2]})
@@ -183,7 +191,8 @@ class TestLoadDataFromLocal:
         assert isinstance(df, pd.DataFrame)
         mock_read_json.assert_called_once()
 
-    @patch("smartcheck.dataframe_common.os.path.exists", return_value=True)
+    @patch("smartcheck.dataframe_common.os.path.exists",
+           return_value=True)
     @patch("smartcheck.dataframe_common.pd.read_excel")
     def test_load_excel(self, mock_read_excel, mock_exists):
         mock_read_excel.return_value = pd.DataFrame({"c": [3]})
@@ -191,21 +200,26 @@ class TestLoadDataFromLocal:
         assert isinstance(df, pd.DataFrame)
         mock_read_excel.assert_called_once()
 
-    @patch("smartcheck.dataframe_common.os.path.exists", return_value=True)
+    @patch("smartcheck.dataframe_common.os.path.exists",
+           return_value=True)
     def test_unsupported_format(self, mock_exists, caplog: pytest.LogCaptureFixture):
         df = _load_data_from_local("some/path.txt", "txt")
         assert df is None
         assert "Unsupported file format" in caplog.text
 
-    @patch("smartcheck.dataframe_common.os.path.exists", return_value=False)
+    @patch("smartcheck.dataframe_common.os.path.exists",
+           return_value=False)
     def test_file_not_found(self, mock_exists, caplog: pytest.LogCaptureFixture):
         df = _load_data_from_local("missing/path.csv", "csv")
         assert df is None
         assert "File not found" in caplog.text
 
-    @patch("smartcheck.dataframe_common.os.path.exists", return_value=True)
-    @patch("smartcheck.dataframe_common.pd.read_csv", side_effect=Exception("read error"))
-    def test_read_exception(self, mock_read_csv, mock_exists, caplog: pytest.LogCaptureFixture):
+    @patch("smartcheck.dataframe_common.os.path.exists",
+           return_value=True)
+    @patch("smartcheck.dataframe_common.pd.read_csv",
+           side_effect=Exception("read error"))
+    def test_read_exception(self, mock_read_csv, mock_exists,
+                            caplog: pytest.LogCaptureFixture):
         df = _load_data_from_local("some/path.csv", "csv")
         assert df is None
         assert "Error reading local file" in caplog.text
@@ -228,14 +242,26 @@ class TestLoadDatasetFromConfig:
     # === Tests ===
     @patch("smartcheck.dataframe_common.load_config")
     def test_load_google_drive_wrong_prefix(self, mock_config):
-        mock_config.return_value = {"data": {"input": {"wrong_drive_data": "https://drive.google.com/INCORRECT"}}}
+        mock_config.return_value = {
+            "data": {
+                "input": {
+                    "wrong_drive_data": "https://drive.google.com/INCORRECT"
+                }
+            }
+        }
         result = load_dataset_from_config("wrong_drive_data")
         assert result is None
 
     @patch("smartcheck.dataframe_common.load_config")
     @patch("smartcheck.dataframe_common._load_data_from_local")
     def test_load_local_csv(self, mock_loader, mock_config):
-        mock_config.return_value = {"data": {"input": {"mydata": "path/to/data.csv"}}}
+        mock_config.return_value = {
+            "data": {
+                "input": {
+                    "mydata": "path/to/data.csv"
+                }
+            }
+        }
         mock_loader.return_value = pd.DataFrame({"a": [1]})
         df = load_dataset_from_config("mydata")
         assert isinstance(df, pd.DataFrame)
@@ -248,10 +274,19 @@ class TestLoadDatasetFromConfig:
         assert "not found in configuration" in caplog.text
 
     @patch("smartcheck.dataframe_common.load_config")
-    @patch("smartcheck.dataframe_common._extract_google_drive_file_id", return_value="123456")
-    @patch("smartcheck.dataframe_common._download_google_drive_file", return_value="a,b\n5,6")
-    def test_load_google_drive_csv(self, mock_download_google_drive_file, mock_extract_google_drive_file_id, mock_config):
-        mock_config.return_value = {"data": {"input": {"drive_data": "https://drive.google.com/file/d/123456/view"}}}
+    @patch("smartcheck.dataframe_common._extract_google_drive_file_id",
+           return_value="123456")
+    @patch("smartcheck.dataframe_common._download_google_drive_file",
+           return_value="a,b\n5,6")
+    def test_load_google_drive_csv(self, mock_download_google_drive_file,
+                                   mock_extract_google_drive_file_id, mock_config):
+        mock_config.return_value = {
+            "data": {
+                "input": {
+                    "drive_data": "https://drive.google.com/file/d/123456/view"
+                }
+            }
+        }
         df = load_dataset_from_config("drive_data", sep=",")
         assert isinstance(df, pd.DataFrame)
         assert df.shape == (1, 2)
@@ -277,7 +312,8 @@ class TestLogGeneralInfo:
         return pd.concat([df, df.iloc[[1]]], ignore_index=True)  # Ajoute un duplicata
 
     # === Tests ===
-    def test_logs_general_info(self, caplog: pytest.LogCaptureFixture, valid_df: pd.DataFrame):
+    def test_logs_general_info(self, caplog: pytest.LogCaptureFixture,
+                               valid_df: pd.DataFrame):
         with caplog.at_level("INFO"):
             log_general_info(valid_df)
         assert "Dataset shape" in caplog.text
@@ -290,7 +326,8 @@ class TestLogGeneralInfo:
             log_general_info(None)
         assert "Invalid DataFrame provided." in caplog.text
 
-    def test_logs_with_na_and_duplicates(self, caplog: pytest.LogCaptureFixture, df_with_na_and_duplicates: pd.DataFrame):
+    def test_logs_with_na_and_duplicates(self, caplog: pytest.LogCaptureFixture,
+                                         df_with_na_and_duplicates: pd.DataFrame):
         with caplog.at_level("INFO"):
             log_general_info(df_with_na_and_duplicates)
         assert "Dataset shape" in caplog.text
@@ -327,7 +364,8 @@ class TestDisplayVariableInfo:
         assert "Sorted unique values: ['L', 'M', 'S']" in caplog.text
 
     def test_invalid_type(self):
-        with pytest.raises(TypeError, match="Input must be a pandas Series or DataFrame."):
+        with pytest.raises(TypeError,
+                           match="Input must be a pandas Series or DataFrame."):
             display_variable_info(['not', 'a', 'pandas', 'object'])
 
 
@@ -357,9 +395,12 @@ class TestDetectAndLogDuplicatesAndMissing:
         })
 
     # === Tests ===
-    def test_detects_missing_and_duplicates(self, caplog: pytest.LogCaptureFixture, df_with_missing_and_duplicates):
+    def test_detects_missing_and_duplicates(self, caplog: pytest.LogCaptureFixture,
+                                            df_with_missing_and_duplicates):
         with caplog.at_level("INFO"):
-            unique_dups, total_dups = detect_and_log_duplicates_and_missing(df_with_missing_and_duplicates)
+            unique_dups, total_dups = detect_and_log_duplicates_and_missing(
+                df_with_missing_and_duplicates
+            )
         assert "Rows with at least one NaN" in caplog.text
         assert "Rows with all values NaN" in caplog.text
         assert "Duplicate rows (NaNs treated as equal)" in caplog.text
@@ -368,21 +409,27 @@ class TestDetectAndLogDuplicatesAndMissing:
 
     def test_detects_no_issues(self, caplog: pytest.LogCaptureFixture, df_all_unique):
         with caplog.at_level("INFO"):
-            unique_dups, total_dups = detect_and_log_duplicates_and_missing(df_all_unique)
+            unique_dups, total_dups = detect_and_log_duplicates_and_missing(
+                df_all_unique
+            )
         assert "Rows with at least one NaN: 0" in caplog.text
         assert "Rows with all values NaN: 0" in caplog.text
-        assert "Duplicate rows (NaNs treated as equal): 0 unique, 0 total" in caplog.text
+        assert (
+            "Duplicate rows (NaNs treated as equal): 0 unique, 0 total" in caplog.text
+        )
         assert unique_dups == 0
         assert total_dups == 0
 
     def test_all_missing_rows(self, caplog: pytest.LogCaptureFixture, df_all_missing):
         with caplog.at_level("INFO"):
-            unique_dups, total_dups = detect_and_log_duplicates_and_missing(df_all_missing)
+            unique_dups, total_dups = detect_and_log_duplicates_and_missing(
+                df_all_missing
+            )
         assert "Rows with at least one NaN: 2" in caplog.text
         assert "Rows with all values NaN: 2" in caplog.text
         assert unique_dups == 1
         assert total_dups == 2
-        
+
 
 # === Test class for duplicates_index_map ===
 class TestDuplicatesIndexMap:
@@ -413,7 +460,11 @@ class TestDuplicatesIndexMap:
         sorted_expected = sorted([sorted(group) for group in expected_groups])
         assert sorted_result == sorted_expected
         # Verify that log messages contain expected groupings
-        logged = [record.message for record in caplog.records if "Duplicate group indexes" in record.message]
+        logged = [
+            record.message
+            for record in caplog.records
+            if "Duplicate group indexes" in record.message
+        ]
         assert len(logged) > 0
         # Check log format
         for msg in logged:
@@ -435,7 +486,7 @@ class TestCompareRowDifferences:
             "age": [30, 30, 35],
             "city": ["New York", "Los Angeles", "New York"]
         })
-    
+
     # === Tests ===
     def test_no_differences(self, sample_dataframe):
         result = compare_row_differences(sample_dataframe, 0, 2)
@@ -452,6 +503,7 @@ class TestCompareRowDifferences:
     def test_index_out_of_bounds(self, sample_dataframe):
         with pytest.raises(KeyError):
             compare_row_differences(sample_dataframe, 0, 10)
+
 
 # === Test class for normalize_column_names ===
 class TestNormalizeColumnNames:

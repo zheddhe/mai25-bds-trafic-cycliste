@@ -1,10 +1,10 @@
 import os
-import sys
 import yaml
 import importlib.resources
 
 # Project root directory
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+
 
 def get_full_path(relative_path: str) -> str:
     """
@@ -18,6 +18,7 @@ def get_full_path(relative_path: str) -> str:
     """
     return os.path.join(PROJECT_ROOT, relative_path)
 
+
 def load_config() -> dict:
     """
     Load the main YAML configuration file from the 'smartcheck.resources' package.
@@ -30,7 +31,10 @@ def load_config() -> dict:
         ValueError: If the YAML content is invalid or not a dictionary.
     """
     try:
-        config_path = importlib.resources.files("smartcheck.resources").joinpath("config.yaml")
+        config_path = (
+            importlib.resources.files("smartcheck.resources")
+            .joinpath("config.yaml")
+        )
         with config_path.open("r", encoding="utf-8") as file:
             data = yaml.safe_load(file)
             if not isinstance(data, dict):
