@@ -5,9 +5,6 @@ title: "[STORY] ---a compléter---"
 labels: enhancement
 assignees: ''
 ---
-<!-- Rappel des labels disponibles    : https://github.com/zheddhe/avr25-mle-velib/labels -->
-<!-- Rappel des assignees disponibles : https://github.com/zheddhe/avr25-mle-velib/settings/access -->
-<!-- Rappel des projets disponibles   : https://github.com/zheddhe/avr25-mle-velib/projects -->
 ## En tant que …
 
 Quel est le rôle de l’utilisateur concerné ? (ex. : utilisateur, admin…)
