@@ -2,6 +2,7 @@
 branch = True
 source = smartcheck
 omit =
+    *noxfile.py
     **/__init__.py
     */tests/*
     */.venv/*

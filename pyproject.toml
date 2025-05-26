@@ -23,6 +23,7 @@ dependencies = [
     "plotly~=6.1.1",
     "bokeh~=3.7.3",
     "statsmodels~=0.14.1",
+    "scikit-learn~=1.6.1",
     # dependencies for configuration management
     "pyproj~=3.7.1",
     "PyYAML~=6.0.2",
