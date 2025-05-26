@@ -60,7 +60,7 @@ pip install nox
 # Full build (clean/build/package)
 nox
 
-# Redo Install development dependencies and test only
+# (Re)Install development dependencies / recheck code rules / retest with coverage
 nox -s build --reuse-existing
 
 # Clean environments and project files
@@ -79,10 +79,10 @@ python -m pip install --upgrade pip
 python -m venv .venv
 source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 
-# Install development dependencies and test
+# (Re)Install development dependencies / recheck code rules / retest with coverage
 pip install -e .[dev]
-pytest
 flake8
+pytest
 
 # Build final package
 python -m build
