@@ -206,11 +206,11 @@ def log_general_info(df) -> None:
         return
 
     logger.info(f"Dataset shape: {df.shape[0]} rows x {df.shape[1]} columns")
-    description = df.select_dtypes(include=np.number).describe()
+    description_str = "df.select_dtypes(include=np.number).describe()"
     logger.info(
-        f"Quantitative variable description:\n{description}")
-    correlation = df.select_dtypes(include=np.number).corr()
-    logger.info(f"Quantitative correlation matrix:\n{correlation}")
+        f"For quantitative variable description use:\n{description_str}")
+    correlation_str = "df.select_dtypes(include=np.number).corr()"
+    logger.info(f"For quantitative correlation matrix use:\n{correlation_str}")
     buffer = io.StringIO()
     df.info(buf=buffer)
     info_str = buffer.getvalue()

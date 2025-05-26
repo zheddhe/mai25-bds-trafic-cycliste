@@ -317,8 +317,8 @@ class TestLogGeneralInfo:
         with caplog.at_level("INFO"):
             log_general_info(valid_df)
         assert "Dataset shape" in caplog.text
-        assert "Quantitative variable description" in caplog.text
-        assert "Quantitative correlation matrix" in caplog.text
+        assert "For quantitative variable description" in caplog.text
+        assert "For quantitative correlation matrix" in caplog.text
         assert "DataFrame Info:" in caplog.text
 
     def test_logs_with_none_df(self, caplog: pytest.LogCaptureFixture):
@@ -331,8 +331,8 @@ class TestLogGeneralInfo:
         with caplog.at_level("INFO"):
             log_general_info(df_with_na_and_duplicates)
         assert "Dataset shape" in caplog.text
-        assert "Quantitative variable description" in caplog.text
-        assert "Quantitative correlation matrix" in caplog.text
+        assert "For quantitative variable description" in caplog.text
+        assert "For quantitative correlation matrix" in caplog.text
         assert "DataFrame Info:" in caplog.text
 
 
