@@ -57,7 +57,7 @@ def clean_all(session):
 def build(session):
     """Run code linting and full test suite with coverage and HTML report."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
-    session.install(".[dev]")
+    session.install("-e", ".[dev]")
     session.run("flake8")
     session.run("pytest")
     session.log("✅ Build session complete. Coverage report in htmlcov/index.html")
