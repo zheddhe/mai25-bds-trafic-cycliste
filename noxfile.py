@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 # Python version(s) to use for test sessions
-PYTHON_VERSIONS = ["3.13"]
+PYTHON_VERSIONS = ["3.12"]
 
 
 def remove_paths(session, paths):

@@ -12,7 +12,7 @@ authors = [
     {name = "Elias DJOUADI", email = "dummy@mail.com"},
     {name = "Raphaël PARMENTIER", email = "dummy@mail.com"},
 ]
-requires-python = "~=3.13"
+requires-python = "~=3.12"
 license = "MIT"
 dependencies = [
     # dependencies for data science
