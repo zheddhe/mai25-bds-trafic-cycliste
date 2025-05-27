@@ -53,7 +53,7 @@ def clean_all(session):
     remove_paths(session, paths)
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSIONS, venv_backend="conda")
 def build(session):
     """Run code linting and full test suite with coverage and HTML report."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
@@ -63,7 +63,7 @@ def build(session):
     session.log("✅ Build session complete. Coverage report in htmlcov/index.html")
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSIONS, venv_backend="conda")
 def package(session):
     """Package the project (sdist + wheel)."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
