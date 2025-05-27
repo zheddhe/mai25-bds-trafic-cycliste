@@ -1,4 +1,4 @@
-name: Tests & Coverage Feature branch
+name: Workflow CI on feature branch
 
 on:
   push: # Full Feedback on Push on feature branch
@@ -6,7 +6,8 @@ on:
       - main
       
 jobs:
-  test:
+  ci-checks:
+    name: 🔍 Tests & Coverage
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

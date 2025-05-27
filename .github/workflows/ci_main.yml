@@ -1,4 +1,4 @@
-name: Tests & Coverage Main branch
+name: Workflow CI on main branch
 
 on:
   push: # Full Feedback on Push on main branch
@@ -10,7 +10,8 @@ on:
   workflow_dispatch: # Full feedback on Manual demand
 
 jobs:
-  test:
+  ci-checks:
+    name: 🔍 Tests & Coverage
     runs-on: ubuntu-latest
 
     steps:
