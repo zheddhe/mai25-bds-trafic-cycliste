@@ -30,7 +30,7 @@ jobs:
 
       - name: Check code style with flake8
         run: |
-          flake8 smartcheck tests
+          flake8
 
       - name: Run tests with coverage
         run: |
