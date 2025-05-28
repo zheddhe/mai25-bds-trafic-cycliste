@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 # Python version(s) to use for test sessions
-PYTHON_VERSIONS = ["3.12"]
+PYTHON_VERSION = "3.12"
 
 
 def remove_paths(session, paths):
@@ -24,7 +24,7 @@ def remove_paths(session, paths):
         shutil.rmtree(cache)
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSION)
 def clean_project(session):
     """Remove temporary files and build artifacts (cross-platform, without .nox)."""
     paths = [
@@ -38,7 +38,7 @@ def clean_project(session):
     remove_paths(session, paths)
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSION)
 def clean_all(session):
     """Remove all temporary files, including .nox environments."""
     paths = [
@@ -53,7 +53,9 @@ def clean_all(session):
     remove_paths(session, paths)
 
 
-@nox.session(python=PYTHON_VERSIONS, venv_backend="conda")
+@nox.session(python=PYTHON_VERSION,
+             venv_backend="conda",
+             name=f"build-{PYTHON_VERSION}")
 def build(session):
     """Run code linting and full test suite with coverage and HTML report."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
@@ -63,7 +65,9 @@ def build(session):
     session.log("✅ Build session complete. Coverage report in htmlcov/index.html")
 
 
-@nox.session(python=PYTHON_VERSIONS, venv_backend="conda")
+@nox.session(python=PYTHON_VERSION,
+             venv_backend="conda",
+             name=f"package-{PYTHON_VERSION}")
 def package(session):
     """Package the project (sdist + wheel)."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)

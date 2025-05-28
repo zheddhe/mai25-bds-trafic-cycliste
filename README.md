@@ -50,20 +50,24 @@ avr25-mle-velib/
 
 ## ⚙️ Installation
 
-### Option 1: Using NOX (recommended for multi-environment workflows)
+### Option 1: Using NOX/CONDA (recommended for multi-environment workflows)
 
 ```bash
 # Prerequisites
+conda activate base
 python -m pip install --upgrade pip
 pip install nox
 
-# Full build (clean/build/package)
+# Virtual envs creation in .nox and activation
 nox
+conda list env # check the build env location
+conda activate [buildEnvLocation]
 
 # (Re)Install development dependencies / recheck code rules / retest with coverage
-nox -s build --reuse-existing
+nox -s build-3.12 --reuse-existing
 
 # Clean environments and project files
+conda deactivate
 nox -s clean_all
 nox -s clean_project
 
@@ -74,8 +78,9 @@ nox -s package
 ### Option 2: Using native python and its native virtual environment
 
 ```bash
-# Prerequisites
 python -m pip install --upgrade pip
+
+# Virtual env création in and activation
 python -m venv .venv
 source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 
