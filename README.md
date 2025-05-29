@@ -59,8 +59,8 @@ python -m pip install --upgrade pip
 pip install nox
 
 # Virtual envs creation in .nox and activation
-nox
-conda list env # check the build env location
+nox -s
+conda env list # check the build env location
 conda activate [buildEnvLocation]
 
 # (Re)Install development dependencies / recheck code rules / retest with coverage
@@ -73,6 +73,9 @@ nox -s clean_project
 
 # Build final package
 nox -s package
+
+# List the nox session available (noxfile.py)
+nox --list
 ```
 
 ### Option 2: Using native python and its native virtual environment
