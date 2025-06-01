@@ -380,3 +380,79 @@ def normalize_column_names(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df.columns = [normalize(col) for col in df.columns]
     return df
+
+
+def analyze_by_reference_variable(df: pd.DataFrame, reference_col: str) -> None:
+    """
+    Analyze a DataFrame grouped by a reference column.
+
+    Logs:
+        - Distribution of the reference column.
+        - Median values of numeric variables per group.
+        - Mode values of categorical variables per group.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+        reference_col (str): Column to group by.
+
+    Raises:
+        ValueError: If reference_col is not in df.
+    """
+    if reference_col not in df.columns:
+        raise ValueError(f"'{reference_col}' must be a column in the DataFrame.")
+
+    distribution = df[reference_col].value_counts(
+        dropna=False, normalize=True
+    ).to_string()
+    logger.info("Distribution of %s:\n%s", reference_col, distribution)
+
+    numeric_cols = df.select_dtypes(include="number").columns.tolist()
+    numeric_cols = [col for col in numeric_cols if col != reference_col]
+    if numeric_cols:
+        medians = df[numeric_cols + [reference_col]] \
+            .groupby(reference_col).median().to_string()
+        logger.info("Medians by %s:\n%s", reference_col, medians)
+    else:
+        logger.info("No numeric variables detected")
+
+    categorical_cols = df.select_dtypes(exclude="number").columns.tolist()
+    categorical_cols = [col for col in categorical_cols if col != reference_col]
+    if categorical_cols:
+        modes_df = {
+            col: df.groupby(reference_col)[col].agg(
+                lambda x: x.mode().iloc[0] if not x.mode().empty else pd.NA
+            )
+            for col in categorical_cols
+        }
+        modes_df = pd.DataFrame(modes_df)
+        # modes_df = df[[reference_col] + categorical_cols] \
+        #     .groupby(reference_col).apply(pd.DataFrame.mode)
+        logger.info("Modes by %s:\n%s", reference_col, modes_df.to_string())
+    else:
+        logger.info("No categorical variables detected")
+
+
+def log_cross_distributions(df: pd.DataFrame, reference_col: str) -> None:
+    """
+    Log cross-distributions between the reference column and all other columns.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+        reference_col (str): Column to compute cross-distributions against.
+
+    Raises:
+        ValueError: If reference_col is not in df.
+    """
+    if reference_col not in df.columns:
+        raise ValueError(f"'{reference_col}' must be a column in the DataFrame.")
+
+    other_cols = [col for col in df.columns if col != reference_col]
+    for col in other_cols:
+        try:
+            cross_dist = df.groupby(col)[reference_col].value_counts(
+                normalize=True
+            ).to_string()
+            logger.info("Cross-distribution of %s by %s:\n%s",
+                        reference_col, col, cross_dist)
+        except Exception as e:
+            logger.warning("Could not compute cross-distribution for %s:\n%s", col, e)

@@ -14,7 +14,9 @@ from smartcheck.dataframe_common import (
     duplicates_index_map,
     display_variable_info,
     compare_row_differences,
-    normalize_column_names
+    normalize_column_names,
+    analyze_by_reference_variable,
+    log_cross_distributions
 )
 
 
@@ -539,3 +541,107 @@ class TestNormalizeColumnNames:
         df_normalized = normalize_column_names(df_original)
         assert df_normalized is not df_original  # ensure it's a new object
         assert isinstance(df_normalized, pd.DataFrame)
+
+
+class TestAnalyzeByReferenceVariable:
+
+    # === Fixtures ===
+    @pytest.fixture
+    def df_mixed(self):
+        return pd.DataFrame({
+            'Group': ['A', 'A', 'B', 'B', 'B'],
+            'Value1': [1, 2, 3, 4, 5],
+            'Value2': [10.5, 20.1, 30.3, 40.4, 50.0],
+            'Category': ['X', 'Y', 'X', 'X', 'Z']
+        })
+
+    @pytest.fixture
+    def df_only_categorical(self):
+        return pd.DataFrame({
+            'Group': ['A', 'A', 'B'],
+            'Cat1': ['foo', 'bar', 'foo'],
+            'Cat2': ['x', 'x', 'y']
+        })
+
+    @pytest.fixture
+    def df_only_numeric(self):
+        return pd.DataFrame({
+            'Group': ['A', 'A', 'B'],
+            'Num1': [1, 2, 3],
+            'Num2': [4, 5, 6]
+        })
+
+    # === Tests ===
+    def test_analyze_mixed_data(self, caplog, df_mixed):
+        with caplog.at_level("INFO"):
+            analyze_by_reference_variable(df_mixed, "Group")
+
+        assert "Distribution of Group:" in caplog.text
+        assert "Medians by Group:" in caplog.text
+        assert "Modes by Group:" in caplog.text
+
+    def test_only_categorical(self, caplog, df_only_categorical):
+        with caplog.at_level("INFO"):
+            analyze_by_reference_variable(df_only_categorical, "Group")
+
+        assert "No numeric variables detected" in caplog.text
+        assert "Modes by Group:" in caplog.text
+
+    def test_only_numeric(self, caplog, df_only_numeric):
+        with caplog.at_level("INFO"):
+            analyze_by_reference_variable(df_only_numeric, "Group")
+
+        assert "Medians by Group:" in caplog.text
+        assert "No categorical variables detected" in caplog.text
+
+    def test_invalid_column(self):
+        df = pd.DataFrame({'A': [1, 2, 3]})
+        with pytest.raises(ValueError,
+                           match="'Missing' must be a column in the DataFrame."):
+            analyze_by_reference_variable(df, "Missing")
+
+
+# === Test class for log_cross_distributions ===
+class TestLogCrossDistributions:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def df_example(self):
+        return pd.DataFrame({
+            'Group': ['A', 'A', 'B', 'B', 'C'],
+            'Feature1': ['x', 'y', 'x', 'y', 'z'],
+            'Feature2': [1, 2, 1, 2, 1]
+        })
+
+    @pytest.fixture
+    def df_invalid_reference(self):
+        return pd.DataFrame({
+            'A': [1, 2, 3]
+        })
+
+    @pytest.fixture
+    def df_with_unhashable_column(self):
+        return pd.DataFrame({
+            'Group': ['A', 'B', 'C'],
+            'BadColumn': [[1, 2], [3, 4], [5, 6]]  # listes non hashables
+        })
+
+    # === Tests ===
+    def test_cross_distributions_logging(self, caplog, df_example):
+        with caplog.at_level("INFO"):
+            log_cross_distributions(df_example, "Group")
+
+        assert "Cross-distribution of Group by Feature1:" in caplog.text
+        assert "Cross-distribution of Group by Feature2:" in caplog.text
+
+    def test_invalid_reference_column(self, df_invalid_reference):
+        with pytest.raises(ValueError,
+                           match="'Group' must be a column in the DataFrame."):
+            log_cross_distributions(df_invalid_reference, "Group")
+
+    def test_cross_distribution_raises_exception(self, caplog,
+                                                 df_with_unhashable_column):
+        with caplog.at_level("WARNING"):
+            log_cross_distributions(df_with_unhashable_column, "Group")
+
+        assert "Could not compute cross-distribution for BadColumn" in caplog.text
