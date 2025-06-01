@@ -288,12 +288,14 @@ def duplicates_index_map(df):
     return duplicate_groups
 
 
-def display_variable_info(data):
+def display_variable_info(data, max_values=10):
     """
-    Display information about unique values and distribution of a Series or DataFrame.
+    Display information about unique values and distribution of a Series or DataFrame
+    limiting the number of maximum values displayed for each variable
 
     Args:
         data (pd.Series or pd.DataFrame): Data to analyze.
+        max_values (int) : Number of maximum
 
     Raises:
         TypeError: If input is not a Series or DataFrame.
@@ -305,8 +307,13 @@ def display_variable_info(data):
             .sort_values(na_position='last')
             .tolist()
         )
-        logger.info(f"Sorted unique values: {unique_values}")
-        logger.info(f"Value distribution:\n{data.value_counts()}")
+        logger.info(f"Sorted unique values (first {max_values}): "
+                    f"{unique_values}")
+        logger.info(f"Value distribution (first {max_values}):\n"
+                    f"{data.value_counts(
+                        normalize=True,
+                        dropna=False).head(max_values)
+                    }")
     elif isinstance(data, pd.DataFrame):
         logger.info("Analysis for DataFrame:")
         for col in data.columns:
@@ -316,8 +323,13 @@ def display_variable_info(data):
                 .sort_values(na_position='last')
                 .tolist()
             )
-            logger.info(f"Sorted unique values: {unique_values}")
-            logger.info(f"Value distribution:\n{data[col].value_counts()}")
+            logger.info(f"Sorted unique values (first {max_values}): "
+                        f"{unique_values[:max_values]}")
+            logger.info(f"Value distribution (first {max_values}):\n"
+                f"{data[col].value_counts(
+                    normalize=True,
+                    dropna=False).head(max_values)
+                }")
     else:
         raise TypeError("Input must be a pandas Series or DataFrame.")
 
@@ -425,8 +437,6 @@ def analyze_by_reference_variable(df: pd.DataFrame, reference_col: str) -> None:
             for col in categorical_cols
         }
         modes_df = pd.DataFrame(modes_df)
-        # modes_df = df[[reference_col] + categorical_cols] \
-        #     .groupby(reference_col).apply(pd.DataFrame.mode)
         logger.info("Modes by %s:\n%s", reference_col, modes_df.to_string())
     else:
         logger.info("No categorical variables detected")

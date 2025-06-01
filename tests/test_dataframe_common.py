@@ -348,8 +348,8 @@ class TestDisplayVariableInfo:
             display_variable_info(series)
 
         assert "Analysis for Series [fruit]:" in caplog.text
-        assert "Sorted unique values: ['apple', 'banana', 'orange']" in caplog.text
-        assert "Value distribution" in caplog.text
+        assert "Sorted unique values (first 10): ['apple', 'banana', 'orange']" in caplog.text
+        assert "Value distribution (first 10):" in caplog.text
 
     def test_dataframe(self, caplog: pytest.LogCaptureFixture):
         df = pd.DataFrame({
@@ -361,9 +361,10 @@ class TestDisplayVariableInfo:
 
         assert "Analysis for DataFrame:" in caplog.text
         assert "Analysis for column [color]:" in caplog.text
-        assert "Sorted unique values: ['blue', 'green', 'red']" in caplog.text
+        assert "Sorted unique values (first 10): ['blue', 'green', 'red']" in caplog.text
         assert "Analysis for column [size]:" in caplog.text
-        assert "Sorted unique values: ['L', 'M', 'S']" in caplog.text
+        assert "Sorted unique values (first 10): ['L', 'M', 'S']" in caplog.text
+        assert "Value distribution (first 10):" in caplog.text
 
     def test_invalid_type(self):
         with pytest.raises(TypeError,
