@@ -31,7 +31,7 @@ This project implements a full machine learning and MLOps pipeline in three main
 
 ```
 avr25-mle-velib/
-├── smartcheck/         # Source code
+├── smartcheck/         # Source code (project core)
 │   ├── [modules].py
 │   └── resources/
 │       └── config.yaml
@@ -40,10 +40,10 @@ avr25-mle-velib/
 ├── README.md           # Project documentation
 ├── LICENSE             # MIT license
 ├── requirements.txt    # Pip requirements
-├── MANIFEST.in         # Packaging resources for setuptools
+├── MANIFEST.in         # Packaging resources configuration for setuptools
 ├── pyproject.toml      # Python project configuration
 ├── noxfile.py          # NOX session configuration
-└── .coveragerc         # Coverage configuration
+└── .coveragerc         # Test coverage configuration
 ```
 
 ---
