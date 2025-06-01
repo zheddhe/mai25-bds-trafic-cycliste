@@ -312,8 +312,8 @@ def display_variable_info(data, max_values=10):
         logger.info(f"Value distribution (first {max_values}):\n"
                     f"{data.value_counts(
                         normalize=True,
-                        dropna=False).head(max_values)
-                    }")
+                        dropna=False
+                    ).head(max_values)}")
     elif isinstance(data, pd.DataFrame):
         logger.info("Analysis for DataFrame:")
         for col in data.columns:
@@ -326,10 +326,10 @@ def display_variable_info(data, max_values=10):
             logger.info(f"Sorted unique values (first {max_values}): "
                         f"{unique_values[:max_values]}")
             logger.info(f"Value distribution (first {max_values}):\n"
-                f"{data[col].value_counts(
-                    normalize=True,
-                    dropna=False).head(max_values)
-                }")
+                        f"{data[col].value_counts(
+                            normalize=True,
+                            dropna=False
+                        ).head(max_values)}")
     else:
         raise TypeError("Input must be a pandas Series or DataFrame.")
 

@@ -14,7 +14,7 @@ statsmodels==0.14.4
 scikit-learn==1.6.1
 mljar-scikit-plot==0.3.12
 xgboost==3.0.2
-imblearn==0.13.0
+imblearn==0.0
 # dependencies for configuration and project management
 PyYAML==6.0.2
 pyproj==3.7.1
