@@ -234,9 +234,12 @@ def detect_and_log_duplicates_and_missing(df, subset=None):
 
     missing_any = df_sub.isna().any(axis=1).sum()
     missing_all = df_sub.isna().all(axis=1).sum()
+    missing_stats = df_sub.isna().sum(axis=0)/len(df_sub)
+    missing_stats = (missing_stats[missing_stats > 0].round(5))
 
     logger.info(f"Rows with at least one NaN: {missing_any}")
     logger.info(f"Rows with all values NaN: {missing_all}")
+    logger.info(f"Columns with missing values (normalized total):\n{missing_stats}")
 
     df_filled = df.copy()
     for col in df_sub.columns:

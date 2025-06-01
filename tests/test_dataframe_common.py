@@ -404,6 +404,7 @@ class TestDetectAndLogDuplicatesAndMissing:
         assert "Rows with at least one NaN" in caplog.text
         assert "Rows with all values NaN" in caplog.text
         assert "Duplicate rows (NaNs treated as equal)" in caplog.text
+        assert "Columns with missing values (normalized total):" in caplog.text
         assert unique_dups == 1
         assert total_dups == 2
 
