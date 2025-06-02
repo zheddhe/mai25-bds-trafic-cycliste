@@ -41,7 +41,7 @@ class TestLoadConfig:
         "valid_key, expected_substring",
         [
             ("velib_dispo_data", "https://drive.google.com"),
-            ("velib_comptage_data", "https://drive.google.com"),
+            ("velo_comptage_data", "https://drive.google.com"),
         ]
     )
     def test_valid_key_contains_expected_substring(self, valid_key, expected_substring):
