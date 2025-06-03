@@ -1,11 +1,11 @@
-# 🚲 AVR25 MLE Vélib Project
+# 🚲 Cyclist Traffic ML Project
 
-[![codecov](https://codecov.io/gh/zheddhe/avr25-mle-velib/graph/badge.svg?token=6TLD3FM08Z)](https://codecov.io/gh/zheddhe/avr25-mle-velib)
-[![CI Main](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_main.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)
-[![CI Branch](https://github.com/zheddhe/avr25-mle-velib/actions/workflows/ci_branch.yml/badge.svg)](https://github.com/zheddhe/avr25-mle-velib/actions)
+[![codecov](https://codecov.io/gh/zheddhe/mai25-bds-trafic-cycliste/graph/badge.svg?token=6TLD3FM08Z)](https://codecov.io/gh/zheddhe/mai25-bds-trafic-cycliste)
+[![CI Main](https://github.com/zheddhe/mai25-bds-trafic-cycliste/actions/workflows/ci_main.yml/badge.svg)](https://github.com/zheddhe/mai25-bds-trafic-cycliste/actions)
+[![CI Branch](https://github.com/zheddhe/mai25-bds-trafic-cycliste/actions/workflows/ci_branch.yml/badge.svg)](https://github.com/zheddhe/mai25-bds-trafic-cycliste/actions)
 
 > A machine learning pipeline for analyzing Vélib bike-sharing data.  
-> Developed as part of the April 2025 Machine Learning Engineering (MLE) training program.
+> Developed as part of the April 2025 Machine Learning Engineering (MLE) full training program.
 
 ---
 
@@ -30,7 +30,7 @@ This project implements a full machine learning and MLOps pipeline in three main
 ## 🧱 Project Structure
 
 ```
-avr25-mle-velib/
+mai25-bds-trafic-cycliste/
 ├── smartcheck/         # Source code (project core)
 │   ├── [modules].py
 │   └── resources/
@@ -136,7 +136,7 @@ GitHub Actions executes all tests and tracks code coverage:
 - `ci_main.yml`: for main branch activity (push, PR)
 - `ci_branch.yml`: for all other branches
 
-Coverage data is sent to [Codecov](https://codecov.io/gh/zheddhe/avr25-mle-velib).
+Coverage data is sent to [Codecov](https://codecov.io/gh/zheddhe/mai25-bds-trafic-cycliste).
 
 ---
 

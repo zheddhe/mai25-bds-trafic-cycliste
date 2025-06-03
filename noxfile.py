@@ -33,7 +33,7 @@ def clean_project(session):
         "htmlcov",
         "build",
         "dist",
-        "avr25_mle_velib.egg-info",
+        "*.egg-info",
     ]
     remove_paths(session, paths)
 
@@ -48,7 +48,7 @@ def clean_all(session):
         "build",
         "dist",
         ".nox",
-        "avr25_mle_velib.egg-info",
+        "*.egg-info",
     ]
     remove_paths(session, paths)
 

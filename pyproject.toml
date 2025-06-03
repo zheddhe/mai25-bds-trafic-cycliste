@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "avr25-mle-velib"
+name = "mai25-bds-trafic-cycliste"
 version = "0.1.1"
 description = "velib data science project for MLE april 2025 promotion"
 authors = [
@@ -57,7 +57,7 @@ file = "README.md"
 content-type = "text/markdown" 
 
 [project.urls]
-"Source" = "https://github.com/zheddhe/avr25-mle-velib"
+"Source" = "https://github.com/zheddhe/mai25-bds-trafic-cycliste"
 
 
 [tool.setuptools]
