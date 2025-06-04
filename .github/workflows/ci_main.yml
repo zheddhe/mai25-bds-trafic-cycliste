@@ -30,7 +30,8 @@ jobs:
 
       - name: Check that notebooks are stripped
         run: |
-          pip install nbstripout==0.8.1
+          pip install --upgrade --force-reinstall nbstripout==0.8.1
+          nbstripout --version
           nbstripout --check --exit-zero-on-unchanged $(find . -name "*.ipynb")
 
       - name: Check code style with flake8
