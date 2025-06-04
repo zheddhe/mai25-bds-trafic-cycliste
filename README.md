@@ -4,7 +4,7 @@
 [![CI Main](https://github.com/zheddhe/mai25-bds-trafic-cycliste/actions/workflows/ci_main.yml/badge.svg)](https://github.com/zheddhe/mai25-bds-trafic-cycliste/actions)
 [![CI Branch](https://github.com/zheddhe/mai25-bds-trafic-cycliste/actions/workflows/ci_branch.yml/badge.svg)](https://github.com/zheddhe/mai25-bds-trafic-cycliste/actions)
 
-> A machine learning pipeline for analyzing Vélib bike-sharing data.  
+> A machine learning pipeline for analyzing bike traffic data in Paris.  
 > Developed as part of the April 2025 Machine Learning Engineering (MLE) full training program.
 
 ---
