@@ -28,6 +28,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[dev]
 
+      - name: Check that notebooks are stripped
+        run: |
+          nbstripout --check --exit-zero-on-unchanged $(find . -name "*.ipynb")
+
       - name: Check code style with flake8
         run: |
           flake8

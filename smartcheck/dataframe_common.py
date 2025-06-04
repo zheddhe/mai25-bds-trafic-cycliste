@@ -101,7 +101,8 @@ def _load_data_from_string(content, format_type="csv", *args, **kwargs):
         if format_type == "csv":
             return pd.read_csv(io.StringIO(content), *args, **kwargs)
         elif format_type == "json":
-            return pd.read_json(io.StringIO(content), *args, **kwargs)
+            bytes_buf = io.BytesIO(content.encode("utf-8"))
+            return pd.read_json(bytes_buf, *args, **kwargs)
         else:
             logger.error(
                 f"Unsupported format '{format_type}' for string input."
@@ -232,14 +233,30 @@ def detect_and_log_duplicates_and_missing(df, subset=None):
     """
     df_sub = df if subset is None else df[subset]
 
+    # Missing values statistics
+    total_cells = df_sub.shape[0] * df_sub.shape[1]
+    total_missing = df_sub.isna().sum().sum()
+    overall_missing_pct = round(100 * total_missing / total_cells, 2)
+
     missing_any = df_sub.isna().any(axis=1).sum()
     missing_all = df_sub.isna().all(axis=1).sum()
-    missing_stats = df_sub.isna().sum(axis=0)/len(df_sub)
-    missing_stats = (missing_stats[missing_stats > 0].round(5))
 
-    logger.info(f"Rows with at least one NaN: {missing_any}")
-    logger.info(f"Rows with all values NaN: {missing_all}")
-    logger.info(f"Columns with missing values (normalized total):\n{missing_stats}")
+    # Column-wise missing percentages
+    missing_stats = df_sub.isna().sum() / len(df_sub)
+    missing_stats = (missing_stats[missing_stats > 0] * 100).round(2)
+
+    if not missing_stats.empty:
+        markdown_table = "| Column | % Missing Values |\n|-|-|\n"
+        for col, pct in missing_stats.items():
+            markdown_table += f"| {col} | {pct:.2f}% |\n"
+    else:
+        markdown_table = "No missing values detected in any column."
+
+    # Logging missing data
+    logger.info(f"✅ Overall missing value percentage: {overall_missing_pct:.2f}%")
+    logger.info(f"🔍 Rows with at least one NaN: {missing_any}")
+    logger.info(f"🔍 Rows with all values NaN: {missing_all}")
+    logger.info("📊 Missing values per column (percentage):\n" + markdown_table)
 
     df_filled = df.copy()
     for col in df_sub.columns:
@@ -252,7 +269,7 @@ def detect_and_log_duplicates_and_missing(df, subset=None):
     dup_keep_false = df_filled.duplicated(subset=subset, keep=False).sum()
 
     logger.info(
-        "Duplicate rows (NaNs treated as equal): "
+        "🔁 Duplicate rows (NaNs treated as equal): "
         f"{dup_keep_first} unique, {dup_keep_false} total"
     )
 

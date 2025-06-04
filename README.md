@@ -31,24 +31,36 @@ This project implements a full machine learning and MLOps pipeline in three main
 
 ```
 mai25-bds-trafic-cycliste/
-├── smartcheck/         # Source code (project core)
+├── smartcheck/             # Source code (project core)
 │   ├── [modules].py
 │   └── resources/
 │       └── config.yaml
-├── tests/              # Unit tests (pytest)
-├── notebooks/          # Jupyter notebooks (not packaged)
-├── README.md           # Project documentation
-├── LICENSE             # MIT license
-├── requirements.txt    # Pip requirements
-├── MANIFEST.in         # Packaging resources configuration for setuptools
-├── pyproject.toml      # Python project configuration
-├── noxfile.py          # NOX session configuration
-└── .coveragerc         # Test coverage configuration
+├── tests/                  # Unit tests (pytest)
+├── notebooks/              # Jupyter notebooks (not packaged)
+├── README.md               # Project documentation
+├── LICENSE                 # MIT license
+├── requirements.txt        # Pip requirements
+├── MANIFEST.in             # Packaging resources configuration for setuptools
+├── pyproject.toml          # Python project configuration
+├── noxfile.py              # NOX session configuration
+├── .pre-commit-config.yaml # Pre-commit configuration (clean jupyter notebooks before commit)
+└── .coveragerc             # Test coverage configuration
 ```
 
 ---
 
 ## ⚙️ Installation
+
+### After cloning the repository please activate the pre-commit hooks :
+The purpose is to clean the jupyter notebooks (execution and outputs information) just before any commit 
+in order to keep the repository as light as possible
+```bash
+pre-commit install
+```
+You can also manually do it ith the following command once the package is availale
+```bash
+nbstripout --install
+```
 
 ### Option 1: Using NOX/CONDA (recommended for multi-environment workflows)
 
