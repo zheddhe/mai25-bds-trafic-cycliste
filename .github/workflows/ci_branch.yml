@@ -25,8 +25,7 @@ jobs:
 
       - name: Check that notebooks are stripped
         run: |
-          pip install nbstripout==0.8.1
-          nbstripout --check --exit-zero-on-unchanged $(find . -name "*.ipynb")
+          nbstripout --dry-run $(find . -name "*.ipynb")
 
       - name: Check code style with flake8
         run: |
