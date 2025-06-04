@@ -30,7 +30,14 @@ jobs:
 
       - name: Check that notebooks are stripped
         run: |
-          nbstripout --dry-run $(find . -name "*.ipynb")
+          output=$(nbstripout --dry-run $(find . -name "*.ipynb"))
+          echo "$output"
+          if [ -n "$output" ]; then
+            echo "❌ Some notebooks are not stripped!"
+            exit 1
+          else
+            echo "✅ All notebooks are clean."
+          fi
 
       - name: Check code style with flake8
         run: |
