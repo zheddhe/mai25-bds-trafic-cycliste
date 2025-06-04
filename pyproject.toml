@@ -50,6 +50,8 @@ dev = [
     "notebook==7.4.3",
     # dependencies for code quality
     "flake8==7.2.0",
+    "nbstripout==0.8.1",
+    "pre-commit==4.2.0",
 ]
 
 [project.readme]
