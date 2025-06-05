@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import pytest
 from unittest.mock import patch, Mock
+from functools import partial
 from smartcheck.dataframe_common import (
     _extract_google_drive_file_id,
     _download_google_drive_file,
@@ -16,7 +17,8 @@ from smartcheck.dataframe_common import (
     compare_row_differences,
     normalize_column_names,
     analyze_by_reference_variable,
-    log_cross_distributions
+    log_cross_distributions,
+    extract_difference
 )
 
 
@@ -348,25 +350,25 @@ class TestDisplayVariableInfo:
             display_variable_info(series)
 
         assert "Analysis for Series [fruit]:" in caplog.text
-        assert "Sorted unique values (first 10):" in caplog.text
+        assert "Sorted unique values (first 10 out of 3):" in caplog.text
         assert "['apple', 'banana', 'orange']" in caplog.text
         assert "Value distribution (first 10):" in caplog.text
 
     def test_dataframe(self, caplog: pytest.LogCaptureFixture):
         df = pd.DataFrame({
             'color': ['red', 'blue', 'red', 'green'],
-            'size': ['S', 'M', 'M', 'L']
+            'size': ['S', 'M', 'M', 'S']
         })
         with caplog.at_level("INFO"):
             display_variable_info(df)
 
         assert "Analysis for DataFrame:" in caplog.text
         assert "Analysis for column [color]:" in caplog.text
-        assert "Sorted unique values (first 10):" in caplog.text
+        assert "Sorted unique values (first 10 out of 3):" in caplog.text
         assert "['blue', 'green', 'red']" in caplog.text
         assert "Analysis for column [size]:" in caplog.text
-        assert "Sorted unique values (first 10):" in caplog.text
-        assert "['L', 'M', 'S']" in caplog.text
+        assert "Sorted unique values (first 10 out of 2):" in caplog.text
+        assert "['M', 'S']" in caplog.text
         assert "Value distribution (first 10):" in caplog.text
 
     def test_invalid_type(self):
@@ -650,3 +652,77 @@ class TestLogCrossDistributions:
             log_cross_distributions(df_with_unhashable_column, "Group")
 
         assert "Could not compute cross-distribution for BadColumn" in caplog.text
+
+
+# === Test class for extract_difference ===
+class TestExtractDifference:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def row_match(self):
+        return {
+            "source": "Pont de Tolbiac",
+            "target": "Pont de Tolbiac - Piste Sud"
+        }
+
+    @pytest.fixture
+    def row_nan_source(self):
+        return {
+            "source": None,
+            "target": "Pont de Bercy - Nord"
+        }
+
+    @pytest.fixture
+    def row_not_found(self):
+        return {
+            "source": "Inexistant",
+            "target": "Nation - Avenue Dorian"
+        }
+
+    # === Tests ===
+    def test_removes_matched_source(self, row_match):
+        func = partial(
+            extract_difference,
+            source_col="source",
+            target_col="target"
+        )
+        result = func(row_match)
+        assert result == "- Piste Sud"
+
+    def test_returns_default_nan_placeholder(self, row_nan_source):
+        func = partial(
+            extract_difference,
+            source_col="source",
+            target_col="target"
+        )
+        result = func(row_nan_source)
+        assert result == "[source] EMPTY"
+
+    def test_returns_custom_nan_placeholder(self, row_nan_source):
+        func = partial(
+            extract_difference,
+            source_col="source",
+            target_col="target",
+            nan_placeholder="__NaN__"
+        )
+        result = func(row_nan_source)
+        assert result == "__NaN__"
+
+    def test_returns_default_not_found_placeholder(self, row_not_found):
+        func = partial(
+            extract_difference,
+            source_col="source",
+            target_col="target"
+        )
+        result = func(row_not_found)
+        assert result == "[Inexistant] NOT FOUND"
+
+    def test_returns_custom_not_found_placeholder(self, row_not_found):
+        func = partial(
+            extract_difference,
+            source_col="source",
+            target_col="target",
+            not_found_placeholder="__NOT FOUND__"
+        )
+        result = func(row_not_found)
+        assert result == "__NOT FOUND__"

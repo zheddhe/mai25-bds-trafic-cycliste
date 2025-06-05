@@ -321,32 +321,40 @@ def display_variable_info(data, max_values=10):
         logger.info(f"Analysis for Series [{data.name}]:")
         unique_values = (
             pd.Series(data.unique())
-            .sort_values(na_position='last')
+            .sort_values(na_position='first')
             .tolist()
         )
-        logger.info(f"Sorted unique values (first {max_values}): "
-                    f"{unique_values}")
+        count_values = (
+            data.value_counts(
+                normalize=True,
+                dropna=False
+            )
+        )
+        logger.info(f"Sorted unique values (first {max_values} out of"
+                    f" {len(unique_values)}): "
+                    f"{unique_values[:max_values]}")
         logger.info(f"Value distribution (first {max_values}):\n"
-                    f"{data.value_counts(
-                        normalize=True,
-                        dropna=False
-                    ).head(max_values)}")
+                    f"{count_values.head(max_values)}")
     elif isinstance(data, pd.DataFrame):
         logger.info("Analysis for DataFrame:")
         for col in data.columns:
             logger.info(f"Analysis for column [{col}]:")
             unique_values = (
                 pd.Series(data[col].unique())
-                .sort_values(na_position='last')
+                .sort_values(na_position='first')
                 .tolist()
             )
-            logger.info(f"Sorted unique values (first {max_values}): "
+            count_values = (
+                data.value_counts(
+                    normalize=True,
+                    dropna=False
+                )
+            ).head(max_values)
+            logger.info(f"Sorted unique values (first {max_values} out of"
+                        f" {len(unique_values)}): "
                         f"{unique_values[:max_values]}")
             logger.info(f"Value distribution (first {max_values}):\n"
-                        f"{data[col].value_counts(
-                            normalize=True,
-                            dropna=False
-                        ).head(max_values)}")
+                        f"{count_values.head(max_values)}")
     else:
         raise TypeError("Input must be a pandas Series or DataFrame.")
 
@@ -483,3 +491,39 @@ def log_cross_distributions(df: pd.DataFrame, reference_col: str) -> None:
                         reference_col, col, cross_dist)
         except Exception as e:
             logger.warning("Could not compute cross-distribution for %s:\n%s", col, e)
+
+
+def extract_difference(
+    row,
+    source_col,
+    target_col,
+    nan_placeholder=None,
+    not_found_placeholder=None
+):
+    """Extracts the part of target_col not matching source_col.
+
+    Args:
+        row (pd.Series): A row of the DataFrame.
+        source_col (str): Column name containing the source string.
+        target_col (str): Column name containing the target string.
+        nan_placeholder (str, optional): Replacement if source is NaN.
+        not_found_placeholder (str, optional): Replacement if source not in target.
+
+    Returns:
+        str: The difference string or placeholder.
+    """
+    source_value = str(row[source_col]) if pd.notna(row[source_col]) else None
+    target_value = str(row[target_col]) if pd.notna(row[target_col]) else ""
+
+    if source_value is None:
+        if nan_placeholder is not None:
+            return nan_placeholder
+        return f"[{source_col}] EMPTY"
+
+    if source_value in target_value:
+        return target_value.replace(source_value, "").strip()
+
+    if not_found_placeholder is not None:
+        return not_found_placeholder
+
+    return f"[{source_value}] NOT FOUND"
