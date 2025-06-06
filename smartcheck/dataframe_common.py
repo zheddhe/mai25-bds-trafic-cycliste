@@ -330,8 +330,9 @@ def display_variable_info(data, max_values=10):
                 dropna=False
             )
         )
-        logger.info(f"Sorted unique values (first {max_values} out of"
-                    f" {len(unique_values)}): "
+        logger.info(f"Sorted unique values [type={data.dtype}] "
+                    f"(first {max_values} out of"
+                    f" {len(unique_values)}):\n"
                     f"{unique_values[:max_values]}")
         logger.info(f"Value distribution (first {max_values}):\n"
                     f"{count_values.head(max_values)}")
@@ -345,13 +346,14 @@ def display_variable_info(data, max_values=10):
                 .tolist()
             )
             count_values = (
-                data.value_counts(
+                data[col].value_counts(
                     normalize=True,
                     dropna=False
                 )
             ).head(max_values)
-            logger.info(f"Sorted unique values (first {max_values} out of"
-                        f" {len(unique_values)}): "
+            logger.info(f"Sorted unique values [type={data[col].dtype}] "
+                        f"(first {max_values} out of"
+                        f" {len(unique_values)}):\n"
                         f"{unique_values[:max_values]}")
             logger.info(f"Value distribution (first {max_values}):\n"
                         f"{count_values.head(max_values)}")

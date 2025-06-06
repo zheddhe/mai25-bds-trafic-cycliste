@@ -350,7 +350,7 @@ class TestDisplayVariableInfo:
             display_variable_info(series)
 
         assert "Analysis for Series [fruit]:" in caplog.text
-        assert "Sorted unique values (first 10 out of 3):" in caplog.text
+        assert "Sorted unique values [type=object] (first 10 out of 3):" in caplog.text
         assert "['apple', 'banana', 'orange']" in caplog.text
         assert "Value distribution (first 10):" in caplog.text
 
@@ -364,10 +364,10 @@ class TestDisplayVariableInfo:
 
         assert "Analysis for DataFrame:" in caplog.text
         assert "Analysis for column [color]:" in caplog.text
-        assert "Sorted unique values (first 10 out of 3):" in caplog.text
+        assert "Sorted unique values [type=object] (first 10 out of 3):" in caplog.text
         assert "['blue', 'green', 'red']" in caplog.text
         assert "Analysis for column [size]:" in caplog.text
-        assert "Sorted unique values (first 10 out of 2):" in caplog.text
+        assert "Sorted unique values [type=object] (first 10 out of 2):" in caplog.text
         assert "['M', 'S']" in caplog.text
         assert "Value distribution (first 10):" in caplog.text
 
