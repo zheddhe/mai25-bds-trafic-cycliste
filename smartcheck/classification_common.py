@@ -123,7 +123,7 @@ def cross_validation_with_resampling_and_threshold(X, y, model, thresholds=None)
             X_train, y_train = X.iloc[train_idx], y.iloc[train_idx]
             X_test, y_test = X.iloc[test_idx], y.iloc[test_idx]
 
-            # Dynamically adjust k_neighbors for SMOTE
+            # Dynamically adjust k_neighbors for SMOTE, not needed for other resamplers
             if isinstance(resampler, SMOTE):
                 class_counts = Counter(y_train)
                 min_class_size = min(class_counts.values())
