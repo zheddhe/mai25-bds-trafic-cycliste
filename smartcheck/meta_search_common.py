@@ -12,27 +12,31 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
 
 
-def compare_search_methods(model_name, model, param_grid, X_train, y_train,
-                           X_test, y_test, results: dict):
+def compare_search_methods(model_name, model, param_grid, X_train, X_test,
+                           y_train, y_test, results: dict):
     """
-    Compare différentes méthodes de recherche d'hyperparamètres
-    pour la classification ou la régression.
+    Compare different hyperparameter search strategies
+    for both classification and regression models.
     """
 
     if is_classifier(model):
-        scoring = 'f1'  # ou 'accuracy' selon préférence
+        scoring = 'f1'  # or 'accuracy', depending on preference
 
         def metric_func(y_true, y_pred):
             return f1_score(y_true, y_pred)
+
         metric_name = "f1_score"
+
     elif is_regressor(model):
         scoring = 'neg_mean_squared_error'
 
         def metric_func(y_true, y_pred):
             return mean_squared_error(y_true, y_pred)
+
         metric_name = "mean_squared_error"
+
     else:
-        raise ValueError("Le modèle fourni n'est ni un classifieur ni un régressseur.")
+        raise ValueError("The provided model is neither a classifier nor a regressor.")
 
     search_methods = {
         'GridSearchCV': GridSearchCV(
@@ -50,14 +54,15 @@ def compare_search_methods(model_name, model, param_grid, X_train, y_train,
     }
 
     results[model_name] = {}
+    log.info(f"### Model: {model_name} ###")
 
     for search_name, search in search_methods.items():
-        log.info(f"== Méthode : {search_name} ==")
+        log.info(f"== Method: {search_name} ==")
 
         try:
             search.fit(X_train, y_train)
         except Exception as e:
-            log.error(f"Erreur lors de la recherche avec {search_name} : {e}")
+            log.error(f"Error during search with {search_name}: {e}")
             continue
 
         best_params = search.best_params_
@@ -67,7 +72,7 @@ def compare_search_methods(model_name, model, param_grid, X_train, y_train,
             y_pred = search.predict(X_test)
             test_metric = metric_func(y_test, y_pred)
         except NotFittedError:
-            log.warning(f"Modèle non entraîné avec {search_name}")
+            log.warning(f"Model not fitted with {search_name}")
             test_metric = None
 
         results[model_name][search_name] = {
@@ -76,9 +81,9 @@ def compare_search_methods(model_name, model, param_grid, X_train, y_train,
             f'test_{metric_name}': test_metric
         }
 
-        log.info(f"Meilleurs paramètres ({search_name}): {best_params}")
-        log.info(f"Score CV ({scoring}): {best_score:.4f}")
+        log.info(f"Best parameters ({search_name}): {best_params}")
+        log.info(f"CV score ({scoring}): {best_score:.4f}")
         if test_metric is not None:
-            log.info(f"Score test ({metric_name}): {test_metric:.4f}\n")
+            log.info(f"Test score ({metric_name}): {test_metric:.4f}\n")
         else:
-            log.info(f"Score test ({metric_name}): None\n")
+            log.info(f"Test score ({metric_name}): None\n")

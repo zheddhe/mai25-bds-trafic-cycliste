@@ -13,10 +13,10 @@ from smartcheck.meta_search_common import (
 )
 
 
-# === Classe de test rapide ===
+# === Test class for compare_search_methods ===
 class TestCompareSearchMethods:
 
-    # === Fixtures ===
+    # === Data Fixtures ===
     @pytest.fixture
     def classification_data(self):
         X, y = make_classification(n_samples=100, n_features=5,
@@ -60,7 +60,7 @@ class TestCompareSearchMethods:
         results = {}
 
         compare_search_methods("LogisticRegression", clf_model, clf_param_grid,
-                               X_train, y_train, X_test, y_test, results)
+                               X_train, X_test, y_train, y_test, results)
 
         res = results["LogisticRegression"]
         assert all("best_params" in r for r in res.values())
@@ -73,7 +73,7 @@ class TestCompareSearchMethods:
         results = {}
 
         compare_search_methods("LinearRegression", reg_model, reg_param_grid,
-                               X_train, y_train, X_test, y_test, results)
+                               X_train, X_test, y_train, y_test, results)
 
         res = results["LinearRegression"]
         assert all("best_params" in r for r in res.values())
@@ -85,9 +85,9 @@ class TestCompareSearchMethods:
             def predict(self, X): return X
 
         X_train, X_test, y_train, y_test = classification_data
-        with pytest.raises(ValueError, match="ni un classifieur ni un régressseur"):
+        with pytest.raises(ValueError, match="neither a classifier nor a regressor"):
             compare_search_methods("FakeModel", FakeEstimator(), {},
-                                   X_train, y_train, X_test, y_test, {})
+                                   X_train, X_test, y_train, y_test, {})
 
     def test_bad_param_grid_does_not_crash(self, classification_data):
         X_train, X_test, y_train, y_test = classification_data
@@ -95,7 +95,7 @@ class TestCompareSearchMethods:
         results = {}
 
         compare_search_methods("Dummy", DummyClassifier(), bad_grid,
-                               X_train, y_train, X_test, y_test, results)
+                               X_train, X_test, y_train, y_test, results)
 
         assert "Dummy" in results
         assert isinstance(results["Dummy"], dict)
@@ -109,16 +109,16 @@ class TestCompareSearchMethods:
 
         caplog.set_level(logging.WARNING)
 
-        # Patch GridSearchCV.predict pour qu'il lève NotFittedError
+        # Patch GridSearchCV.predict to raise NotFittedError
         with patch.object(GridSearchCV, "predict",
                           side_effect=NotFittedError("Not fitted")):
             compare_search_methods("LogisticRegression", clf_model,
-                                   clf_param_grid, X_train, y_train,
-                                   X_test, y_test, results)
+                                   clf_param_grid, X_train, X_test,
+                                   y_train, y_test, results)
 
-        # Vérifie que le warning a été loggué
-        assert "Modèle non entraîné avec GridSearchCV" in caplog.text
+        # Check that the warning was logged
+        assert "Model not fitted with GridSearchCV" in caplog.text
 
-        # Vérifie que la métrique de test est bien None
+        # Check that the test metric is None
         test_metrics = results["LogisticRegression"]["GridSearchCV"]
         assert test_metrics["test_f1_score"] is None
