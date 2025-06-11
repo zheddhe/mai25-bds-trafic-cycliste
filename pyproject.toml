@@ -30,6 +30,7 @@ dependencies = [
     "tabulate==0.9.0",
     "missingno==0.5.2",
     "scikit-optimize==0.10.2",
+    "geopandas==1.1.0",
     # dependencies for configuration and project management
     "PyYAML==6.0.2",
     "pyproj==3.7.1",
@@ -75,4 +76,7 @@ include-package-data = true
 addopts = "--cov=smartcheck --cov-report=term --cov-report=html --cov-report=annotate --cov-config=.coveragerc"
 testpaths = ["tests"]
 pythonpath = ["."]
+filterwarnings = [
+    "ignore:The 'shapely.geos' module is deprecated"
+]
 
