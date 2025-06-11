@@ -34,7 +34,7 @@ dependencies = [
     "PyYAML==6.0.2",
     "pyproj==3.7.1",
     # dependencies for web communication
-    "requests==2.32.3",
+    "requests==2.32.4",
 ]
 classifiers = [
     "Programming Language :: Python :: 3.12",
