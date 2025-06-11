@@ -22,7 +22,7 @@ scikit-optimize==0.10.2
 PyYAML==6.0.2
 pyproj==3.7.1
 # dependencies for web communication
-requests==2.32.3
+requests==2.32.4
 
 ### LOCAL TESTING RELATED ###
 # dependencies for local testing and coverage tracking
