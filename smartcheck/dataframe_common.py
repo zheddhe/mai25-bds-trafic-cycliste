@@ -2,6 +2,7 @@ import os
 import io
 import re
 import logging
+import pytz
 import pandas as pd
 import numpy as np
 import requests
@@ -529,3 +530,56 @@ def extract_difference(
         return not_found_placeholder
 
     return f"[{source_value}] NOT FOUND"
+
+
+def extract_datetime_features(
+    df: pd.DataFrame,
+    timestamp_col: str,
+    tz_local: str = "Europe/Paris"
+) -> pd.DataFrame:
+    """
+    Parse ISO8601 timestamps with offset in `timestamp_col`, convert to UTC
+    then to `tz_local`, and extract common calendar features.
+
+    Args:
+        df: Input DataFrame.
+        timestamp_col: Name of the column containing strings like
+            '2025-06-10T15:30:00+0200'.
+        tz_local: Target timezone for local time.
+
+    Returns:
+        DataFrame copy with new columns:
+        - {col}_utc: datetime64[ns, UTC]
+        - {col}_local: datetime64[ns, tz_local]
+        - {col}_year, _month, _day, _day_of_year, _day_of_week, _hour.
+    """
+    df = df.copy()
+    try:
+        # 1) Parse and normalize to UTC
+        df[f"{timestamp_col}_utc"] = pd.to_datetime(
+            df[timestamp_col],
+            format="%Y-%m-%dT%H:%M:%S%z",
+            utc=True
+        )
+        # 2) Convert to local timezone (pytz gère le DST automatiquement)
+        df[f"{timestamp_col}_local"] = (
+            df[f"{timestamp_col}_utc"]
+            .dt.tz_convert(pytz.timezone(tz_local))
+        )
+        # 3) Extraire les composantes calendaires
+        ts = df[f"{timestamp_col}_local"]
+        df[f"{timestamp_col}_year"] = ts.dt.year
+        df[f"{timestamp_col}_month"] = ts.dt.month
+        df[f"{timestamp_col}_day"] = ts.dt.day
+        df[f"{timestamp_col}_day_of_year"] = ts.dt.dayofyear
+        df[f"{timestamp_col}_day_of_week"] = ts.dt.dayofweek
+        df[f"{timestamp_col}_hour"] = ts.dt.hour
+
+        return df
+
+    except Exception as exc:
+        logger.error(
+            "Error extracting datetime features from column '%s': %s",
+            timestamp_col, exc
+        )
+        raise

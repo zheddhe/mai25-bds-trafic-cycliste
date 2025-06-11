@@ -18,7 +18,8 @@ from smartcheck.dataframe_common import (
     normalize_column_names,
     analyze_by_reference_variable,
     log_cross_distributions,
-    extract_difference
+    extract_difference,
+    extract_datetime_features
 )
 
 
@@ -726,3 +727,20 @@ class TestExtractDifference:
         )
         result = func(row_not_found)
         assert result == "__NOT FOUND__"
+
+
+# === Test class for extract_datetime_features ===
+def TestExtractDatetimeFeatures():
+    sample = pd.DataFrame({
+        "date_et_heure_de_comptage": [
+            "2025-03-29T02:30:00+0100",  # juste avant passage à l'heure d'été
+            "2025-03-30T03:30:00+0200",  # juste après
+        ]
+    })
+    result = extract_datetime_features(
+        sample, "date_et_heure_de_comptage", tz_local="Europe/Paris"
+    )
+    # On vérifie que la conversion se fait bien en heure locale :
+    assert result["date_et_heure_de_comptage_local"].dt.hour.tolist() == [2, 3]
+    assert result["date_et_heure_de_comptage_year"].tolist() == [2025, 2025]
+    assert result["date_et_heure_de_comptage_day_of_year"].tolist() == [88, 89]
