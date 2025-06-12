@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_f057e7f0a7403569b7bf3ae48ab4bb4d {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_f057e7f0a7403569b7bf3ae48ab4bb4d" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_f057e7f0a7403569b7bf3ae48ab4bb4d = L.map(
+                "map_f057e7f0a7403569b7bf3ae48ab4bb4d",
+                {
+                    center: [48.85135105154639, 2.3472093711340207],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_0ccca00434ed2e04446cbba00646c9dc = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_0ccca00434ed2e04446cbba00646c9dc.addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            var circle_marker_5ed045ad6b43d8990373c1fb71ea2454 = L.circleMarker(
+                [48.8748, 2.2924],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 39.1620546359396, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_5ed045ad6b43d8990373c1fb71ea2454.bindTooltip(
+                `<div>
+                     10 avenue de la Grande Armée SE-NO : 2520 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_98edd569a1aeacee055559f5c215791f = L.circleMarker(
+                [48.83082, 2.35317],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_98edd569a1aeacee055559f5c215791f.bindTooltip(
+                `<div>
+                     10 boulevard Auguste Blanqui NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d9686bf624082bf61f42f85b970dc5ca = L.circleMarker(
+                [48.87769, 2.35475],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_d9686bf624082bf61f42f85b970dc5ca.bindTooltip(
+                `<div>
+                     102 boulevard de Magenta SE-NO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_2b0498bfe578382ac9d5d691ff50a313 = L.circleMarker(
+                [48.83507, 2.33305],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_2b0498bfe578382ac9d5d691ff50a313.bindTooltip(
+                `<div>
+                     106 avenue Denfert Rochereau NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_5eeb52bc17d24818445d1da50f3e9eda = L.circleMarker(
+                [48.84222, 2.30102],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.68831073239099, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_5eeb52bc17d24818445d1da50f3e9eda.bindTooltip(
+                `<div>
+                     129 rue Lecourbe SO-NE : 9298 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_1f338f6e4d5b53cca23a5263a2e72906 = L.circleMarker(
+                [48.84209, 2.30115],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_1f338f6e4d5b53cca23a5263a2e72906.bindTooltip(
+                `<div>
+                     132 rue Lecourbe NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_b53388e825008473d4f312a99558c313 = L.circleMarker(
+                [48.843435, 2.383378],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_b53388e825008473d4f312a99558c313.bindTooltip(
+                `<div>
+                     135 avenue Daumesnil SE-NO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_736ece71f72d0fa3c10a108afe6ee11c = L.circleMarker(
+                [48.82009, 2.3588],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_736ece71f72d0fa3c10a108afe6ee11c.bindTooltip(
+                `<div>
+                     147 avenue d'Italie S-N : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_16a4f57d184fee629aa6eabf012a907e = L.circleMarker(
+                [48.84017, 2.33438],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_16a4f57d184fee629aa6eabf012a907e.bindTooltip(
+                `<div>
+                     152 boulevard du Montparnasse E-O : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6ad41b075a1df5f590eda23ba39eaeb5 = L.circleMarker(
+                [48.84017, 2.33438],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_6ad41b075a1df5f590eda23ba39eaeb5.bindTooltip(
+                `<div>
+                     152 boulevard du Montparnasse O-E : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f1d07ee4af766a98e7b7876893f9af27 = L.circleMarker(
+                [48.88168, 2.28113],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.841859435768406, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_f1d07ee4af766a98e7b7876893f9af27.bindTooltip(
+                `<div>
+                     16 avenue de la Porte des Ternes E-O : 9588 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_bfdeac6a9d46deed18b7b084ae2ebefd = L.circleMarker(
+                [48.824237, 2.321219],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.83037477839084, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_bfdeac6a9d46deed18b7b084ae2ebefd.bindTooltip(
+                `<div>
+                     163 boulevard Brune SE-NO : 9566 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_239efebf767f24de627e3db2f08445d0 = L.circleMarker(
+                [48.85372, 2.35702],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_239efebf767f24de627e3db2f08445d0.bindTooltip(
+                `<div>
+                     18 quai de l'Hôtel de Ville NO-SE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_dceb8f3c143fab119edd120042e0796c = L.circleMarker(
+                [48.85372, 2.35702],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_dceb8f3c143fab119edd120042e0796c.bindTooltip(
+                `<div>
+                     18 quai de l'Hôtel de Ville SE-NO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d9821c7175b60313d159d770f0b7dc93 = L.circleMarker(
+                [48.82048, 2.35873],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_d9821c7175b60313d159d770f0b7dc93.bindTooltip(
+                `<div>
+                     180 avenue d'Italie N-S : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_b2b3f3ef0938dd376fa47ed28e603176 = L.circleMarker(
+                [48.83074, 2.35373],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_b2b3f3ef0938dd376fa47ed28e603176.bindTooltip(
+                `<div>
+                     21 boulevard Auguste Blanqui SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_94224227f9c13e2a10f35060bea8b705 = L.circleMarker(
+                [48.82029, 2.33936],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_94224227f9c13e2a10f35060bea8b705.bindTooltip(
+                `<div>
+                     24 boulevard Jourdan E-O : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_789a0a91f501dee7f30586ebec516ca5 = L.circleMarker(
+                [48.86179, 2.32014],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_789a0a91f501dee7f30586ebec516ca5.bindTooltip(
+                `<div>
+                     243 boulevard Saint Germain NO-SE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_583d027575573119749e3e6fac053f00 = L.circleMarker(
+                [48.84935, 2.41143],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_583d027575573119749e3e6fac053f00.bindTooltip(
+                `<div>
+                     27 boulevard Davout N-S : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_ada66a3d162066be0453957c47671238 = L.circleMarker(
+                [48.846099, 2.375456],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_ada66a3d162066be0453957c47671238.bindTooltip(
+                `<div>
+                     27 boulevard Diderot E-O : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_89e930d69149bd4f76a8067b1b3d39ce = L.circleMarker(
+                [48.85013, 2.35423],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 44.423051159434365, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_89e930d69149bd4f76a8067b1b3d39ce.bindTooltip(
+                `<div>
+                     27 quai de la Tournelle NO-SE : 7219 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_5173b9117bd2f363bff0d8a76caf4578 = L.circleMarker(
+                [48.85013, 2.35423],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 44.423051159434365, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_5173b9117bd2f363bff0d8a76caf4578.bindTooltip(
+                `<div>
+                     27 quai de la Tournelle SE-NO : 7219 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_90552778fb45c1147e2e9c020723ffa4 = L.circleMarker(
+                [48.84613, 2.37559],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_90552778fb45c1147e2e9c020723ffa4.bindTooltip(
+                `<div>
+                     28 boulevard Diderot E-O : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e3df78fbd513dbf5aa7e36b3965f2aec = L.circleMarker(
+                [48.84613, 2.37559],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_e3df78fbd513dbf5aa7e36b3965f2aec.bindTooltip(
+                `<div>
+                     28 boulevard Diderot O-E : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_b794e0b98369ec877217506215f9172f = L.circleMarker(
+                [48.86999, 2.30722],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_b794e0b98369ec877217506215f9172f.bindTooltip(
+                `<div>
+                     33 avenue des Champs Elysées NO-SE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_05b0d39bba3a46a1e93f7a38315fd227 = L.circleMarker(
+                [48.860528, 2.388364],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.82985212120121, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_05b0d39bba3a46a1e93f7a38315fd227.bindTooltip(
+                `<div>
+                     35 boulevard de Ménilmontant NO-SE : 9565 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_8a7737c7e21d28b6551ff15f148c72f0 = L.circleMarker(
+                [48.85174, 2.28593],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_8a7737c7e21d28b6551ff15f148c72f0.bindTooltip(
+                `<div>
+                     36 quai de Grenelle NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_5a01cb90d2678760a92de833e7d5d1d3 = L.circleMarker(
+                [48.85174, 2.28593],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_5a01cb90d2678760a92de833e7d5d1d3.bindTooltip(
+                `<div>
+                     36 quai de Grenelle SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_29829db71e6a8cfc49d3f3efe978974d = L.circleMarker(
+                [48.86502, 2.35387],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.83507623618905, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_29829db71e6a8cfc49d3f3efe978974d.bindTooltip(
+                `<div>
+                     38 rue Turbigo NE-SO : 9575 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_2d196e6ebb3a604b43cc2f8391399062 = L.circleMarker(
+                [48.86502, 2.35387],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.83507623618905, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_2d196e6ebb3a604b43cc2f8391399062.bindTooltip(
+                `<div>
+                     38 rue Turbigo SO-NE : 9575 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_73a57ee16c344cf7f4f9f281e900c446 = L.circleMarker(
+                [48.83436, 2.377],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_73a57ee16c344cf7f4f9f281e900c446.bindTooltip(
+                `<div>
+                     39 quai François Mauriac NO-SE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e956bc102565b46cca1cf3a47fca6f4b = L.circleMarker(
+                [48.83436, 2.377],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_e956bc102565b46cca1cf3a47fca6f4b.bindTooltip(
+                `<div>
+                     39 quai François Mauriac SE-NO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f14af6bba26c2516af0f7bc2c1a42580 = L.circleMarker(
+                [48.8402, 2.40889],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_f14af6bba26c2516af0f7bc2c1a42580.bindTooltip(
+                `<div>
+                     42 boulevard Soult N-S : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c2e6cae2abadc73c02a598ecfc7b9600 = L.circleMarker(
+                [48.8402, 2.40889],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_c2e6cae2abadc73c02a598ecfc7b9600.bindTooltip(
+                `<div>
+                     42 boulevard Soult S-N : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_a6efb6152b64fea8cb437825b82e33d8 = L.circleMarker(
+                [48.86999, 2.30743],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_a6efb6152b64fea8cb437825b82e33d8.bindTooltip(
+                `<div>
+                     44 avenue des Champs Elysées SE-NO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_ed1b347ea4ffc197cf035e307b18a094 = L.circleMarker(
+                [48.837006, 2.274824],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_ed1b347ea4ffc197cf035e307b18a094.bindTooltip(
+                `<div>
+                     51 boulevard du Général Martial Valin SE-NO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_ae7113daafbc7e7c3170a1237b15ab5c = L.circleMarker(
+                [48.820988, 2.350291],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_ae7113daafbc7e7c3170a1237b15ab5c.bindTooltip(
+                `<div>
+                     56 boulevard Kellermann E-O : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_fd60517ab69052852c771f761227a273 = L.circleMarker(
+                [48.82624, 2.30281],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_fd60517ab69052852c771f761227a273.bindTooltip(
+                `<div>
+                     6 rue Julia Bartet NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_44554d6510b9c0d034ec7dac522be8e2 = L.circleMarker(
+                [48.82624, 2.30281],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_44554d6510b9c0d034ec7dac522be8e2.bindTooltip(
+                `<div>
+                     6 rue Julia Bartet SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6b7598dfd802578ea172e6604ed4a0b2 = L.circleMarker(
+                [48.86149, 2.37376],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_6b7598dfd802578ea172e6604ed4a0b2.bindTooltip(
+                `<div>
+                     67 boulevard Voltaire SE-NO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_472e9bb795fc526f08d5c4e277eac04b = L.circleMarker(
+                [48.87474, 2.29219],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.772552435077564, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_472e9bb795fc526f08d5c4e277eac04b.bindTooltip(
+                `<div>
+                     7 avenue de la Grande Armée NO-SE : 9456 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_8642ceff1dcb2f44e4a515e3b902dd7a = L.circleMarker(
+                [48.889046, 2.374872],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_8642ceff1dcb2f44e4a515e3b902dd7a.bindTooltip(
+                `<div>
+                     72 avenue de Flandre SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_3f63b4a8d51f957341edb7847091c46e = L.circleMarker(
+                [48.82561, 2.314274],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_3f63b4a8d51f957341edb7847091c46e.bindTooltip(
+                `<div>
+                     72 boulevard Brune NO-SE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d81bfa30cdc5d1fa5ab8ccdc13cf83a3 = L.circleMarker(
+                [48.86081, 2.37301],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_d81bfa30cdc5d1fa5ab8ccdc13cf83a3.bindTooltip(
+                `<div>
+                     72 boulevard Richard Lenoir S-N : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_22360c13aba9760a1ae8ec2c8e09b9ee = L.circleMarker(
+                [48.86155, 2.37407],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.799969987697224, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_22360c13aba9760a1ae8ec2c8e09b9ee.bindTooltip(
+                `<div>
+                     72 boulevard Voltaire NO-SE : 9508 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e61d1d74c3ad760c76cbc0b7aa7f4263 = L.circleMarker(
+                [48.821204, 2.368576],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_e61d1d74c3ad760c76cbc0b7aa7f4263.bindTooltip(
+                `<div>
+                     77 boulevard Masséna NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6b84c1d4fd174430e83c301861393c6b = L.circleMarker(
+                [48.821204, 2.368576],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_6b84c1d4fd174430e83c301861393c6b.bindTooltip(
+                `<div>
+                     77 boulevard Masséna SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_69ddfdfbd38a4dfaddefa3d43ab3ec61 = L.circleMarker(
+                [48.86089, 2.37212],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_69ddfdfbd38a4dfaddefa3d43ab3ec61.bindTooltip(
+                `<div>
+                     77 boulevard Richard Lenoir N-S : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_fb6d170e1d0080a77b0a920863e44e45 = L.circleMarker(
+                [48.86922, 2.408714],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_fb6d170e1d0080a77b0a920863e44e45.bindTooltip(
+                `<div>
+                     81 boulevard Mortier N-S : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c8f760789685da0f085637ef1140a7be = L.circleMarker(
+                [48.86922, 2.408714],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_c8f760789685da0f085637ef1140a7be.bindTooltip(
+                `<div>
+                     81 boulevard Mortier S-N : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e8a06baca219f96d7b16156925d98ef2 = L.circleMarker(
+                [48.88926, 2.37472],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.83037477839084, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_e8a06baca219f96d7b16156925d98ef2.bindTooltip(
+                `<div>
+                     87 avenue de Flandre NE-SO : 9566 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_fff69040d91a712d7b22ec65b033e123 = L.circleMarker(
+                [48.87756, 2.35535],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_fff69040d91a712d7b22ec65b033e123.bindTooltip(
+                `<div>
+                     89 boulevard de Magenta NO-SE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6c4dd52a26aa50d6ad082b52b9043f7f = L.circleMarker(
+                [48.81964, 2.34173],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_6c4dd52a26aa50d6ad082b52b9043f7f.bindTooltip(
+                `<div>
+                     9 boulevard Jourdan O-E : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_9ea9c83c913c6d17de54c7e29418a513 = L.circleMarker(
+                [48.834624, 2.405283],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_9ea9c83c913c6d17de54c7e29418a513.bindTooltip(
+                `<div>
+                     98 boulevard Poniatowski NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_30bcc9020f28170718396dee44a3ffb8 = L.circleMarker(
+                [48.834624, 2.405283],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_30bcc9020f28170718396dee44a3ffb8.bindTooltip(
+                `<div>
+                     98 boulevard Poniatowski SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_df999504b312fb216da52d27a7935114 = L.circleMarker(
+                [48.890457, 2.368852],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_df999504b312fb216da52d27a7935114.bindTooltip(
+                `<div>
+                     Face 104 rue d'Aubervilliers N-S : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_51f6aa0dcde17137ca4e37bccaec5bff = L.circleMarker(
+                [48.890457, 2.368852],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_51f6aa0dcde17137ca4e37bccaec5bff.bindTooltip(
+                `<div>
+                     Face 104 rue d'Aubervilliers S-N : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_fc68f0fe0d71d5f9522761245d8fd6fd = L.circleMarker(
+                [48.88156, 2.28122],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_fc68f0fe0d71d5f9522761245d8fd6fd.bindTooltip(
+                `<div>
+                     Face au 16 avenue de la  Porte des Ternes O-E : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_414ee904522a862e9498cad26b4f3540 = L.circleMarker(
+                [48.89141, 2.38482],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_414ee904522a862e9498cad26b4f3540.bindTooltip(
+                `<div>
+                     Face au 25 quai de l'Oise NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d1dfb3b07511b63bc3b202cb0f21ddad = L.circleMarker(
+                [48.89141, 2.38482],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_d1dfb3b07511b63bc3b202cb0f21ddad.bindTooltip(
+                `<div>
+                     Face au 25 quai de l'Oise SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_fdff3d7c900e0fed2767cc42a9acb569 = L.circleMarker(
+                [48.86485, 2.40966],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_fdff3d7c900e0fed2767cc42a9acb569.bindTooltip(
+                `<div>
+                     Face au 4 avenue de la porte de Bagnolet E-O : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_1ac0238ac7e085f9422b670f8339358c = L.circleMarker(
+                [48.86485, 2.40966],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_1ac0238ac7e085f9422b670f8339358c.bindTooltip(
+                `<div>
+                     Face au 4 avenue de la porte de Bagnolet O-E : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_32e90ac6efb1b2a1e7fd8d533486a597 = L.circleMarker(
+                [48.83428, 2.26526],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_32e90ac6efb1b2a1e7fd8d533486a597.bindTooltip(
+                `<div>
+                     Face au 40 quai D'Issy NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_cd4eaa4129631131f0d40f05f59c867e = L.circleMarker(
+                [48.83428, 2.26526],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_cd4eaa4129631131f0d40f05f59c867e.bindTooltip(
+                `<div>
+                     Face au 40 quai D'Issy SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_7b26e24a4012ca61277b07231b547a8d = L.circleMarker(
+                [48.89128, 2.38606],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 44.39596964055159, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_7b26e24a4012ca61277b07231b547a8d.bindTooltip(
+                `<div>
+                     Face au 48 quai de la marne NE-SO : 7180 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_cc73888c8ecd55dd2d99ab7f43328307 = L.circleMarker(
+                [48.89128, 2.38606],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 44.36734027666815, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_cc73888c8ecd55dd2d99ab7f43328307.bindTooltip(
+                `<div>
+                     Face au 48 quai de la marne SO-NE : 7139 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_85049435356b4fbf6b48705b70e6a7ec = L.circleMarker(
+                [48.837055, 2.274019],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_85049435356b4fbf6b48705b70e6a7ec.bindTooltip(
+                `<div>
+                     Face au 49 boulevard du Général Martial Valin NO-SE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_3b3b924da91c244e922c312ecda436a3 = L.circleMarker(
+                [48.829523, 2.38699],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_3b3b924da91c244e922c312ecda436a3.bindTooltip(
+                `<div>
+                     Face au 70 quai de Bercy N-S : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_3554d4c68e02ed06555deed9eaa5ef5d = L.circleMarker(
+                [48.829523, 2.38699],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_3554d4c68e02ed06555deed9eaa5ef5d.bindTooltip(
+                `<div>
+                     Face au 70 quai de Bercy S-N : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e76853c24d690e533b0b2e323cbd6e10 = L.circleMarker(
+                [48.830331, 2.400551],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_e76853c24d690e533b0b2e323cbd6e10.bindTooltip(
+                `<div>
+                     Face au 8 avenue de la porte de Charenton NO-SE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6d73a918c22ab4024a83a937dfb4062c = L.circleMarker(
+                [48.830331, 2.400551],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_6d73a918c22ab4024a83a937dfb4062c.bindTooltip(
+                `<div>
+                     Face au 8 avenue de la porte de Charenton SE-NO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_9dc5294c5392f52d4006b3f0e9a31b42 = L.circleMarker(
+                [48.84223, 2.36811],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_9dc5294c5392f52d4006b3f0e9a31b42.bindTooltip(
+                `<div>
+                     Pont Charles De Gaulle NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e612894175fca535d5af3977f02096cc = L.circleMarker(
+                [48.84223, 2.36811],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_e612894175fca535d5af3977f02096cc.bindTooltip(
+                `<div>
+                     Pont Charles De Gaulle SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_849cd68eab81e0aa81f514b18d305ede = L.circleMarker(
+                [48.82682, 2.38491],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_849cd68eab81e0aa81f514b18d305ede.bindTooltip(
+                `<div>
+                     Pont National NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_1eed68baf00c25010e3a710f3c2b092e = L.circleMarker(
+                [48.82639, 2.38448],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_1eed68baf00c25010e3a710f3c2b092e.bindTooltip(
+                `<div>
+                     Pont National SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_29c4ddae0e58ef033330aae70d47dd71 = L.circleMarker(
+                [48.83848, 2.37587],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_29c4ddae0e58ef033330aae70d47dd71.bindTooltip(
+                `<div>
+                     Pont de Bercy NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_314b0d531584741eb2aca2bfed1e17b8 = L.circleMarker(
+                [48.83848, 2.37587],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_314b0d531584741eb2aca2bfed1e17b8.bindTooltip(
+                `<div>
+                     Pont de Bercy SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_bb4ec6af45cec753fd17d278d9667054 = L.circleMarker(
+                [48.86373, 2.31973],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_bb4ec6af45cec753fd17d278d9667054.bindTooltip(
+                `<div>
+                     Pont de la Concorde N-S : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_13f6f18748d49a6367f700618bf04b54 = L.circleMarker(
+                [48.86382, 2.32006],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.69797983725213, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_13f6f18748d49a6367f700618bf04b54.bindTooltip(
+                `<div>
+                     Pont de la Concorde S-N : 9316 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_7ac5ea1ecaa8dd8de84afe227f0a841c = L.circleMarker(
+                [48.86281, 2.31037],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 42.423349998553384, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_7ac5ea1ecaa8dd8de84afe227f0a841c.bindTooltip(
+                `<div>
+                     Pont des Invalides (couloir bus) N-S : 4839 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c87d71b494c2edf037895ca6f26c7182 = L.circleMarker(
+                [48.86279, 2.31055],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.83037477839084, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_c87d71b494c2edf037895ca6f26c7182.bindTooltip(
+                `<div>
+                     Pont des Invalides S-N : 9566 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f36b7c8fae942366a54386d006ef5f17 = L.circleMarker(
+                [48.83994, 2.26692],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_f36b7c8fae942366a54386d006ef5f17.bindTooltip(
+                `<div>
+                     Pont du Garigliano NO-SE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c2078d093ec620e40ef9ec7dbe32d8c7 = L.circleMarker(
+                [48.83992, 2.26708],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.82985212120121, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_c2078d093ec620e40ef9ec7dbe32d8c7.bindTooltip(
+                `<div>
+                     Pont du Garigliano SE-NO : 9565 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_430b26ed02b31d1cae675039ee37f912 = L.circleMarker(
+                [48.8629, 2.3118],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.68293091693761, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_430b26ed02b31d1cae675039ee37f912.bindTooltip(
+                `<div>
+                     Quai d'Orsay E-O : 9288 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_2d18089c82ea62e6b214ad39b813ea39 = L.circleMarker(
+                [48.8629, 2.3118],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.68615950077772, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_2d18089c82ea62e6b214ad39b813ea39.bindTooltip(
+                `<div>
+                     Quai d'Orsay O-E : 9294 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_b78804cc98c9c02a03b8b0589e1e3423 = L.circleMarker(
+                [48.8635, 2.32239],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 44.35612322204776, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_b78804cc98c9c02a03b8b0589e1e3423.bindTooltip(
+                `<div>
+                     Quai des Tuileries NO-SE : 7123 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6b02d543f4b175112c905dd582a965ac = L.circleMarker(
+                [48.8635, 2.32239],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 44.35612322204776, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_6b02d543f4b175112c905dd582a965ac.bindTooltip(
+                `<div>
+                     Quai des Tuileries SE-NO : 7123 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_bd338566c73d743c10bdac1e1308291e = L.circleMarker(
+                [48.85735, 2.35211],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 39.1620546359396, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_bd338566c73d743c10bdac1e1308291e.bindTooltip(
+                `<div>
+                     Totem 64 Rue de Rivoli E-O : 2520 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_79fa7d52cfe9653ea8caaebd9dd63feb = L.circleMarker(
+                [48.85735, 2.35211],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 39.1620546359396, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_79fa7d52cfe9653ea8caaebd9dd63feb.bindTooltip(
+                `<div>
+                     Totem 64 Rue de Rivoli O-E : 2520 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_9957d54b0122fe7e08b8ebe27ca3a840 = L.circleMarker(
+                [48.86377, 2.35096],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_9957d54b0122fe7e08b8ebe27ca3a840.bindTooltip(
+                `<div>
+                     Totem 73 boulevard de Sébastopol N-S : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_8a9dd262a0b74877ddd187902b7049d2 = L.circleMarker(
+                [48.86377, 2.35096],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_8a9dd262a0b74877ddd187902b7049d2.bindTooltip(
+                `<div>
+                     Totem 73 boulevard de Sébastopol S-N : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_200a654bdd1b93469533bdf26efce580 = L.circleMarker(
+                [48.84201, 2.36729],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.79102308777827, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_200a654bdd1b93469533bdf26efce580.bindTooltip(
+                `<div>
+                     Totem 85 quai d'Austerlitz NO-SE : 9491 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f8903885cc73e3a375c154bc6b1526ac = L.circleMarker(
+                [48.84201, 2.36729],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.822529178161915, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_f8903885cc73e3a375c154bc6b1526ac.bindTooltip(
+                `<div>
+                     Totem 85 quai d'Austerlitz SE-NO : 9551 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_90d6610165aa59ae08ec8a9fbfe28590 = L.circleMarker(
+                [48.86462, 2.31444],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.83977327739873, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_90d6610165aa59ae08ec8a9fbfe28590.bindTooltip(
+                `<div>
+                     Totem Cours la Reine E-O : 9584 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_0265b3d3a4c96e01c5e78cc38f718e43 = L.circleMarker(
+                [48.86462, 2.31444],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_0265b3d3a4c96e01c5e78cc38f718e43.bindTooltip(
+                `<div>
+                     Totem Cours la Reine O-E : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_fffa9acb602e4d1caaba2c5962eebc9d = L.circleMarker(
+                [48.84837, 2.27596],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_fffa9acb602e4d1caaba2c5962eebc9d.bindTooltip(
+                `<div>
+                     Voie Georges Pompidou NE-SO : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_96c3b7cb4cc6309dd3d4174b65feecc6 = L.circleMarker(
+                [48.84837, 2.27596],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.6, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 45.844987042209, "stroke": true, "weight": 3}
+            ).addTo(map_f057e7f0a7403569b7bf3ae48ab4bb4d);
+        
+    
+            circle_marker_96c3b7cb4cc6309dd3d4174b65feecc6.bindTooltip(
+                `<div>
+                     Voie Georges Pompidou SO-NE : 9594 enregistrements
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>
