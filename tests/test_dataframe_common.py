@@ -26,7 +26,6 @@ from smartcheck.dataframe_common import (
 class TestExtractGoogleDriveFileId:
 
     # === Tests ===
-
     def test_valid_url(self):
         url = "https://drive.google.com/file/d/1234567890/view?usp=sharing"
         file_id = _extract_google_drive_file_id(url)
