@@ -115,7 +115,7 @@ pre-commit install
 nbstripout --install
 
 # (optional Deactivate strip out of files when stagging
-nbstripout --install
+nbstripout --uninstall
 ```
 
 ---
