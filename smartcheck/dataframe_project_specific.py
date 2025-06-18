@@ -58,6 +58,9 @@ def extract_datetime_features(
         df[f"{timestamp_col}_day_of_year"] = ts.dt.dayofyear
         df[f"{timestamp_col}_day_of_week"] = ts.dt.dayofweek
         df[f"{timestamp_col}_hour"] = ts.dt.hour
+        df[f"{timestamp_col}_week"] = ts.dt.isocalendar().week
+        df[f"{timestamp_col}_dayname"] = ts.dt.day_name()
+        df[f"{timestamp_col}_monthname"] = ts.dt.month_name()
 
         return df
 

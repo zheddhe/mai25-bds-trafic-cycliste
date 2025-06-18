@@ -23,6 +23,9 @@ class DatetimePreprocessingTransformer(BaseEstimator, TransformerMixin):
         - <input_column>_day_of_year
         - <input_column>_day_of_week
         - <input_column>_hour
+        - <input_column>_week
+        - <input_column>_dayname
+        - <input_column>_monthname
 
     Parameters:
         timestamp_col (str): Name of input timestamp column.
@@ -51,7 +54,10 @@ class DatetimePreprocessingTransformer(BaseEstimator, TransformerMixin):
             f"{base}_day",
             f"{base}_day_of_year",
             f"{base}_day_of_week",
-            f"{base}_hour"
+            f"{base}_hour",
+            f"{base}_week",
+            f"{base}_dayname",
+            f"{base}_monthname"
         ]
 
 
