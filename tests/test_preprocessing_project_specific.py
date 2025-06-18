@@ -53,7 +53,10 @@ class TestDatetimePreprocessingTransformer:
             "timestamp_day",
             "timestamp_day_of_year",
             "timestamp_day_of_week",
-            "timestamp_hour"
+            "timestamp_hour",
+            "timestamp_week",
+            "timestamp_dayname",
+            "timestamp_monthname"
         }
 
         assert set(result.columns) == expected_cols
@@ -93,7 +96,10 @@ class TestDatetimePreprocessingTransformer:
             "my_time_day",
             "my_time_day_of_year",
             "my_time_day_of_week",
-            "my_time_hour"
+            "my_time_hour",
+            "my_time_week",
+            "my_time_dayname",
+            "my_time_monthname"
         ]
         assert transformer.get_feature_names_out() == expected
 

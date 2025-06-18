@@ -31,6 +31,8 @@ dependencies = [
     "missingno==0.5.2",
     "scikit-optimize==0.10.2",
     "geopandas==1.1.0",
+    "folium==0.20.0",
+    "squarify==0.4.4",
     # dependencies for configuration and project management
     "PyYAML==6.0.2",
     "pyproj==3.7.1",
