@@ -83,3 +83,70 @@ class ColumnFilterTransformer(BaseEstimator, TransformerMixin):
 
     def get_feature_names_out(self, input_features=None):
         return self.columns_to_keep
+
+
+class MeteoCodePreprocessingTransformer(BaseEstimator, TransformerMixin):
+    """
+    Transformer for mapping meteorological codes (00–99) to categorical weather
+    phenomena.
+
+    Parameters:
+        code_col (str): Name of the column containing the weather code
+        (integer in [0, 99]).
+
+    Output:
+        - <code_col>_category: Categorical variable with 16 weather categories
+        based on code ranges.
+    """
+
+    def __init__(self, code_col: str):
+        self.code_col = code_col
+        self._category_col = f"{code_col}_category"
+
+    def fit(self, X: pd.DataFrame, y=None):
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        X = X.copy()
+        X[self._category_col] = X[self.code_col].apply(self._map_code_to_category)
+        return X[[self._category_col]]
+
+    def get_feature_names_out(self, input_features=None):
+        return [self._category_col]
+
+    @staticmethod
+    def _map_code_to_category(code: int) -> str:
+        if 0 <= code <= 3:
+            return "cloud_variation"
+        elif code == 4:
+            return "smoke_or_pollution"
+        elif code == 5:
+            return "dry_haze"
+        elif 6 <= code <= 9:
+            return "dust_or_sandstorm"
+        elif 10 <= code <= 12:
+            return "drizzle_or_local_fog"
+        elif code == 13:
+            return "lightning_no_thunder"
+        elif 14 <= code <= 16:
+            return "visible_precipitation"
+        elif 17 <= code <= 19:
+            return "storm_or_gusts"
+        elif 20 <= code <= 29:
+            return "non_violent_rain_or_fog"
+        elif 30 <= code <= 39:
+            return "evolving_fog"
+        elif 40 <= code <= 49:
+            return "light_to_heavy_rain"
+        elif 50 <= code <= 59:
+            return "freezing_drizzle_or_rain"
+        elif 60 <= code <= 69:
+            return "rain_snow_combination"
+        elif 70 <= code <= 79:
+            return "snow_or_sleet"
+        elif 80 <= code <= 89:
+            return "showers_or_small_hail"
+        elif 90 <= code <= 99:
+            return "thunderstorm_or_hail"
+        else:
+            return "unknown"  # Not expected given the spec, but safe fallback

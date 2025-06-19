@@ -3,6 +3,7 @@ import pandas as pd
 from smartcheck.preprocessing_project_specific import (
     DatetimePreprocessingTransformer,
     ColumnFilterTransformer,
+    MeteoCodePreprocessingTransformer
 )
 
 
@@ -145,3 +146,55 @@ class TestColumnFilterTransformer:
         cols = ["a", "b", "c"]
         transformer = ColumnFilterTransformer(columns_to_keep=cols)
         assert transformer.get_feature_names_out() == cols
+
+
+# === Test class for MeteoCodePreprocessingTransformer ===
+class TestMeteoCodePreprocessingTransformer:
+
+    # === Fixtures ===
+    @pytest.fixture
+    def df_valid_codes(self):
+        return pd.DataFrame({
+            "meteo_code": [-1, 0, 4, 5, 8, 10, 13, 15, 17,
+                           20, 31, 40, 52, 65, 72, 84, 91]
+        })
+
+    @pytest.fixture
+    def expected_categories(self):
+        return [
+            "unknown",                    # -1
+            "cloud_variation",            # 0
+            "smoke_or_pollution",         # 4
+            "dry_haze",                   # 5
+            "dust_or_sandstorm",          # 8
+            "drizzle_or_local_fog",       # 10
+            "lightning_no_thunder",       # 13
+            "visible_precipitation",      # 15
+            "storm_or_gusts",             # 17
+            "non_violent_rain_or_fog",    # 20
+            "evolving_fog",               # 31
+            "light_to_heavy_rain",        # 40
+            "freezing_drizzle_or_rain",   # 52
+            "rain_snow_combination",      # 65
+            "snow_or_sleet",              # 72
+            "showers_or_small_hail",      # 84
+            "thunderstorm_or_hail"        # 91
+        ]
+
+    # === Tests ===
+    def test_transform_maps_codes_correctly(self, df_valid_codes, expected_categories):
+        transformer = MeteoCodePreprocessingTransformer(code_col="meteo_code")
+        result = transformer.transform(df_valid_codes)
+
+        assert list(result.columns) == ["meteo_code_category"]
+        assert result.shape[0] == len(expected_categories)
+        assert result["meteo_code_category"].tolist() == expected_categories
+
+    def test_get_feature_names_out(self):
+        transformer = MeteoCodePreprocessingTransformer(code_col="meteo_code")
+        assert transformer.get_feature_names_out() == ["meteo_code_category"]
+
+    def test_fit_returns_self(self, df_valid_codes):
+        transformer = MeteoCodePreprocessingTransformer(code_col="meteo_code")
+        result = transformer.fit(df_valid_codes)
+        assert result is transformer
