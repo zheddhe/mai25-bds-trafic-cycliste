@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mai25-bds-trafic-cycliste"
-version = "0.1.1"
+version = "0.2.1"
 description = "velib data science project for MLE april 2025 promotion"
 authors = [
     {name = "Rémy CANAL", email = "remy.canal@live.fr"},
