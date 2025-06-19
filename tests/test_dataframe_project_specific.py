@@ -4,19 +4,23 @@ from pathlib import Path
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon
-from unittest.mock import patch
+from requests.exceptions import HTTPError, RequestException
+from unittest.mock import patch, Mock
 from smartcheck.dataframe_project_specific import (
     extract_datetime_features,
     get_commune_from_coordinates,
     assign_communes_to_df,
     _load_communes_geojson,
     load_communes_from_config,
+    fetch_weather_data_from_dataframe,
+    parse_open_meteo_composite_csv
 )
 
 
 # === Test class for extract_datetime_features ===
 class TestExtractDatetimeFeatures:
 
+    # === Data Fixtures ===
     @pytest.fixture
     def sample(self) -> pd.DataFrame:
         return pd.DataFrame({
@@ -26,6 +30,7 @@ class TestExtractDatetimeFeatures:
             ]
         })
 
+    # === Tests ===
     def test_datetime_features_extraction(self, sample):
         result = extract_datetime_features(
             sample,
@@ -45,10 +50,12 @@ class TestExtractDatetimeFeatures:
 # === Test class for _load_communes_geojson ===
 class TestLoadCommunesGeojsonRaw:
 
+    # === Data Fixtures ===
     @pytest.fixture
     def dummy_gdf(self) -> gpd.GeoDataFrame:
         return gpd.GeoDataFrame({"commune": ["01"]})
 
+    # === Tests ===
     def test_geojson_load_failure_raises_and_logs(self, caplog):
         with caplog.at_level("ERROR"):
             with pytest.raises(Exception):
@@ -99,10 +106,12 @@ class TestLoadCommunesGeojsonRaw:
 # === Test class for load_communes_from_config ===
 class TestLoadCommunesFromConfig:
 
+    # === Data Fixtures ===
     @pytest.fixture
     def dummy_gdf(self) -> gpd.GeoDataFrame:
         return gpd.GeoDataFrame({"commune": ["01"]})
 
+    # === Tests ===
     @patch("smartcheck.dataframe_project_specific._load_communes_geojson")
     @patch("smartcheck.dataframe_project_specific.load_config")
     def test_load_from_config_success(self, mock_config, mock_loader, dummy_gdf):
@@ -129,6 +138,7 @@ class TestLoadCommunesFromConfig:
 # === Test class for get_commune_from_coordinates ===
 class TestGetCommuneFromCoordinates:
 
+    # === Data Fixtures ===
     @pytest.fixture
     def dummy_communes(self) -> gpd.GeoDataFrame:
         polygon = Polygon([
@@ -138,6 +148,7 @@ class TestGetCommuneFromCoordinates:
         return gpd.GeoDataFrame({"commune": ["01"], "geometry": [polygon]},
                                 crs="EPSG:4326")
 
+    # === Tests ===
     def test_point_inside_polygon(self, dummy_communes):
         result = get_commune_from_coordinates(2.35, 48.86, dummy_communes)
         assert result == "01"
@@ -150,6 +161,7 @@ class TestGetCommuneFromCoordinates:
 # === Test class for assign_communes_to_df ===
 class TestAssignCommunesToDf:
 
+    # === Data Fixtures ===
     @pytest.fixture
     def polygon_commune(self) -> gpd.GeoDataFrame:
         polygon = Polygon([
@@ -180,6 +192,7 @@ class TestAssignCommunesToDf:
     def df_outside(self) -> pd.DataFrame:
         return pd.DataFrame({"lon": [2.10], "lat": [48.50]})
 
+    # === Tests ===
     def test_assign_within_success(self, df_inside, polygon_commune):
         result = assign_communes_to_df(
             df_inside, "lon", "lat", polygon_commune,
@@ -231,3 +244,133 @@ class TestAssignCommunesToDf:
             commune_column="commune", output_column="assigned"
         )
         assert result["assigned"].isna().all()
+
+
+# === Test class for fetch_weather_data_from_dataframe ===
+class TestFetchWeatherDataFromDataFrame:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def minimal_df(self):
+        return pd.DataFrame({
+            "lat": [48.8566],
+            "lon": [2.3522],
+            "timestamp": [pd.Timestamp("2024-06-01 00:00:00", tz="UTC")]
+        })
+
+    # === Mock Fixtures ===
+    @pytest.fixture
+    def mock_response(self):
+        return Mock(
+            status_code=200,
+            text="mock csv",
+            raise_for_status=Mock()
+        )
+
+    # === Tests ===
+    def test_missing_columns(self, caplog):
+        df = pd.DataFrame({
+            "lat": [48.85],  # missing 'lon' and 'timestamp'
+        })
+        result = fetch_weather_data_from_dataframe(df, "lat", "lon", "timestamp")
+        assert result.empty
+        assert "Missing required columns" in caplog.text
+
+    @patch("smartcheck.dataframe_common.requests.get")
+    @patch("smartcheck.dataframe_project_specific.parse_open_meteo_composite_csv")
+    def test_valid_response(self, mock_parse, mock_get, minimal_df, mock_response):
+        mock_get.return_value = mock_response
+        mock_parse.return_value = pd.DataFrame({"temperature_2m": [20.0]})
+
+        result = fetch_weather_data_from_dataframe(
+            minimal_df, "lat", "lon", "timestamp"
+        )
+        assert not result.empty
+        assert "temperature_2m" in result.columns
+        mock_get.assert_called_once()
+        mock_parse.assert_called_once()
+
+    @patch("smartcheck.dataframe_common.requests.get")
+    def test_http_error(self, mock_get, minimal_df, caplog):
+        response = Mock()
+        response.text = "error page"
+        error = HTTPError("HTTP error occurred", response=response)
+        mock_get.side_effect = error
+
+        result = fetch_weather_data_from_dataframe(
+            minimal_df, "lat", "lon", "timestamp"
+        )
+        assert result.empty
+        assert "HTTP error while fetching weather data" in caplog.text
+        assert "Response: error page" in caplog.text
+
+    @patch("smartcheck.dataframe_common.requests.get")
+    def test_request_exception(self, mock_get, minimal_df, caplog):
+        mock_get.side_effect = RequestException("Connection failed")
+
+        result = fetch_weather_data_from_dataframe(
+            minimal_df, "lat", "lon", "timestamp"
+        )
+        assert result.empty
+        assert "Non-HTTP error while fetching weather data" in caplog.text
+
+
+# === Test class for parse_open_meteo_composite_csv ===
+class TestParseOpenMeteoCompositeCsv:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def valid_csv_content(self):
+        return (
+            "location_id,elevation\n"
+            "0,35\n"
+            "1,42\n"
+            "location_id,time,temperature_2m,weather_code\n"
+            "0,2024-06-01T00:00,20.0,1\n"
+            "1,2024-06-01T00:00,21.5,2\n"
+        )
+
+    @pytest.fixture
+    def malformed_csv_content(self):
+        return (
+            "location_id,elevation\n"
+            "0,35\n"
+            "1,42\n"
+            "no second block here"
+        )
+
+    @pytest.fixture
+    def coord_tuples(self):
+        return [(48.85, 2.35), (48.86, 2.36)]
+
+    # === Tests ===
+    def test_parses_valid_csv(self, valid_csv_content, coord_tuples):
+        df = parse_open_meteo_composite_csv(
+            content=valid_csv_content,
+            coord_tuples=coord_tuples,
+            datetime_col="timestamp"
+        )
+
+        assert isinstance(df, pd.DataFrame)
+        assert set(df.columns) >= {"elevation", "temperature_2m", "weather_code",
+                                   "timestamp", "latitude", "longitude"}
+        assert df.shape[0] == 2
+        assert df["latitude"].iloc[0] == coord_tuples[0][0]
+        assert df["longitude"].iloc[1] == coord_tuples[1][1]
+
+    def test_drops_na_datetimes(self, coord_tuples):
+        content = (
+            "location_id,elevation\n"
+            "0,35\n"
+            "1,42\n"
+            "location_id,time,temperature_2m,weather_code\n"
+            "0,,20.0,1\n"
+            "1,2024-06-01T00:00,21.5,2\n"
+        )
+        df = parse_open_meteo_composite_csv(
+            content=content,
+            coord_tuples=coord_tuples,
+            datetime_col="timestamp"
+        )
+        assert df.shape[0] == 1
+        assert df["temperature_2m"].iloc[0] == 21.5

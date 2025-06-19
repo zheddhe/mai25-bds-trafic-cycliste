@@ -1,6 +1,8 @@
 import io
 import logging
+import requests
 from typing import Optional, Union
+from requests.exceptions import HTTPError, RequestException
 
 import pytz
 import pandas as pd
@@ -16,7 +18,7 @@ from smartcheck.dataframe_common import (
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='[%(levelname)s]-[%(asctime)s] %(message)s'
 )
 
@@ -209,3 +211,132 @@ def assign_communes_to_df(
     df[output_column] = joined[commune_column].reindex(df.index).values
 
     return df
+
+
+def fetch_weather_data_from_dataframe(
+    df: pd.DataFrame,
+    lat_col: str,
+    lon_col: str,
+    datetime_col: str
+) -> pd.DataFrame:
+    """
+    Fetch historical weather data from Open-Meteo API using aligned lat/lon pairs.
+
+    Args:
+        df (pd.DataFrame): DataFrame with lat, lon, and datetime columns.
+        lat_col (str): Column name for latitude.
+        lon_col (str): Column name for longitude.
+        datetime_col (str): Column name for datetime (tz-aware, Etc/UTC).
+
+    Returns:
+        pd.DataFrame: Hourly weather data per coordinate and timestamp.
+    """
+    required_cols = {lat_col, lon_col, datetime_col}
+    if not required_cols.issubset(df.columns):
+        logger.error(
+            f"Missing required columns: {required_cols - set(df.columns)}"
+        )
+        return pd.DataFrame()
+
+    try:
+        df_unique = df[[lat_col, lon_col, datetime_col]].drop_duplicates()
+        df_unique["date"] = pd.to_datetime(df_unique[datetime_col]).dt.date
+
+        start_date = df_unique["date"].min().strftime("%Y-%m-%d")
+        end_date = df_unique["date"].max().strftime("%Y-%m-%d")
+
+        coord_pairs = (
+            df_unique[[lat_col, lon_col]]
+            .drop_duplicates()
+            .reset_index(drop=True)
+        )
+        lat_list = coord_pairs[lat_col].tolist()
+        lon_list = coord_pairs[lon_col].tolist()
+
+        latitudes = ",".join(map(str, lat_list))
+        longitudes = ",".join(map(str, lon_list))
+
+        url = (
+            "https://historical-forecast-api.open-meteo.com/v1/forecast?"
+            f"latitude={latitudes}"
+            f"&longitude={longitudes}"
+            f"&start_date={start_date}"
+            f"&end_date={end_date}"
+            "&hourly=temperature_2m,weather_code,rain,snowfall"
+            "&timezone=Etc%2FUTC&format=csv"
+        )
+
+        logger.info(
+            f"Fetching weather data from Open-Meteo "
+            f"for {len(lat_list)} coordinate pairs."
+        )
+        logger.info(f"URL [{url}]")
+
+        response = requests.get(url)
+        response.raise_for_status()
+
+        coord_tuples = list(zip(lat_list, lon_list))
+        df_weather = parse_open_meteo_composite_csv(
+            response.text,
+            coord_tuples,
+            datetime_col
+        )
+        return df_weather
+
+    except HTTPError as exc:
+        logger.error(f"HTTP error while fetching weather data: {exc}")
+        logger.error(f"Response: {exc.response.text}")
+        return pd.DataFrame()
+
+    except RequestException as exc:
+        logger.error(f"Non-HTTP error while fetching weather data: {exc}")
+        return pd.DataFrame()
+
+
+def parse_open_meteo_composite_csv(
+    content: str,
+    coord_tuples: list[tuple[float, float]],
+    datetime_col: str
+) -> pd.DataFrame:
+    """
+    Parse Open-Meteo CSV with weather data and elevation per coordinate.
+
+    Args:
+        content (str): Raw CSV response from Open-Meteo API.
+        coord_tuples (list): Ordered list of (lat, lon) used in request.
+        datetime_col (str): Column name for datetime (tz-aware, Etc/UTC).
+
+    Returns:
+        pd.DataFrame: Weather data enriched with elevation and lat/lon.
+    """
+    lines = content.strip().splitlines()
+
+    split_idx = [
+        idx for idx, line in enumerate(lines)
+        if line.startswith("location_id") and idx > 0
+    ]
+
+    first_block = lines[:split_idx[0]]
+    second_block = lines[split_idx[0]:]
+
+    df_meta = pd.read_csv(io.StringIO("\n".join(first_block)))
+    df_weather = pd.read_csv(io.StringIO("\n".join(second_block)))
+
+    df_meta = df_meta[["location_id", "elevation"]].copy()
+    df_meta["latitude"] = [lat for lat, _ in coord_tuples]
+    df_meta["longitude"] = [lon for _, lon in coord_tuples]
+
+    df_weather[datetime_col] = pd.to_datetime(df_weather["time"]).dt.tz_localize(
+        "Etc/UTC"
+    )
+    df_weather = df_weather.dropna(subset=[datetime_col])
+
+    df_final = pd.merge(
+        df_weather.drop(columns=["time"]),
+        df_meta,
+        on="location_id",
+        how="left"
+    )
+    df_final = df_final.drop(columns=['location_id'])
+
+    return df_final
