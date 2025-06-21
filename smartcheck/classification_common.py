@@ -9,8 +9,7 @@ from imblearn.over_sampling import SMOTE, RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
 
 # Set up logger
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def logit_analysis(data: pd.DataFrame, config: dict, adjustments: dict) -> None:
@@ -36,7 +35,7 @@ def logit_analysis(data: pd.DataFrame, config: dict, adjustments: dict) -> None:
     model = smf.logit(formula, data=data).fit()
 
     # Display model summary
-    log.info("\n%s", model.summary2().as_text())
+    logger.info("\n%s", model.summary2().as_text())
 
     # Extract coefficients
     params = model.params.copy()
@@ -55,7 +54,7 @@ def logit_analysis(data: pd.DataFrame, config: dict, adjustments: dict) -> None:
 
     # Format and display
     result_df = pd.DataFrame(odds_ratios, columns=["Odds Ratios"])
-    log.info("\nNormalized Odds Ratios:\n%s", result_df.to_markdown())
+    logger.info("\nNormalized Odds Ratios:\n%s", result_df.to_markdown())
 
 
 def cross_validation_with_resampling(X, y, model):
@@ -73,7 +72,7 @@ def cross_validation_with_resampling(X, y, model):
         skf = StratifiedKFold(n_splits=5)
         f1_scores = []
 
-        log.info(f"=== {name} ===")
+        logger.info(f"=== {name} ===")
 
         for train_idx, test_idx in skf.split(X, y):
             X_train, y_train = X.iloc[train_idx], y.iloc[train_idx]
@@ -89,8 +88,8 @@ def cross_validation_with_resampling(X, y, model):
             f1_scores.append(f1)
 
         rounded_scores = [round(score, 5) for score in f1_scores]
-        log.info(f"Scores: {rounded_scores}")
-        log.info(f"Mean F1-score: {np.mean(f1_scores):.5f}\n")
+        logger.info(f"Scores: {rounded_scores}")
+        logger.info(f"Mean F1-score: {np.mean(f1_scores):.5f}\n")
 
 
 def binarize_proba(probas, threshold):
@@ -117,7 +116,7 @@ def cross_validation_with_resampling_and_threshold(X, y, model, thresholds=None)
         best_thresholds = []
         f1_scores = []
 
-        log.info(f"=== {name} ===")
+        logger.info(f"=== {name} ===")
 
         for train_idx, test_idx in skf.split(X, y):
             X_train, y_train = X.iloc[train_idx], y.iloc[train_idx]
@@ -145,6 +144,6 @@ def cross_validation_with_resampling_and_threshold(X, y, model, thresholds=None)
             best_thresholds.append(thresholds[best_idx])
             f1_scores.append(scores[best_idx])
 
-        log.info(f"F1 Scores: {[round(s, 2) for s in f1_scores]}")
-        log.info(f"Average threshold = {np.mean(best_thresholds):.3f}")
-        log.info(f"Average F1-score  = {np.mean(f1_scores):.5f}\n")
+        logger.info(f"F1 Scores: {[round(s, 2) for s in f1_scores]}")
+        logger.info(f"Average threshold = {np.mean(best_thresholds):.3f}")
+        logger.info(f"Average F1-score  = {np.mean(f1_scores):.5f}\n")

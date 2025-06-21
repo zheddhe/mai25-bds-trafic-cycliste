@@ -8,8 +8,7 @@ from sklearn.exceptions import NotFittedError
 import logging
 
 # Set up logger
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def compare_search_methods(model_name, model, param_grid, X_train, X_test,
@@ -22,7 +21,7 @@ def compare_search_methods(model_name, model, param_grid, X_train, X_test,
     if is_classifier(model):
         scoring = 'f1'  # or 'accuracy', depending on preference
 
-        def metric_func(y_true, y_pred):
+        def metric_func(y_true, y_pred):  # type: ignore
             return f1_score(y_true, y_pred)
 
         metric_name = "f1_score"
@@ -54,15 +53,15 @@ def compare_search_methods(model_name, model, param_grid, X_train, X_test,
     }
 
     results[model_name] = {}
-    log.info(f"### Model: {model_name} ###")
+    logger.info(f"### Model: {model_name} ###")
 
     for search_name, search in search_methods.items():
-        log.info(f"== Method: {search_name} ==")
+        logger.info(f"== Method: {search_name} ==")
 
         try:
             search.fit(X_train, y_train)
         except Exception as e:
-            log.error(f"Error during search with {search_name}: {e}")
+            logger.error(f"Error during search with {search_name}: {e}")
             continue
 
         best_params = search.best_params_
@@ -72,7 +71,7 @@ def compare_search_methods(model_name, model, param_grid, X_train, X_test,
             y_pred = search.predict(X_test)
             test_metric = metric_func(y_test, y_pred)
         except NotFittedError:
-            log.warning(f"Model not fitted with {search_name}")
+            logger.warning(f"Model not fitted with {search_name}")
             test_metric = None
 
         results[model_name][search_name] = {
@@ -81,9 +80,9 @@ def compare_search_methods(model_name, model, param_grid, X_train, X_test,
             f'test_{metric_name}': test_metric
         }
 
-        log.info(f"Best parameters ({search_name}): {best_params}")
-        log.info(f"CV score ({scoring}): {best_score:.4f}")
+        logger.info(f"Best parameters ({search_name}): {best_params}")
+        logger.info(f"CV score ({scoring}): {best_score:.4f}")
         if test_metric is not None:
-            log.info(f"Test score ({metric_name}): {test_metric:.4f}\n")
+            logger.info(f"Test score ({metric_name}): {test_metric:.4f}\n")
         else:
-            log.info(f"Test score ({metric_name}): None\n")
+            logger.info(f"Test score ({metric_name}): None\n")

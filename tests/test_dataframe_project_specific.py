@@ -13,7 +13,9 @@ from smartcheck.dataframe_project_specific import (
     _load_communes_geojson,
     load_communes_from_config,
     fetch_weather_data_from_dataframe,
-    parse_open_meteo_composite_csv
+    parse_open_meteo_composite_csv,
+    add_holiday_column_from_datetime,
+    add_school_vacation_column
 )
 
 
@@ -374,3 +376,239 @@ class TestParseOpenMeteoCompositeCsv:
         )
         assert df.shape[0] == 1
         assert df["temperature_2m"].iloc[0] == 21.5
+
+
+# === Test class for add_holiday_column_from_datetime ===
+class TestAddHolidayColumnFromDatetime:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def df_14juillet(self):
+        return pd.DataFrame({
+            "datetime": [pd.Timestamp("2023-07-14 10:00:00", tz="Europe/Paris")]
+        })
+
+    @pytest.fixture
+    def df_non_ferie(self):
+        return pd.DataFrame({
+            "datetime": [pd.Timestamp("2023-07-15 10:00:00", tz="Europe/Paris")]
+        })
+
+    @pytest.fixture
+    def df_multi_annees(self):
+        return pd.DataFrame({
+            "datetime": [
+                pd.Timestamp("2022-11-01 10:00:00", tz="Europe/Paris"),
+                pd.Timestamp("2023-07-14 10:00:00", tz="Europe/Paris"),
+            ]
+        })
+
+    # === Tests ===
+    def test_error_if_not_datetime(self):
+        df = pd.DataFrame({"datetime": ["not a datetime"]})
+        with pytest.raises(ValueError):
+            add_holiday_column_from_datetime(df, "datetime")
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_adds_jour_ferie_if_date_matches(self, mock_get, df_14juillet):
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = {
+            "2023-07-14": "Fête nationale"
+        }
+
+        result = add_holiday_column_from_datetime(df_14juillet, "datetime")
+        assert result["jour_ferie"].iloc[0] == 1
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_adds_zero_if_not_holiday(self, mock_get, df_non_ferie):
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = {
+            "2023-07-14": "Fête nationale"
+        }
+
+        result = add_holiday_column_from_datetime(df_non_ferie, "datetime")
+        assert result["jour_ferie"].iloc[0] == 0
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_api_called_for_each_year(self, mock_get, df_multi_annees):
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = {}
+
+        add_holiday_column_from_datetime(df_multi_annees, "datetime")
+        called_urls = [call.args[0] for call in mock_get.call_args_list]
+        assert "2022" in called_urls[0]
+        assert "2023" in called_urls[1]
+        assert len(called_urls) == 2
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_handles_api_failure_gracefully(self, mock_get, df_14juillet):
+        mock_get.side_effect = RequestException("API failure")
+
+        result = add_holiday_column_from_datetime(df_14juillet, "datetime")
+        assert "jour_ferie" in result.columns
+        assert result["jour_ferie"].iloc[0] == 0
+
+
+# === Test class for add_school_vacation_column ===
+class TestAddSchoolVacationColumn:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def df_inside_holiday(self):
+        return pd.DataFrame({
+            "datetime": [pd.Timestamp("2024-02-15 10:00:00", tz="UTC")]
+        })
+
+    @pytest.fixture
+    def df_outside_holiday(self):
+        return pd.DataFrame({
+            "datetime": [pd.Timestamp("2024-03-15 10:00:00", tz="Europe/Paris")]
+        })
+
+    def test_raises_on_non_datetime(self):
+        df = pd.DataFrame({"datetime": ["not a datetime"]})
+        with pytest.raises(ValueError):
+            add_school_vacation_column(df, "datetime")
+
+    # === Tests ===
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_detects_vacation_period(self, mock_get, df_inside_holiday):
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = [
+            {
+                "location": "Paris",
+                "zones": "Zone C",
+                "start_date": "2024-06-10",
+                "end_date": "2024-06-25",
+                "description": "Vacances d'été"
+            },
+            {
+                "location": "Paris",
+                "zones": "Zone C",
+                "start_date": "2024-02-10",
+                "end_date": "2024-02-25",
+                "description": "Vacances d'hiver"
+            }
+        ]
+
+        df_out = add_school_vacation_column(df_inside_holiday, "datetime")
+        assert df_out["vacances_scolaires"].iloc[0] == "Vacances d'hiver"
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_returns_aucune_if_not_in_period(self, mock_get, df_outside_holiday):
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = [
+            {
+                "location": "Paris",
+                "zones": "Zone C",
+                "start_date": "2024-02-10",
+                "end_date": "2024-02-25",
+                "description": "Vacances d'hiver"
+            }
+        ]
+
+        df_out = add_school_vacation_column(df_outside_holiday, "datetime")
+        assert df_out["vacances_scolaires"].iloc[0] == "aucune"
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_api_failure_sets_erreur_api(self, mock_get, df_inside_holiday):
+        mock_get.side_effect = RequestException("API down")
+
+        df_out = add_school_vacation_column(df_inside_holiday, "datetime")
+        assert df_out["vacances_scolaires"].iloc[0] == "erreur_api"
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_malformed_entry_is_ignored(self, mock_get, df_inside_holiday, caplog):
+        mock_get.return_value = Mock(status_code=200)
+        # end_date invalide
+        mock_get.return_value.json.return_value = [
+            {
+                "location": "Paris",
+                "zones": "Zone C",
+                "start_date": "2024-02-10",
+                "end_date": "not-a-date",
+                "description": "Vacances"
+            }
+        ]
+
+        df_out = add_school_vacation_column(df_inside_holiday, "datetime")
+        assert df_out["vacances_scolaires"].iloc[0] == "aucune"
+        assert "Failed to parse record" in caplog.text
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_ignores_wrong_zone_or_location(self, mock_get, df_inside_holiday):
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = [
+            {
+                "location": "Lyon",
+                "zones": "Zone A",
+                "start_date": "2024-02-10",
+                "end_date": "2024-02-25",
+                "description": "Vacances"
+            }
+        ]
+
+        df_out = add_school_vacation_column(df_inside_holiday, "datetime")
+        assert df_out["vacances_scolaires"].iloc[0] == "aucune"
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_api_crash_sets_erreur_api(self, mock_get, df_inside_holiday, caplog):
+        mock_get.side_effect = Exception("Boom!")
+
+        df_out = add_school_vacation_column(df_inside_holiday, "datetime")
+
+        assert df_out["vacances_scolaires"].iloc[0] == "erreur_api"
+        assert "Error fetching school holiday data" in caplog.text
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_parse_error_logged_and_ignored(self, mock_get, df_inside_holiday, caplog):
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = [
+            {
+                "location": "Paris",
+                "zones": "Zone C",
+                "start_date": "2024-02-10",
+                "end_date": "XXX",  # date invalide
+                "description": "Vacances"
+            }
+        ]
+
+        df_out = add_school_vacation_column(df_inside_holiday, "datetime")
+        assert df_out["vacances_scolaires"].iloc[0] == "aucune"
+        assert "Failed to parse record" in caplog.text
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_returns_aucune_when_no_match(self, mock_get, df_outside_holiday):
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = [
+            {
+                "location": "Paris",
+                "zones": "Zone C",
+                "start_date": "2024-02-10",
+                "end_date": "2024-02-25",
+                "description": "Vacances d'hiver"
+            }
+        ]
+
+        df_out = add_school_vacation_column(df_outside_holiday, "datetime")
+        assert df_out["vacances_scolaires"].iloc[0] == "aucune"
+
+    @patch("smartcheck.dataframe_project_specific.requests.get")
+    def test_return_aucune_branch_is_covered(self, mock_get):
+        df = pd.DataFrame({
+            "datetime": [pd.Timestamp("2025-04-15 10:00:00", tz="UTC")]
+        })
+
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = [
+            {
+                "location": "Paris",
+                "zones": "Zone C",
+                "start_date": "2025-01-01",
+                "end_date": "2025-01-10",
+                "description": "Vacances"
+            }
+        ]
+
+        df_out = add_school_vacation_column(df, "datetime")
+        assert df_out["vacances_scolaires"].iloc[0] == "aucune"

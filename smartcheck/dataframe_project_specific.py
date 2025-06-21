@@ -17,10 +17,6 @@ from smartcheck.dataframe_common import (
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='[%(levelname)s]-[%(asctime)s] %(message)s'
-)
 
 
 def extract_datetime_features(
@@ -267,10 +263,10 @@ def fetch_weather_data_from_dataframe(
         )
 
         logger.info(
-            f"Fetching weather data from Open-Meteo "
+            f"🌤 Fetching weather data from Open-Meteo "
             f"for {len(lat_list)} coordinate pairs."
         )
-        logger.info(f"URL [{url}]")
+        logger.debug(f"URL [{url}]")
 
         response = requests.get(url)
         response.raise_for_status()
@@ -340,3 +336,110 @@ def parse_open_meteo_composite_csv(
     df_final = df_final.drop(columns=['location_id'])
 
     return df_final
+
+
+def add_holiday_column_from_datetime(df: pd.DataFrame,
+                                     datetime_col: str,
+                                     country_code: str = "metropole") -> pd.DataFrame:
+    """
+    Add a 'jour_ferie' binary column indicating if a datetime falls on a French holiday.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with a datetime column (timezone-aware).
+        datetime_col (str): Name of the datetime column (must be timezone-aware).
+        country_code (str): Code used in the API (e.g., 'metropole', 'alsace-moselle').
+
+    Returns:
+        pd.DataFrame: DataFrame with added 'jour_ferie' column (0 if not, 1 if holiday).
+    """
+    df = df.copy()
+    if not pd.api.types.is_datetime64_any_dtype(df[datetime_col]):
+        raise ValueError(f"Column '{datetime_col}' must be a datetime64 dtype.")
+
+    local_dates = df[datetime_col].dt.tz_convert("Europe/Paris").dt.date
+    min_year, max_year = local_dates.min().year, local_dates.max().year
+
+    holiday_dates = set()
+    for year in range(min_year, max_year + 1):
+        url = f"https://calendrier.api.gouv.fr/jours-feries/{country_code}/{year}.json"
+        try:
+            logger.info(f"🏛️ Fetching public holidays for year {year} from API.")
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            raw_dates = list(response.json().keys())
+            parsed_dates = pd.to_datetime(raw_dates)
+            holiday_dates.update(d.date() for d in parsed_dates)
+        except requests.RequestException as e:
+            logger.error(f"❌ Error fetching holidays for {year}: {e}")
+
+    df["jour_ferie"] = local_dates.apply(lambda d: int(d in holiday_dates))
+
+    return df
+
+
+def add_school_vacation_column(
+    df: pd.DataFrame,
+    datetime_col: str,
+    location: str = "Paris",
+    zone: str = "Zone C"
+) -> pd.DataFrame:
+    """
+    Add a 'vacances_scolaires' column with the type of school holiday (or 'aucune').
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with timezone-aware datetime.
+        datetime_col (str): Name of the datetime column.
+        location (str): Académie de référence (e.g., "Paris")
+        zones (str): Zone scolaire (e.g., "Zone C")
+
+    Returns:
+        pd.DataFrame: Enriched DataFrame with 'vacances_scolaires' column.
+    """
+    df = df.copy()
+
+    if not pd.api.types.is_datetime64_any_dtype(df[datetime_col]):
+        raise ValueError(f"Column '{datetime_col}' must be datetime64 dtype.")
+
+    local_dates = df[datetime_col].dt.tz_convert("Europe/Paris").dt.date
+    date_min = local_dates.min()
+    date_max = local_dates.max()
+
+    api_url = (
+        "https://data.education.gouv.fr/api/v2/catalog/datasets/"
+        "fr-en-calendrier-scolaire/exports/json"
+    )
+    try:
+        logger.info("🏫 Fetching all school holidays from API.")
+        response = requests.get(api_url, timeout=10)
+        response.raise_for_status()
+        records = response.json()
+    except Exception as e:
+        logger.error(f"❌ Error fetching school holiday data: {e}")
+        df["vacances_scolaires"] = "erreur_api"
+        return df
+
+    vacances = []
+    for item in records:
+        if item.get("location") != location or item.get("zones") != zone:
+            continue
+        try:
+            start = pd.to_datetime(item["start_date"]).date()
+            end = pd.to_datetime(item["end_date"]).date()
+            if end < date_min or start > date_max:
+                continue
+            description = item["description"]
+            vacances.append((start, end, description))
+        except Exception as e:
+            logger.warning(f"⛔ Failed to parse record: {e}")
+
+    logger.debug(f"Holidays retained (filtered): {vacances}")
+
+    def get_vacances_type(date):
+        matched = [desc for start, end, desc in vacances if start <= date <= end]
+        if matched:
+            return matched[0]
+        else:
+            return "aucune"
+
+    df["vacances_scolaires"] = local_dates.map(get_vacances_type)
+    return df
