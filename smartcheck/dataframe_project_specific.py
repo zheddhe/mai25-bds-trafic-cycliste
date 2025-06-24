@@ -1,7 +1,7 @@
 import io
 import logging
 import requests
-from typing import Tuple, Optional
+from typing import Tuple
 from typing import Optional, Union
 from requests.exceptions import HTTPError, RequestException
 
@@ -516,13 +516,14 @@ def extract_datetime_periodic_features(
         )
         raise
 
+
 def train_test_split_time_aware(
     df: pd.DataFrame,
     timestamp_cols: list,
     target_col: str,
     test_size: float = 0.2,
-) -> Tuple[pd.DataFrame, pd.DataFrame, 
-           pd.DataFrame, pd.DataFrame, 
+) -> Tuple[pd.DataFrame, pd.DataFrame,
+           pd.DataFrame, pd.DataFrame,
            pd.Series, pd.Series]:
     """
     Chronological train/test split, preserving datetime columns for visualization.

@@ -677,16 +677,15 @@ class TestTrainTestSplitTimeAware:
         })
 
     # === Tests ===
-    def test_split_without_groupby(self, base_df):
+    def test_split(self, base_df):
         X_tr, X_tr_d, X_te, X_te_d, y_tr, y_te = train_test_split_time_aware(
             df=base_df,
             timestamp_cols=["timestamp_utc", "timestamp_local"],
             target_col="target",
-            test_size=0.3,
-            groupby_counter=None
+            test_size=0.3
         )
 
-        n_rows = len(base_df.groupby(["timestamp_utc", "timestamp_local"]))
+        n_rows = len(base_df)
         n_test = int(n_rows * 0.3)
         n_train = n_rows - n_test
 
@@ -694,24 +693,6 @@ class TestTrainTestSplitTimeAware:
         assert len(X_te) == n_test
         assert len(X_tr_d) == n_train
         assert len(X_te_d) == n_test
-        assert len(y_tr) == n_train
-        assert len(y_te) == n_test
-
-    def test_split_with_groupby(self, base_df):
-        X_tr, X_tr_d, X_te, X_te_d, y_tr, y_te = train_test_split_time_aware(
-            df=base_df,
-            timestamp_cols=["timestamp_utc", "timestamp_local"],
-            target_col="target",
-            test_size=0.4,
-            groupby_counter="identifiant_compteur"
-        )
-
-        n_rows = len(base_df)
-        n_test = int(n_rows * 0.4)
-        n_train = n_rows - n_test
-
-        assert len(X_tr) == n_train
-        assert len(X_te) == n_test
         assert len(y_tr) == n_train
         assert len(y_te) == n_test
 
