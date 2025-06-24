@@ -521,7 +521,6 @@ def train_test_split_time_aware(
     timestamp_cols: list,
     target_col: str,
     test_size: float = 0.2,
-    groupby_counter: Optional[str] = None
 ) -> Tuple[pd.DataFrame, pd.DataFrame, 
            pd.DataFrame, pd.DataFrame, 
            pd.Series, pd.Series]:
@@ -533,20 +532,11 @@ def train_test_split_time_aware(
         timestamp_cols: Columns related to time (e.g., ['_utc', '_local']).
         target_col: Name of the target column.
         test_size: Fraction of data to use for testing.
-        groupby_counter: Optional counter column (e.g., 'identifiant_compteur').
 
     Returns:
         X_train, X_train_dates, X_test, X_test_dates, y_train, y_test
     """
     df = df.copy()
-
-    # Optional aggregation: mean over timestamp for global analysis
-    if groupby_counter is None:
-        df = (
-            df.groupby(timestamp_cols, dropna=False)
-            .mean(numeric_only=True)
-            .reset_index()
-        )
 
     # Sort chronologically by the first timestamp column
     df = df.sort_values(by=timestamp_cols[0])
