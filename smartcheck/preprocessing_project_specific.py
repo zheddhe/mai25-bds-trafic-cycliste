@@ -6,6 +6,7 @@ from smartcheck.dataframe_project_specific import (
     add_holiday_column_from_datetime,
     fetch_weather_data_from_dataframe,
     add_school_vacation_column,
+    extract_datetime_periodic_features,
 )
 from smartcheck.dataframe_common import (
     normalize_column_names,
@@ -239,3 +240,25 @@ class SchoolHolidayTransformer(BaseEstimator, TransformerMixin):
             location=self.location,
             zone=self.zone
         )
+
+
+class DatetimePeriodicsTransformer(BaseEstimator, TransformerMixin):
+    """
+    scikit-learn transformer that extracts datetime components and periodic features
+    from a timestamp column, and drops the original timestamp + local datetime.
+
+    Parameters:
+        timestamp_col (str): name of the timestamp column in ISO8601 format.
+    """
+
+    def __init__(self, timestamp_col: str):
+        self.timestamp_col = timestamp_col
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_t = extract_datetime_periodic_features(X, timestamp_col=self.timestamp_col)
+        # Supprimer colonnes brutes inutiles
+        cols_to_drop = [self.timestamp_col]
+        return X_t.drop(columns=cols_to_drop, errors="ignore")

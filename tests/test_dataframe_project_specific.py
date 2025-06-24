@@ -3,6 +3,7 @@ import pytest
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
+import numpy as np
 from shapely.geometry import Polygon
 from requests.exceptions import HTTPError, RequestException
 from unittest.mock import patch, Mock
@@ -15,7 +16,9 @@ from smartcheck.dataframe_project_specific import (
     fetch_weather_data_from_dataframe,
     parse_open_meteo_composite_csv,
     add_holiday_column_from_datetime,
-    add_school_vacation_column
+    add_school_vacation_column,
+    extract_datetime_periodic_features,
+    train_test_split_time_aware,
 )
 
 
@@ -612,3 +615,120 @@ class TestAddSchoolVacationColumn:
 
         df_out = add_school_vacation_column(df, "datetime")
         assert df_out["vacances_scolaires"].iloc[0] == "aucune"
+
+
+# === Test class for extract_datetime_periodic_features ===
+class TestExtractDatetimePeriodicFeatures:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def df_timestamps(self):
+        return pd.DataFrame({
+            "ts": [
+                "2024-01-01T08:00:00+0000",
+                "2024-06-15T18:30:00+0000"
+            ]
+        })
+
+    # === Tests ===
+    def test_extracted_columns_exist(self, df_timestamps):
+        enriched = extract_datetime_periodic_features(df_timestamps, "ts")
+
+        expected_cols = [
+            "ts_utc", "ts_local", "ts_year", "ts_month", "ts_day",
+            "ts_day_of_year", "ts_day_of_week", "ts_hour", "ts_week",
+            "ts_sin_hour", "ts_cos_hour", "ts_sin_day_of_week",
+            "ts_cos_day_of_week", "ts_sin_month", "ts_cos_month",
+            "ts_sin_week", "ts_cos_week"
+        ]
+
+        for col in expected_cols:
+            assert col in enriched.columns
+
+    def test_values_are_correct_shape_and_type(self, df_timestamps):
+        enriched = extract_datetime_periodic_features(df_timestamps, "ts")
+
+        assert enriched.shape[0] == 2
+        assert pd.api.types.is_datetime64_any_dtype(enriched["ts_utc"])
+        assert pd.api.types.is_datetime64_any_dtype(enriched["ts_local"])
+        assert np.isclose(enriched["ts_sin_hour"] ** 2 +
+                          enriched["ts_cos_hour"] ** 2, 1).all()
+
+    def test_invalid_timestamp_raises(self):
+        df_invalid = pd.DataFrame({
+            "ts": ["not_a_timestamp"]
+        })
+        with pytest.raises(Exception):
+            extract_datetime_periodic_features(df_invalid, "ts")
+
+
+# === Test class for train_test_split_time_aware ===
+class TestTrainTestSplitTimeAware:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def base_df(self):
+        return pd.DataFrame({
+            "timestamp_local": pd.date_range("2022-01-01", periods=10, freq="D"),
+            "timestamp_utc": pd.date_range("2022-01-01", periods=10, freq="D"),
+            "identifiant_compteur": ["A"] * 5 + ["B"] * 5,
+            "volume": np.arange(10),
+            "target": [0, 1] * 5
+        })
+
+    # === Tests ===
+    def test_split_without_groupby(self, base_df):
+        X_tr, X_tr_d, X_te, X_te_d, y_tr, y_te = train_test_split_time_aware(
+            df=base_df,
+            timestamp_cols=["timestamp_utc", "timestamp_local"],
+            target_col="target",
+            test_size=0.3,
+            groupby_counter=None
+        )
+
+        n_rows = len(base_df.groupby(["timestamp_utc", "timestamp_local"]))
+        n_test = int(n_rows * 0.3)
+        n_train = n_rows - n_test
+
+        assert len(X_tr) == n_train
+        assert len(X_te) == n_test
+        assert len(X_tr_d) == n_train
+        assert len(X_te_d) == n_test
+        assert len(y_tr) == n_train
+        assert len(y_te) == n_test
+
+    def test_split_with_groupby(self, base_df):
+        X_tr, X_tr_d, X_te, X_te_d, y_tr, y_te = train_test_split_time_aware(
+            df=base_df,
+            timestamp_cols=["timestamp_utc", "timestamp_local"],
+            target_col="target",
+            test_size=0.4,
+            groupby_counter="identifiant_compteur"
+        )
+
+        n_rows = len(base_df)
+        n_test = int(n_rows * 0.4)
+        n_train = n_rows - n_test
+
+        assert len(X_tr) == n_train
+        assert len(X_te) == n_test
+        assert len(y_tr) == n_train
+        assert len(y_te) == n_test
+
+    def test_removed_columns(self, base_df):
+        X_tr, _, _, _, _, _ = train_test_split_time_aware(
+            df=base_df,
+            timestamp_cols=["timestamp_utc", "timestamp_local"],
+            target_col="target"
+        )
+        assert "timestamp_utc" not in X_tr.columns
+        assert "timestamp_local" not in X_tr.columns
+        assert "target" not in X_tr.columns
+
+    def test_invalid_timestamp_column(self, base_df):
+        with pytest.raises(KeyError):
+            train_test_split_time_aware(
+                df=base_df,
+                timestamp_cols=["nonexistent"],
+                target_col="target"
+            )

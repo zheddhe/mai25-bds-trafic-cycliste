@@ -1,4 +1,5 @@
 import pytest
+from typing import cast
 import pandas as pd
 from unittest.mock import patch
 from smartcheck.preprocessing_project_specific import (
@@ -8,7 +9,8 @@ from smartcheck.preprocessing_project_specific import (
     WeatherDataEnrichmentTransformer,
     ColumnNameNormalizerTransformer,
     SchoolHolidayTransformer,
-    HolidayFromDatetimeTransformer
+    HolidayFromDatetimeTransformer,
+    DatetimePeriodicsTransformer,
 )
 
 
@@ -361,3 +363,50 @@ class TestHolidayFromDatetimeTransformer:
     def test_fit_returns_self(self, df_existing_column):
         transformer = HolidayFromDatetimeTransformer(datetime_col="datetime")
         assert transformer.fit(df_existing_column) is transformer
+
+
+# === Test class for DatetimePeriodicsTransformer ===
+class TestDatetimePeriodicsTransformer:
+
+    # === Data Fixtures ===
+    @pytest.fixture
+    def sample_df(self):
+        return pd.DataFrame({
+            "date_et_heure_utc": pd.to_datetime([
+                "2022-01-01 08:00:00",
+                "2022-06-15 15:30:00"
+            ])
+        })
+
+    @pytest.fixture
+    def mock_extracted_df(self):
+        return pd.DataFrame({
+            "year": [2022, 2022],
+            "month": [1, 6]
+        })
+
+    # === Tests ===
+    @patch(
+        "smartcheck.preprocessing_project_specific.extract_datetime_periodic_features"
+    )
+    def test_transform_calls_extraction_and_drops_original(
+        self, mock_extract, sample_df, mock_extracted_df
+    ):
+        mock_extract.return_value = mock_extracted_df.assign(
+            date_et_heure_utc=sample_df["date_et_heure_utc"]
+        )
+
+        transformer = DatetimePeriodicsTransformer("date_et_heure_utc")
+        result = transformer.fit_transform(sample_df)
+        result = cast(pd.DataFrame, result)
+
+        mock_extract.assert_called_once_with(
+            sample_df, timestamp_col="date_et_heure_utc"
+        )
+
+        assert "date_et_heure_utc" not in result.columns
+        assert list(result.columns) == ["year", "month"]
+
+    def test_fit_returns_self(self, sample_df):
+        transformer = DatetimePeriodicsTransformer("date_et_heure_utc")
+        assert transformer.fit(sample_df) is transformer

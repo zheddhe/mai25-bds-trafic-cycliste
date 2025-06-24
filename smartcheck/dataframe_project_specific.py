@@ -1,11 +1,13 @@
 import io
 import logging
 import requests
+from typing import Tuple, Optional
 from typing import Optional, Union
 from requests.exceptions import HTTPError, RequestException
 
 import pytz
 import pandas as pd
+import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point
 
@@ -443,3 +445,126 @@ def add_school_vacation_column(
 
     df["vacances_scolaires"] = local_dates.map(get_vacances_type)
     return df
+
+
+def extract_datetime_periodic_features(
+    df: pd.DataFrame,
+    timestamp_col: str,
+    tz_local: str = "Europe/Paris"
+) -> pd.DataFrame:
+    """
+    Parse ISO8601 timestamps in `timestamp_col`, convert to UTC then to local time,
+    and extract calendar and periodic (sin/cos) components.
+
+    Args:
+        df: Input DataFrame.
+        timestamp_col: Column with ISO8601 timestamp strings.
+        tz_local: Timezone for conversion.
+
+    Returns:
+        pd.DataFrame: Enriched copy of df.
+    """
+    df = df.copy()
+    try:
+        df[f"{timestamp_col}_utc"] = pd.to_datetime(
+            df[timestamp_col],
+            format="%Y-%m-%dT%H:%M:%S%z",
+            utc=True
+        )
+        df[f"{timestamp_col}_local"] = (
+            df[f"{timestamp_col}_utc"]
+            .dt.tz_convert(pytz.timezone(tz_local))
+        )
+        ts = df[f"{timestamp_col}_local"]
+        df[f"{timestamp_col}_year"] = ts.dt.year
+        df[f"{timestamp_col}_month"] = ts.dt.month
+        df[f"{timestamp_col}_day"] = ts.dt.day
+        df[f"{timestamp_col}_day_of_year"] = ts.dt.dayofyear
+        df[f"{timestamp_col}_day_of_week"] = ts.dt.dayofweek
+        df[f"{timestamp_col}_hour"] = ts.dt.hour
+        df[f"{timestamp_col}_week"] = ts.dt.isocalendar().week
+        df[f"{timestamp_col}_sin_hour"] = np.sin(
+            2 * np.pi * df[f"{timestamp_col}_hour"] / 24
+        )
+        df[f"{timestamp_col}_cos_hour"] = np.cos(
+            2 * np.pi * df[f"{timestamp_col}_hour"] / 24
+        )
+        df[f"{timestamp_col}_sin_day_of_week"] = np.sin(
+            2 * np.pi * df[f"{timestamp_col}_day_of_week"] / 7
+        )
+        df[f"{timestamp_col}_cos_day_of_week"] = np.cos(
+            2 * np.pi * df[f"{timestamp_col}_day_of_week"] / 7
+        )
+        df[f"{timestamp_col}_sin_month"] = np.sin(
+            2 * np.pi * df[f"{timestamp_col}_month"] / 12
+        )
+        df[f"{timestamp_col}_cos_month"] = np.cos(
+            2 * np.pi * df[f"{timestamp_col}_month"] / 12
+        )
+        df[f"{timestamp_col}_sin_week"] = np.sin(
+            2 * np.pi * df[f"{timestamp_col}_week"] / 52
+        )
+        df[f"{timestamp_col}_cos_week"] = np.cos(
+            2 * np.pi * df[f"{timestamp_col}_week"] / 52
+        )
+        return df
+
+    except Exception as exc:
+        logger.error(
+            "Error in datetime feature extraction for '%s': %s",
+            timestamp_col, exc
+        )
+        raise
+
+def train_test_split_time_aware(
+    df: pd.DataFrame,
+    timestamp_cols: list,
+    target_col: str,
+    test_size: float = 0.2,
+    groupby_counter: Optional[str] = None
+) -> Tuple[pd.DataFrame, pd.DataFrame, 
+           pd.DataFrame, pd.DataFrame, 
+           pd.Series, pd.Series]:
+    """
+    Chronological train/test split, preserving datetime columns for visualization.
+
+    Args:
+        df: DataFrame containing all data.
+        timestamp_cols: Columns related to time (e.g., ['_utc', '_local']).
+        target_col: Name of the target column.
+        test_size: Fraction of data to use for testing.
+        groupby_counter: Optional counter column (e.g., 'identifiant_compteur').
+
+    Returns:
+        X_train, X_train_dates, X_test, X_test_dates, y_train, y_test
+    """
+    df = df.copy()
+
+    # Optional aggregation: mean over timestamp for global analysis
+    if groupby_counter is None:
+        df = (
+            df.groupby(timestamp_cols, dropna=False)
+            .mean(numeric_only=True)
+            .reset_index()
+        )
+
+    # Sort chronologically by the first timestamp column
+    df = df.sort_values(by=timestamp_cols[0])
+
+    # Extract datetime cols for later plotting
+    features_dates = df[timestamp_cols].copy()
+
+    # Features/target split
+    features = df.drop(columns=timestamp_cols + [target_col])
+    target = df[target_col]
+
+    # Chronological split
+    n_test = int(len(df) * test_size)
+    X_train = features[:-n_test]
+    X_train_dates = features_dates[:-n_test]
+    X_test = features[-n_test:]
+    X_test_dates = features_dates[-n_test:]
+    y_train = target[:-n_test]
+    y_test = target[-n_test:]
+
+    return X_train, X_train_dates, X_test, X_test_dates, y_train, y_test
