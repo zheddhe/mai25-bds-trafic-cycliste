@@ -1,5 +1,6 @@
 import pandas as pd
 import logging
+from typing import Optional, List, Tuple
 from sklearn.base import BaseEstimator, TransformerMixin
 from smartcheck.dataframe_project_specific import (
     extract_datetime_features,
@@ -259,6 +260,67 @@ class DatetimePeriodicsTransformer(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X_t = extract_datetime_periodic_features(X, timestamp_col=self.timestamp_col)
-        # Supprimer colonnes brutes inutiles
         cols_to_drop = [self.timestamp_col]
         return X_t.drop(columns=cols_to_drop, errors="ignore")
+    
+
+class AutoregressiveFeaturesTransformer:
+    """
+    Adds autoregressive and rolling average features to X.
+    Designed to work with (X, X_dates, y) triplets for time series modeling.
+    """
+
+    def __init__(self, rolling_window: int):
+        self.rolling_window = rolling_window
+        self.fitted_ = False
+
+    def fit_transform(self, X: pd.DataFrame, X_dates: pd.DataFrame,
+                      y: pd.Series) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
+        """
+        Applies AR(1) and rolling features to X and aligns X_dates and y.
+        Only past data is used: shift(1) avoids data leakage.
+
+        Returns:
+            X_transformed, X_dates_transformed, y_transformed
+        """
+        df = X.copy()
+        df["target_lag1"] = y.shift(1)
+        df["target_roll_mean"] = y.shift(1).rolling(
+            window=self.rolling_window, center=False
+        ).mean()
+
+        # Drop rows with NaN introduced by shift and rolling
+        valid_idx = df.dropna().index
+        X_transformed = df.loc[valid_idx].reset_index(drop=True)
+        y_transformed = y.loc[valid_idx].reset_index(drop=True)
+        dates_transformed = X_dates.loc[valid_idx].reset_index(drop=True)
+
+        self.fitted_ = True
+        return X_transformed, dates_transformed, y_transformed
+
+    def transform_test(self, X: pd.DataFrame, X_dates: pd.DataFrame,
+                       y: pd.Series) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
+        """
+        Applies same transformation as fit_transform but on test data.
+        Requires full y history (at least window+1 rows) to generate features.
+
+        Returns:
+            X_transformed, X_dates_transformed, y_transformed
+        """
+        if not self.fitted_:
+            raise RuntimeError("Must call fit_transform before transform_test.")
+
+        df = X.copy()
+        df["target_lag1"] = y.shift(1)
+        df["target_roll_mean"] = y.shift(1).rolling(
+            window=self.rolling_window, 
+            # center=False
+        ).mean()
+
+        # Drop initial rows with NaN to avoid leakage
+        valid_idx = df.dropna().index
+        X_transformed = df.loc[valid_idx].reset_index(drop=True)
+        y_transformed = y.loc[valid_idx].reset_index(drop=True)
+        dates_transformed = X_dates.loc[valid_idx].reset_index(drop=True)
+
+        return X_transformed, dates_transformed, y_transformed
