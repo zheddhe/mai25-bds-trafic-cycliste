@@ -1,6 +1,6 @@
 import pandas as pd
 import logging
-from typing import Optional, List, Tuple
+# from typing import Optional, List, Tuple
 from sklearn.base import BaseEstimator, TransformerMixin
 from smartcheck.dataframe_project_specific import (
     extract_datetime_features,
@@ -262,7 +262,7 @@ class DatetimePeriodicsTransformer(BaseEstimator, TransformerMixin):
         X_t = extract_datetime_periodic_features(X, timestamp_col=self.timestamp_col)
         cols_to_drop = [self.timestamp_col]
         return X_t.drop(columns=cols_to_drop, errors="ignore")
-    
+
 
 class AutoregressiveFeaturesTransformer:
     """
@@ -313,7 +313,7 @@ class AutoregressiveFeaturesTransformer:
         df = X.copy()
         df["target_lag1"] = y.shift(1)
         df["target_roll_mean"] = y.shift(1).rolling(
-            window=self.rolling_window, 
+            window=self.rolling_window,
             # center=False
         ).mean()
 
