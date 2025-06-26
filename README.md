@@ -166,7 +166,7 @@ Example access:
 ```python
 from smartcheck.paths import load_config
 config = load_config()
-print(config["data"]["input"]["velib_comptage_data"])
+print(config["data"]["input"]["velo_comptage_data"])
 ```
 
 ---
