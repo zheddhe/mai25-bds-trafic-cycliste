@@ -87,9 +87,17 @@ nox -s build-3.12
 conda env list
 conda activate [env_path]
 
-# Optional: clean or rebuild
+# Optional: clean (project generated file only)
+nox -s clean_project
+
+# Optional: clean everything (/!\ including virtual environment generated with conda/nox)
 nox -s clean_all
+
+# Optional: trigger packaging construction
 nox -s package
+
+# Optional: set up deep learning specific env (python 3.9)
+nox -s dl-3.9
 ```
 
 #### Option B: With pip only
@@ -158,7 +166,7 @@ Example access:
 ```python
 from smartcheck.paths import load_config
 config = load_config()
-print(config["data"]["input"]["velib_dispo_data"])
+print(config["data"]["input"]["velib_comptage_data"])
 ```
 
 ---
