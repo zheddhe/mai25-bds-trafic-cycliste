@@ -4,10 +4,10 @@ from unittest.mock import patch
 from smartcheck.logger_config import setup_logger
 
 
-# === Test class for setup_logger ===
 class TestSetupLogger:
+    """Unit tests for setup_logger"""
 
-    # === Data fixtures ===
+    # === Fixtures ===
     @pytest.fixture(autouse=True)
     def reset_logging(self):
         """

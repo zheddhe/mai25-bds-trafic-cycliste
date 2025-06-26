@@ -9,8 +9,8 @@ from smartcheck.paths import (
 )
 
 
-# === Test Class for get_full_path ===
 class TestGetFullPath:
+    """Unit tests for get_full_path"""
 
     # === Tests ===
     @pytest.mark.parametrize(
@@ -33,8 +33,8 @@ class TestGetFullPath:
         assert os.path.normpath(result) == os.path.normpath(PROJECT_ROOT)
 
 
-# === Test Class for load_config ===
 class TestLoadConfig:
+    """Unit tests for load_config"""
 
     # === Tests ===
     @pytest.mark.parametrize(

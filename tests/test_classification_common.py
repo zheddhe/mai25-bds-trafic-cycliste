@@ -11,10 +11,10 @@ from smartcheck.classification_common import (
 )
 
 
-# === Test class for logit_analysis ===
 class TestLogitAnalysis:
+    """Unit tests for logit_analysis"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def dummy_data(self):
         np.random.seed(0)
@@ -107,10 +107,10 @@ class TestLogitAnalysis:
         assert "Odds Ratios" in caplog.text
 
 
-# === Test class for cross_validation_with_resampling ===
 class TestCrossValidationWithResampling:
+    """Unit tests for cross_validation_with_resampling"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def sample_data(self):
         np.random.seed(42)
@@ -180,10 +180,10 @@ class TestCrossValidationWithResampling:
             cross_validation_with_resampling(empty_X, empty_y, model)
 
 
-# === Test class for cross_validation_with_resampling_and_threshold ===
 class TestCrossValidationWithResamplingAndThreshold:
+    """Unit tests for cross_validation_with_resampling_and_threshold"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def sample_data(self):
         np.random.seed(42)

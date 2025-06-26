@@ -22,8 +22,8 @@ from smartcheck.dataframe_common import (
 )
 
 
-# === Test class for _extract_google_drive_file_id ===
 class TestExtractGoogleDriveFileId:
+    """Unit tests for _extract_google_drive_file_id"""
 
     # === Tests ===
     def test_valid_url(self):
@@ -38,10 +38,10 @@ class TestExtractGoogleDriveFileId:
         assert "Unable to extract file ID" in caplog.text
 
 
-# === Test class for _download_google_drive_file ===
 class TestDownloadGoogleDriveFile:
+    """Unit tests for _download_google_drive_file"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def html_big_file(self):
         return '''
@@ -77,7 +77,6 @@ class TestDownloadGoogleDriveFile:
     def simple_file_content(self):
         return "some file content"
 
-    # === Mock Fixtures ===
     @pytest.fixture
     def mock_response(self):
         return Mock()
@@ -130,10 +129,10 @@ class TestDownloadGoogleDriveFile:
         assert "Required confirmation fields not found" in caplog.text
 
 
-# === Test class for _load_data_from_string ===
 class TestLoadDataFromString:
+    """Unit tests for _load_data_from_string"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def valid_csv(self):
         return "col1,col2\n1,2\n3,4"
@@ -172,8 +171,8 @@ class TestLoadDataFromString:
             assert "Error reading JSON content" in caplog.text
 
 
-# === Test class for _load_data_from_local ===
 class TestLoadDataFromLocal:
+    """Unit tests for _load_data_from_local"""
 
     # === Tests ===
     @patch("smartcheck.dataframe_common.os.path.exists",
@@ -228,8 +227,8 @@ class TestLoadDataFromLocal:
         assert "Error reading local file" in caplog.text
 
 
-# === Test class for _infer_file_format ===
 class TestInferFileFormat:
+    """Unit tests for _infer_file_format"""
 
     # === Tests ===
     def test_format_csv(self):
@@ -239,8 +238,8 @@ class TestInferFileFormat:
         assert _infer_file_format("data/test.JSON") == "json"
 
 
-# === Test class for load_dataset_from_config ===
 class TestLoadDatasetFromConfig:
+    """Unit tests for load_dataset_from_config"""
 
     # === Tests ===
     @patch("smartcheck.dataframe_common.load_config")
@@ -295,10 +294,10 @@ class TestLoadDatasetFromConfig:
         assert df.shape == (1, 2)
 
 
-# === Test class for log_general_info ===
 class TestLogGeneralInfo:
+    """Unit tests for log_general_info"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def valid_df(self):
         return pd.DataFrame({
@@ -339,8 +338,8 @@ class TestLogGeneralInfo:
         assert "DataFrame Info:" in caplog.text
 
 
-# === Test class pour display_variable_info ===
 class TestDisplayVariableInfo:
+    """Unit tests for display_variable_info"""
 
     # === Tests ===
     def test_series(self, caplog: pytest.LogCaptureFixture):
@@ -376,10 +375,10 @@ class TestDisplayVariableInfo:
             display_variable_info(['not', 'a', 'pandas', 'object'])
 
 
-# === Test class for detect_and_log_duplicates_and_missing ===
 class TestDetectAndLogDuplicatesAndMissing:
+    """Unit tests for detect_and_log_duplicates_and_missing"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_with_missing_and_duplicates(self):
         return pd.DataFrame({
@@ -440,10 +439,10 @@ class TestDetectAndLogDuplicatesAndMissing:
         assert total_dups == 2
 
 
-# === Test class for duplicates_index_map ===
 class TestDuplicatesIndexMap:
+    """Unit tests for duplicates_index_map"""
 
-    # === Data Fixture ===
+    # === Fixtures ===
     @pytest.fixture
     def df_with_duplicates(self):
         data = {
@@ -484,10 +483,10 @@ class TestDuplicatesIndexMap:
             assert len(group) > 1  # must be a group (not single entry)
 
 
-# === Test class for compare_row_differences ===
 class TestCompareRowDifferences:
+    """Unit tests for compare_row_differences"""
 
-    # === Data Fixture ===
+    # === Fixtures ===
     @pytest.fixture
     def sample_dataframe(self):
         return pd.DataFrame({
@@ -514,8 +513,8 @@ class TestCompareRowDifferences:
             compare_row_differences(sample_dataframe, 0, 10)
 
 
-# === Test class for normalize_column_names ===
 class TestNormalizeColumnNames:
+    """Unit tests for normalize_column_names"""
 
     # === Data Fixtures ===
     @pytest.fixture
@@ -550,6 +549,7 @@ class TestNormalizeColumnNames:
 
 
 class TestAnalyzeByReferenceVariable:
+    """Unit tests for analyze_by_reference_variable"""
 
     # === Fixtures ===
     @pytest.fixture
@@ -607,10 +607,10 @@ class TestAnalyzeByReferenceVariable:
             analyze_by_reference_variable(df, "Missing")
 
 
-# === Test class for log_cross_distributions ===
 class TestLogCrossDistributions:
+    """Unit tests for log_cross_distributions"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_example(self):
         return pd.DataFrame({
@@ -653,10 +653,10 @@ class TestLogCrossDistributions:
         assert "Could not compute cross-distribution for BadColumn" in caplog.text
 
 
-# === Test class for extract_difference ===
 class TestExtractDifference:
+    """Unit tests for extract_difference"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def row_match(self):
         return {

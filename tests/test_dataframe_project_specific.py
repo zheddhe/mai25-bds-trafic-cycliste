@@ -22,10 +22,10 @@ from smartcheck.dataframe_project_specific import (
 )
 
 
-# === Test class for extract_datetime_features ===
 class TestExtractDatetimeFeatures:
+    """Unit tests for extract_datetime_features"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def sample(self) -> pd.DataFrame:
         return pd.DataFrame({
@@ -52,10 +52,10 @@ class TestExtractDatetimeFeatures:
             extract_datetime_features(df, "bad_ts", tz_local="Europe/Paris")
 
 
-# === Test class for _load_communes_geojson ===
 class TestLoadCommunesGeojsonRaw:
+    """Unit tests for _load_communes_geojson"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def dummy_gdf(self) -> gpd.GeoDataFrame:
         return gpd.GeoDataFrame({"commune": ["01"]})
@@ -108,10 +108,10 @@ class TestLoadCommunesGeojsonRaw:
             _load_communes_geojson("https://drive.google.com/file/d//view")
 
 
-# === Test class for load_communes_from_config ===
 class TestLoadCommunesFromConfig:
+    """Unit tests for load_communes_from_config"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def dummy_gdf(self) -> gpd.GeoDataFrame:
         return gpd.GeoDataFrame({"commune": ["01"]})
@@ -140,10 +140,10 @@ class TestLoadCommunesFromConfig:
             load_communes_from_config()
 
 
-# === Test class for get_commune_from_coordinates ===
 class TestGetCommuneFromCoordinates:
+    """Unit tests for get_commune_from_coordinates"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def dummy_communes(self) -> gpd.GeoDataFrame:
         polygon = Polygon([
@@ -163,10 +163,10 @@ class TestGetCommuneFromCoordinates:
         assert result is None
 
 
-# === Test class for assign_communes_to_df ===
 class TestAssignCommunesToDf:
+    """Unit tests for assign_communes_to_df"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def polygon_commune(self) -> gpd.GeoDataFrame:
         polygon = Polygon([
@@ -251,10 +251,10 @@ class TestAssignCommunesToDf:
         assert result["assigned"].isna().all()
 
 
-# === Test class for fetch_weather_data_from_dataframe ===
 class TestFetchWeatherDataFromDataFrame:
+    """Unit tests for fetch_weather_data_from_dataframe"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def minimal_df(self):
         return pd.DataFrame({
@@ -263,7 +263,6 @@ class TestFetchWeatherDataFromDataFrame:
             "timestamp": [pd.Timestamp("2024-06-01 00:00:00", tz="UTC")]
         })
 
-    # === Mock Fixtures ===
     @pytest.fixture
     def mock_response(self):
         return Mock(
@@ -320,10 +319,10 @@ class TestFetchWeatherDataFromDataFrame:
         assert "Non-HTTP error while fetching weather data" in caplog.text
 
 
-# === Test class for parse_open_meteo_composite_csv ===
 class TestParseOpenMeteoCompositeCsv:
+    """Unit tests for parse_open_meteo_composite_csv"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def valid_csv_content(self):
         return (
@@ -381,10 +380,10 @@ class TestParseOpenMeteoCompositeCsv:
         assert df["temperature_2m"].iloc[0] == 21.5
 
 
-# === Test class for add_holiday_column_from_datetime ===
 class TestAddHolidayColumnFromDatetime:
+    """Unit tests for add_holiday_column_from_datetime"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_14juillet(self):
         return pd.DataFrame({
@@ -452,10 +451,10 @@ class TestAddHolidayColumnFromDatetime:
         assert result["jour_ferie"].iloc[0] == 0
 
 
-# === Test class for add_school_vacation_column ===
 class TestAddSchoolVacationColumn:
+    """Unit tests for add_school_vacation_column"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_inside_holiday(self):
         return pd.DataFrame({
@@ -617,10 +616,10 @@ class TestAddSchoolVacationColumn:
         assert df_out["vacances_scolaires"].iloc[0] == "aucune"
 
 
-# === Test class for extract_datetime_periodic_features ===
 class TestExtractDatetimePeriodicFeatures:
+    """Unit tests for extract_datetime_periodic_features"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_timestamps(self):
         return pd.DataFrame({
@@ -662,10 +661,10 @@ class TestExtractDatetimePeriodicFeatures:
             extract_datetime_periodic_features(df_invalid, "ts")
 
 
-# === Test class for train_test_split_time_aware ===
 class TestTrainTestSplitTimeAware:
+    """Unit tests for train_test_split_time_aware"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def base_df(self):
         return pd.DataFrame({

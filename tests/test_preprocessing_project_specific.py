@@ -11,13 +11,14 @@ from smartcheck.preprocessing_project_specific import (
     SchoolHolidayTransformer,
     HolidayFromDatetimeTransformer,
     DatetimePeriodicsTransformer,
+    AutoregressiveFeaturesTransformer,
 )
 
 
-# === Test Class for DatetimePreprocessingTransformer ===
 class TestDatetimePreprocessingTransformer:
+    """Unit tests for DatetimePreprocessingTransformer"""
 
-    # === Data fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def naive_df(self) -> pd.DataFrame:
         return pd.DataFrame({
@@ -75,10 +76,10 @@ class TestDatetimePreprocessingTransformer:
         assert result is transformer
 
 
-# === Test Class for ColumnFilterTransformer ===
 class TestColumnFilterTransformer:
+    """Unit tests for ColumnFilterTransformer"""
 
-    # === Data fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def full_df(self) -> pd.DataFrame:
         return pd.DataFrame({
@@ -111,10 +112,10 @@ class TestColumnFilterTransformer:
         assert result is transformer
 
 
-# === Test class for MeteoCodePreprocessingTransformer ===
 class TestMeteoCodePreprocessingTransformer:
+    """Unit tests for MeteoCodePreprocessingTransformer"""
 
-    # === Data fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_valid_codes(self):
         return pd.DataFrame({
@@ -155,10 +156,10 @@ class TestMeteoCodePreprocessingTransformer:
         assert transformer.fit(df_valid_codes) is transformer
 
 
-# === Test class for WeatherDataEnrichmentTransformer ===
 class TestWeatherDataEnrichmentTransformer:
+    """Unit tests for WeatherDataEnrichmentTransformer"""
 
-    # === Data fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_invalid_coords(self):
         return pd.DataFrame({
@@ -242,10 +243,10 @@ class TestWeatherDataEnrichmentTransformer:
         assert result.loc[0, "humidity"] == 78
 
 
-# === Test class for ColumnNameNormalizerTransformer ===
 class TestColumnNameNormalizerTransformer:
+    """Unit tests for ColumnNameNormalizerTransformer"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_raw(self):
         return pd.DataFrame({
@@ -265,10 +266,10 @@ class TestColumnNameNormalizerTransformer:
         assert transformer.fit(df_raw) is transformer
 
 
-# === Test class for SchoolHolidayTransformer ===
 class TestSchoolHolidayTransformer:
+    """Unit tests for SchoolHolidayTransformer"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_known_holiday(self):
         return pd.DataFrame({
@@ -322,10 +323,10 @@ class TestSchoolHolidayTransformer:
         assert transformer.fit(df_known_holiday) is transformer
 
 
-# === Test class for HolidayFromDatetimeTransformer ===
 class TestHolidayFromDatetimeTransformer:
+    """Unit tests for HolidayFromDatetimeTransformer"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def df_existing_column(self):
         return pd.DataFrame({
@@ -365,10 +366,10 @@ class TestHolidayFromDatetimeTransformer:
         assert transformer.fit(df_existing_column) is transformer
 
 
-# === Test class for DatetimePeriodicsTransformer ===
 class TestDatetimePeriodicsTransformer:
+    """Unit tests for DatetimePeriodicsTransformer"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def sample_df(self):
         return pd.DataFrame({
@@ -410,3 +411,72 @@ class TestDatetimePeriodicsTransformer:
     def test_fit_returns_self(self, sample_df):
         transformer = DatetimePeriodicsTransformer("date_et_heure_utc")
         assert transformer.fit(sample_df) is transformer
+
+
+class TestAutoregressiveFeaturesTransformer:
+    """Unit tests for AutoregressiveFeaturesTransformer"""
+
+    # === Fixtures ===
+    @pytest.fixture
+    def sample_data(self):
+        X = pd.DataFrame({"feature": np.arange(10)})
+        X_dates = pd.DataFrame({"timestamp": pd.date_range(
+            start="2022-01-01", periods=10, freq="D"
+        )})
+        y = pd.Series(np.arange(10), name="target")
+        return X, X_dates, y
+
+    @pytest.fixture
+    def transformer(self):
+        return AutoregressiveFeaturesTransformer(rolling_window=3)
+
+    # === Tests ===
+    def test_fit_transform_returns_expected_shapes(
+        self, transformer, sample_data
+    ):
+        X, X_dates, y = sample_data
+        X_out, X_dates_out, y_out = transformer.fit_transform(X, X_dates, y)
+
+        expected_len = len(y) - 2  # 1 for lag + (rolling_window - 1)
+        assert X_out.shape[0] == expected_len
+        assert X_dates_out.shape[0] == expected_len
+        assert y_out.shape[0] == expected_len
+
+        assert "target_lag1" in X_out.columns
+        assert "target_roll_mean" in X_out.columns
+        assert transformer.fitted_ is True
+
+    def test_transform_test_requires_fit_transform(
+        self, transformer, sample_data
+    ):
+        X, X_dates, y = sample_data
+        with pytest.raises(RuntimeError,
+                           match="Must call fit_transform before transform_test."):
+            transformer.transform_test(X, X_dates, y)
+
+    def test_transform_test_reproduces_features(
+        self, transformer, sample_data
+    ):
+        X, X_dates, y = sample_data
+        transformer.fit_transform(X, X_dates, y)
+        X_test, X_dates_test, y_test = transformer.transform_test(
+            X, X_dates, y
+        )
+
+        assert X_test.shape[0] == len(y) - 2
+        assert "target_lag1" in X_test.columns
+        assert "target_roll_mean" in X_test.columns
+        assert not X_test["target_lag1"].isna().any()
+        assert not X_test["target_roll_mean"].isna().any()
+
+    def test_transform_outputs_are_aligned(self, transformer, sample_data):
+        X, X_dates, y = sample_data
+        transformer.fit_transform(X, X_dates, y)
+        X_test, dates_test, y_test = transformer.transform_test(
+            X, X_dates, y
+        )
+
+        # Check index alignment
+        assert all(
+            X_test.index == dates_test.index == y_test.index
+        )

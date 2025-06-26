@@ -13,10 +13,10 @@ from smartcheck.meta_search_common import (
 )
 
 
-# === Test class for compare_search_methods ===
 class TestCompareSearchMethods:
+    """Unit tests for compare_search_methods"""
 
-    # === Data Fixtures ===
+    # === Fixtures ===
     @pytest.fixture
     def classification_data(self):
         X, y = make_classification(n_samples=100, n_features=5,
@@ -52,7 +52,6 @@ class TestCompareSearchMethods:
         }
 
     # === Tests ===
-
     def test_classification_runs_fast(self, clf_model, clf_param_grid,
                                       classification_data, caplog):
         caplog.set_level(logging.INFO)
