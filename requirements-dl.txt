@@ -1,0 +1,17 @@
+# PyTorch avec support CUDA 11.8 (GPU)
+torch==2.3.0+cu118
+torchvision==0.18.0+cu118
+torchaudio==2.3.0+cu118
+
+# Lien vers les wheels personnalisés (obligatoire pour les +cu118)
+--extra-index-url https://download.pytorch.org/whl/cu118
+
+# TensorFlow compatible GPU (CUDA 11.8)
+tensorflow==2.10.0
+
+# Utilitaires communs pour le deep learning
+notebook
+matplotlib
+pandas
+scikit-learn
+seaborn

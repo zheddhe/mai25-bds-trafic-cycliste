@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mai25-bds-trafic-cycliste-dl"
+version = "0.0.1"
+description = "Minimal deep learning module from mai25-bds-trafic-cycliste"
+authors = [
+    { name = "Rémy CANAL", email = "remy.canal@live.fr" }
+]
+requires-python = ">=3.9,<3.13"
+license = "MIT"
+dependencies = [
+    "torch==2.3.0+cu118",
+    "torchvision==0.18.0+cu118",
+    "torchaudio==2.3.0+cu118",
+    "tensorflow==2.10.0",
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+    "notebook"
+]
+
+[project.urls]
+"Source" = "https://github.com/zheddhe/mai25-bds-trafic-cycliste"
+
+[tool.setuptools]
+packages = {find = {}}
+include-package-data = true
+
+[tool.setuptools.package-data]
+"smartcheck" = ["resources/*.yaml"]
