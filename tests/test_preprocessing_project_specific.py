@@ -1,6 +1,7 @@
 import pytest
 from typing import cast
 import pandas as pd
+import numpy as np
 from unittest.mock import patch
 from smartcheck.preprocessing_project_specific import (
     DatetimePreprocessingTransformer,
@@ -437,7 +438,7 @@ class TestAutoregressiveFeaturesTransformer:
         X, X_dates, y = sample_data
         X_out, X_dates_out, y_out = transformer.fit_transform(X, X_dates, y)
 
-        expected_len = len(y) - 2  # 1 for lag + (rolling_window - 1)
+        expected_len = len(y) - transformer.rolling_window
         assert X_out.shape[0] == expected_len
         assert X_dates_out.shape[0] == expected_len
         assert y_out.shape[0] == expected_len
@@ -463,7 +464,8 @@ class TestAutoregressiveFeaturesTransformer:
             X, X_dates, y
         )
 
-        assert X_test.shape[0] == len(y) - 2
+        expected_len = len(y) - transformer.rolling_window
+        assert X_test.shape[0] == expected_len
         assert "target_lag1" in X_test.columns
         assert "target_roll_mean" in X_test.columns
         assert not X_test["target_lag1"].isna().any()
@@ -477,6 +479,5 @@ class TestAutoregressiveFeaturesTransformer:
         )
 
         # Check index alignment
-        assert all(
-            X_test.index == dates_test.index == y_test.index
-        )
+        assert X_test.index.equals(dates_test.index)
+        assert X_test.index.equals(y_test.index)
