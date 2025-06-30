@@ -23,6 +23,7 @@ folium==0.20.0
 squarify==0.4.4
 opencv-python==4.11.0.86
 missingno==0.5.2
+shap==0.48.0
 # dependencies for configuration and project management
 PyYAML==6.0.2
 pyproj==3.7.1
@@ -36,6 +37,7 @@ coverage==7.8.2
 pytest_cov==6.1.1
 # dependencies for jupyter notebooks
 notebook==7.4.3
+ipywidgets==8.1.7
 # dependencies for code quality
 flake8==7.2.0
 nbstripout==0.8.1
