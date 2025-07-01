@@ -41,7 +41,7 @@ py39 = [
     "opencv-python==4.8.0.76",
     "pyyaml==6.0.1",
     "pyproj==3.5.0",
-    "requests==2.31.0"
+    "requests==2.31.0",
 ]
 
 py312 = [
@@ -66,8 +66,8 @@ py312 = [
     "opencv-python==4.11.0.86",
     "pyyaml==6.0.2",
     "pyproj==3.7.1",
-    "requests==2.32.4"
-    "shap==0.48.0"
+    "requests==2.32.4",
+    "shap==0.48.0",
 ]
 
 dev = [
