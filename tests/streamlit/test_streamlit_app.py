@@ -13,6 +13,7 @@ PAGES_TO_TEST = [
     "data_exploration.py",  # contient un appel à load_dataset_from_config
 ]
 
+
 @pytest.mark.parametrize("filename", PAGES_TO_TEST)
 @patch("smartcheck.dataframe_common.load_dataset_from_config", return_value=None)
 def test_streamlit_page_loads(mock_loader, filename):
