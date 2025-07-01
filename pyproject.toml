@@ -77,8 +77,8 @@ dev = [
     "notebook==7.4.3",
     "flake8==7.2.0",
     "nbstripout==0.8.1",
-    "pre-commit==4.2.0"
-    "ipywidgets==8.1.7"
+    "pre-commit==4.2.0",
+    "ipywidgets==8.1.7",
 ]
 
 deep_learning = [
@@ -86,7 +86,7 @@ deep_learning = [
     "torchvision==0.18.0+cu118",
     "torchaudio==2.3.0+cu118",
     "tensorflow==2.10.0",
-    "shap==0.48.0"
+    "shap==0.48.0",
 ]
 
 [project.readme]
