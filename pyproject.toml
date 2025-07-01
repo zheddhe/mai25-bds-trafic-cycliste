@@ -68,6 +68,7 @@ py312 = [
     "pyproj==3.7.1",
     "requests==2.32.4",
     "shap==0.48.0",
+    "streamlit-1.46.1",
 ]
 
 dev = [
