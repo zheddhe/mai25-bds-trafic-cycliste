@@ -107,7 +107,7 @@ include-package-data = true
 "smartcheck" = ["resources/*.yaml"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=smartcheck --cov-report=term --cov-report=html --cov-report=annotate --cov-config=.coveragerc"
+addopts = "--cov --cov-config=.coveragerc"
 testpaths = ["tests"]
 pythonpath = ["."]
 filterwarnings = [

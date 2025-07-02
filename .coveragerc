@@ -1,6 +1,9 @@
 [run]
 branch = True
-source = smartcheck
+source = 
+    smartcheck
+    app
+    streamlit_app
 omit =
     *noxfile.py
     **/__init__.py
@@ -24,4 +27,5 @@ directory = htmlcov
 [paths]
 source =
     smartcheck
-    */site-packages
+    app
+    streamlit_app
