@@ -32,11 +32,20 @@ This project implements a full machine learning and MLOps pipeline in three main
 
 ```
 mai25-bds-trafic-cycliste/
+├── app/                    # Streamlit app
+│   ├── home.py
+│   ├── data_visualization.py
+│   ├── data_exploration.py
+│   ├── modeling.py
+│   ├── utils/
+│   └── config.py
 ├── smartcheck/             # Source code (project core)
-│   ├── dataframe_common.py         # Shared data loading and logging functions
-│   ├── classification_common.py    # Resampling and threshold optimization tools
-│   ├── meta_search_common.py       # Multi-strategy hyperparameter tuning
-│   ├── dataframe_project_specific.py # Geo and datetime transformations
+│   ├── logger_config.py                    # Log management tools
+│   ├── dataframe_common.py                 # Shared data loading tools
+│   ├── classification_common.py            # Classification Modeling tools
+│   ├── meta_search_common.py               # Multi-strategy hyperparameter tuning tools
+│   ├── dataframe_project_specific.py       # Advanced project specific feature engineering tools
+│   ├── preprocessing_project_specific.py   # Advanced project specific transformers
 │   └── resources/
 │       └── config.yaml
 ├── tests/                  # Unit tests (pytest)
@@ -104,7 +113,7 @@ nox -s dl-3.9
 
 ```bash
 # Install development dependencies
-pip install -e .[dev]
+pip install -e .[py312, dev]
 
 # Run checks
 flake8
@@ -128,57 +137,52 @@ nbstripout --uninstall
 
 ---
 
-## 📘 Usage Examples
+## 🚀 Streamlit App (Interactive Demo)
 
-In notebooks or scripts:
+The project includes a full **Streamlit web application** located in `app/`.  
+This interactive app allows for data exploration, visualization, and model result inspection.
 
-```python
-# Load datasets (local or Google Drive)
-from smartcheck.dataframe_common import load_dataset_from_config
-df = load_dataset_from_config("velib_dispo_data", sep=";")
+### ▶️ Launch the app
 
-# View structure and missing data summary
-from smartcheck.dataframe_common import log_general_info
-log_general_info(df)
+```bash
+streamlit run streamlit_app.py
 ```
 
-Additional helpers include:
-
-- `detect_and_log_duplicates_and_missing(df)`
-- `normalize_column_names(df)`
-- `analyze_by_reference_variable(df, "some_col")`
-- `cross_validation_with_resampling(X, y, model)`
-- `cross_validation_with_resampling_and_threshold(X, y, model, thresholds=np.arange(...))`
-- `compare_search_methods(...)` for GridSearchCV / RandomizedSearchCV / BayesSearchCV
+You can navigate between pages from the sidebar:
+- 🏠 Home
+- 🔍 Data Exploration
+- 📊 Data Visualization
+- 🧪 Model Evaluation
 
 ---
 
-## 🔧 Configuration
+## 📓 Notebooks
 
-All configuration settings are in:
+The `notebooks/` folder contains various exploratory notebooks (school and project related), showcasing:
 
-```
-smartcheck/resources/config.yaml
-```
+- 🧼 Data cleaning and preprocessing strategies  
+- 📊 Exploratory Data Analysis with Matplotlib, Plotly, Seaborn, and Bokeh  
+- 🎯 Resampling methods and hyperparameter tuning (GridSearch, RandomizedSearch, BayesSearch)  
+- 🧠 Training and evaluation of baseline and advanced ML models  
+- 🤖 Neural network experimentation with Keras  
 
-Example access:
-
-```python
-from smartcheck.paths import load_config
-config = load_config()
-print(config["data"]["input"]["velo_comptage_data"])
-```
+All notebooks leverage reusable functions from the `smartcheck` module.
 
 ---
 
-## 🔄 Continuous Integration
+## 🧪 Testing and Continuous Integration
 
-GitHub Actions executes all tests and tracks code coverage:
+Tests are executed using `pytest`, including:
 
-- `ci_main.yml`: "main" branch
-- `ci_branch.yml`: "other than main" branches
+- ✅ Smoke tests and logic mocks for the Streamlit app  
+- ✅ Unit tests for core reusable modules (`smartcheck/`)  
 
-Coverage is sent to [Codecov](https://codecov.io/gh/zheddhe/mai25-bds-trafic-cycliste).
+CI workflows are handled by GitHub Actions:
+
+- `ci_main.yml`: runs on every push to the `main` branch  
+- `ci_branch.yml`: runs on all feature and non-main branches  
+
+📈 Code coverage results are automatically uploaded to [Codecov](https://codecov.io/gh/zheddhe/mai25-bds-trafic-cycliste) after tests on the `main` branch.
 
 ---
 
