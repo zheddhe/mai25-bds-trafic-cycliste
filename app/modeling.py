@@ -7,214 +7,160 @@ from smartcheck.modeling_project_specific import (
     plot_predictions,
     compute_residuals_plot,
     interpret_model,
-    # render_shap_summary_streamlit,
 )
 
+# --- Constants and helpers ---
+DATASET_NAME = "velo_comptage_ml_ready_data"
+DEFAULT_PERIOD = ('2025-04-01', '2025-04-16')
 
-# --- Chargement des données ML ready (en cache) ---
-@st.cache_data
-def run_cached_load_dataset_from_config():
-    df = load_dataset_from_config("velo_comptage_ml_ready_data", sep=",", index_col=0)
-    return df
+SITE_LABELS = {
+    ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol - S↑N",
+    ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol - N↓S",
+}
 
+AVAILABLE_COLUMNS = sorted([
+    "weather_code_wmo_code",
+    "date_et_heure_de_comptage_year",
+    "date_et_heure_de_comptage_month",
+    "date_et_heure_de_comptage_week",
+    "date_et_heure_de_comptage_day",
+    "date_et_heure_de_comptage_day_of_week",
+    "date_et_heure_de_comptage_day_of_year",
+    "date_et_heure_de_comptage_hour",
+    "latitude",
+    "longitude",
+    "date_et_heure_de_comptage_cos_month",
+    "date_et_heure_de_comptage_sin_month",
+    "date_et_heure_de_comptage_sin_week",
+])
 
-# --- Entrainement du modèle (en cache) ---
-@st.cache_data
-def run_cached_train_timeseries_model(
-    df: pd.DataFrame,
-    model_type: str,
-    target_col: str,
-    drop_columns: list[str],
-    use_ar1_ma24: bool,
-    test_ratio: float,
-):
+@st.cache_data(show_spinner=True)
+def cached_load_dataset_ml():
+    return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
+
+@st.cache_data(show_spinner=True)
+def cached_train_model(df, model_type, target_col, drop_cols,
+                       use_ar_ma, test_ratio):
     return train_timeseries_model(
         df,
         model_type,
         target_col=target_col,
-        drop_columns=drop_columns,
-        use_ar1_ma24=use_ar1_ma24,
+        drop_columns=drop_cols,
+        use_ar1_ma24=use_ar_ma,
         test_ratio=test_ratio,
     )
 
-
+# --- UI Setup ---
 st.title("🧪 Évaluation des modèles")
-
 st.markdown("""
 Cette page vous permet de tester différents modèles de régression
-sur les données de comptage vélo avec des options personnalisables :
-* Type d'algorithme et répartition entre données d'entraînement et de test
-* Données temporelles enrichies (AutoRegression de rang 1 et MoyenneMobile
-24 précédentes valeurs)
-* Choix des compteurs à modéliser (site + orientation)
-* Visualisation in interprétation des prédictions par compteurs et analyse des
-métriques et résidus associés
+sur les données de comptage vélo avec des options personnalisables.
 """)
 
 with st.sidebar:
-    sidebar_col1, sidebar_col2 = st.columns(2)
-    with sidebar_col1:
-        if st.button("🔁 Recharger le dataset"):
-            run_cached_load_dataset_from_config.clear()  # type: ignore
-            st.rerun()
-    with sidebar_col2:
-        if st.button("⚙️ Réentraîner le modèle"):
-            run_cached_train_timeseries_model.clear()  # type: ignore
-            st.rerun()
+    st.header("🔧 Paramètres")
+    algo = st.radio("Algorithme", ("LinearRegression", "KNN"))
+    split = st.slider("Équilibre Train/Test", 0.1, 0.9, 0.75, 0.05)
+    use_ar_ma = st.checkbox("Ajout AR(1)+MA(24)", value=True)
 
+    label_options = list(SITE_LABELS.values())
+    selected_labels = st.multiselect("Compteurs ", label_options, default=label_options)
+    selected_sites = [k for k, v in SITE_LABELS.items() if v in selected_labels]
 
-# --- Paramètres de modélisation ---
-st.sidebar.header("🔧 Paramètres de modélisation")
+    drop_cols = st.multiselect("❌ Colonnes à exclure",
+                                options=AVAILABLE_COLUMNS,
+                                default=AVAILABLE_COLUMNS)
 
-# Type de modèle
-algo_choice = st.sidebar.radio("Choisir l'algorithme", ("LinearRegression", "KNN"))
-
-# Ratio train/test
-split_ratio = st.sidebar.slider("Choisir la répartition Train/Test",
-                                min_value=0.1, max_value=0.9,
-                                value=0.75, step=0.05)
-
-# Sélection des compteurs
-available_counters = [
-    ('Totem 73 boulevard de Sébastopol', 'S-N'),
-    ('Totem 73 boulevard de Sébastopol', 'N-S'),
-]
-selected_sites = st.sidebar.multiselect(
-    "Choisir les compteurs (site+orientation) à modéliser",
-    options=available_counters,
-    default=available_counters
-)
-
-# Colonnes temporelles
-use_ar1_ma24 = st.sidebar.checkbox("Ajouter les variables explicatives AR(1)"
-                                   "et Moy.Mobile(24)", value=True)
-
-# --- Checkboxes pour visualisation ---
-with st.sidebar:
-    with st.expander("📊 Options du rapport de modélisation"):
+    with st.expander("📊 Rapport"):
         show_metrics = st.checkbox("Afficher métriques", value=True)
-        show_predictions = st.checkbox("Afficher prédictions", value=True)
-        show_residuals = st.checkbox("Afficher analyse des résidus", value=True)
-        show_interpretation = st.checkbox("Afficher interprétabilité", value=False)
-        # show_interpretation_shap = st.checkbox("Afficher interprétabilité SHAP",
-        #                                        value=False)
-        # background_method = st.selectbox(
-        #     "Méthode background SHAP",
-        #     options=["sample", "tail", "kmeans"]
-        # )
+        show_preds = st.checkbox("Afficher prédictions", value=True)
+        show_resid = st.checkbox("Afficher résidus", value=True)
+        show_interp = st.checkbox("Afficher interprétation", value=False)
 
-# Filtrage des colonnes
-with st.expander("📌 Colonnes à filtrer avant modélisation"):
-    available_columns = [
-        "weather_code_wmo_code",
-        "date_et_heure_de_comptage_year",
-        "date_et_heure_de_comptage_month",
-        "date_et_heure_de_comptage_week",
-        "date_et_heure_de_comptage_day",
-        "date_et_heure_de_comptage_day_of_week",
-        "date_et_heure_de_comptage_day_of_year",
-        "date_et_heure_de_comptage_hour",
-        "latitude",
-        "longitude",
-        "date_et_heure_de_comptage_cos_month",
-        "date_et_heure_de_comptage_sin_month",
-        "date_et_heure_de_comptage_sin_week",
-        "weather_code_wmo_code",
-    ]
-    columns_to_drop = st.multiselect(
-        "Colonnes à exclure du modèle",
-        options=available_columns,
-        default=available_columns,
-        help="Ces colonnes seront supprimées du dataset avant entraînement du modèle."
-    )
+    col1, col2 = st.columns(2)
+    if col1.button("🔁 Recharger les données"):
+        cached_load_dataset_ml.clear()  # type: ignore
+        st.rerun()
+    if col2.button("⚙️ Réentraîner le modèle"):
+        cached_train_model.clear()  # type: ignore
+        st.rerun()
 
 # --- Chargement des données ---
-df_raw = run_cached_load_dataset_from_config()
+df = cached_load_dataset_ml()
+if df is None or not isinstance(df, pd.DataFrame):
+    st.error("❌ Erreur lors du chargement des données.")
+    st.stop()
 
-if df_raw is not None and isinstance(df_raw, pd.DataFrame):
-    st.success("✅ Données chargées avec succès.")
-    # st.dataframe(df_raw.tail(100))
+st.success("✅ Données chargées avec succès.")
+grouped = df.groupby(["nom_du_site_de_comptage", "orientation_compteur"])
 
-    grouped = df_raw.groupby(["nom_du_site_de_comptage", "orientation_compteur"])
-    model_results = {}
-    for compteur_id, df_compteur in grouped:
+results = {}
+metrics_table = []
+
+with st.spinner("⏳ Entraînement en cours..."):
+    for compteur_id, df_site in grouped:
         if compteur_id in selected_sites:
-
-            model_results[compteur_id] = run_cached_train_timeseries_model(
-                df_compteur,
-                algo_choice,
+            res = cached_train_model(
+                df_site,
+                algo,
                 "comptage_horaire",
-                drop_columns=columns_to_drop,
-                use_ar1_ma24=use_ar1_ma24,
-                test_ratio=1-split_ratio,
+                drop_cols,
+                use_ar_ma,
+                1 - split,
             )
+            results[compteur_id] = res
+            if show_metrics:
+                metrics = compute_metrics(res["y_test"], res["y_test_pred"])
+                metrics_table.append({"compteur": SITE_LABELS[compteur_id], **metrics})
 
-    if isinstance(model_results, dict) and selected_sites:
+if not results:
+    st.warning("Aucun compteur sélectionné.")
+    st.stop()
 
-        compteur_labels = [
-            f"{site} - {orientation}" for site, orientation in selected_sites
-        ]
-        tabs = st.tabs(compteur_labels)
+# --- Synthèse globale des performances ---
+if show_metrics and metrics_table:
+    st.markdown("## 🧾 Synthèse des métriques par compteur")
+    df_metrics = pd.DataFrame(metrics_table)
+    st.dataframe(df_metrics.set_index("compteur"))
 
-        for tab, compteur_id in zip(tabs, selected_sites):
-            with tab:
-                results = model_results.get(compteur_id)
+# --- Affichage par compteur ---
+for compteur_id, res in results.items():
+    label = SITE_LABELS[compteur_id]
+    with st.expander(f"📉 Rapport pour {label}"):
 
-                if not results:
-                    st.warning(f"Pas de résultat pour {compteur_id}")
-                    continue
+        if show_metrics:
+            st.markdown("### 📈 Métriques")
+            metrics = compute_metrics(res["y_test"], res["y_test_pred"])
+            for k, v in metrics.items():
+                st.info(f"**{k}**: {v}")
 
-                if show_metrics:
-                    st.markdown("### 📈 Métriques (données de test)")
-                    metrics = compute_metrics(
-                        results["y_test"],
-                        results["y_test_pred"]
-                    )
-                    for key, value in metrics.items():
-                        st.info(f"**{key}**: {value}")
+        if show_preds:
+            st.markdown("### 🔮 Prédictions")
+            fig = plot_predictions(
+                compteur=label,
+                dates=res["X_test_dates"],
+                y_true=res["y_test"],
+                y_pred=res["y_test_pred"],
+                periode_limite=DEFAULT_PERIOD,
+            )
+            st.pyplot(fig)
 
-                if show_predictions:
-                    st.markdown("### 🔮 Prédictions (données de test)")
-                    fig_pred = plot_predictions(
-                        compteur=str(compteur_id),
-                        dates=results["X_test_dates"],
-                        y_true=results["y_test"],
-                        y_pred=results["y_test_pred"],
-                        periode_limite=('2025-04-01', '2025-04-16')
-                    )
-                    st.pyplot(fig_pred)
+        if show_resid:
+            st.markdown("### 🧾 Résidus")
+            fig1, fig2, slope = compute_residuals_plot(
+                compteur=label,
+                dates=res["X_test_dates"],
+                y_true=res["y_test"],
+                y_pred=res["y_test_pred"],
+                periode_limite=DEFAULT_PERIOD,
+            )
+            st.pyplot(fig1)
+            st.info(f"Dérive des résidus : pente = {slope:.4f}")
+            st.pyplot(fig2)
 
-                if show_residuals:
-                    st.markdown("### 🧾 Analyse des résidus (données de test)")
-                    fig1_res, fig2_res, pente = compute_residuals_plot(
-                        compteur=str(compteur_id),
-                        dates=results["X_test_dates"],
-                        y_true=results["y_test"],
-                        y_pred=results["y_test_pred"],
-                        periode_limite=('2025-04-01', '2025-04-16')
-                    )
-                    st.pyplot(fig1_res)
-                    st.info("coefficient de la dérive des résidus"
-                            f"(pente de la régression linéaire): {pente:.4f}")
-                    st.pyplot(fig2_res)
-
-                if show_interpretation:
-                    st.markdown("### 🧠 Interprétabilité (données de test)")
-                    fig_interp_list = interpret_model(str(compteur_id), results)
-                    if fig_interp_list is not None:
-                        for fig_interp in fig_interp_list:
-                            st.pyplot(fig_interp)
-
-                # if show_interpretation_shap:
-                #     st.markdown("### 🧠 Interprétabilité SHAP (données de train)")
-                #     render_shap_summary_streamlit(
-                #         pipe=results["pipe"],
-                #         X=results["X_train"],
-                #         background_method=background_method,
-                #         nb_samples=50,
-                #         background_size=100,
-                #         max_display=15
-                #     )
-
-else:
-    st.error("❌ Impossible de charger les données.")
+        if show_interp:
+            st.markdown("### 🧠 Interprétation")
+            interp_figs = interpret_model(label, res)
+            if interp_figs:
+                for fig in interp_figs:
+                    st.pyplot(fig)

@@ -5,19 +5,22 @@ import pandas as pd
 st.title("🔍 Exploration des données")
 
 
+# --- Constants and helpers ---
+DATASET_NAME = "velo_comptage_refactored_data"
+
 # --- Chargement des données ---
 @st.cache_data
-def load_data_exploration():
-    df = load_dataset_from_config("velo_comptage_refactored_data", sep=",", index_col=0)
+def cached_load_dataset_exploration():
+    df = load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
     return df
 
 
 with st.sidebar:
-    if st.button("🔁 Recharger les données", key="reload_button"):
-        load_data_exploration.clear()  # type: ignore
+    if st.button("🔁 Recharger données", key="reload_button"):
+        cached_load_dataset_exploration.clear()  # type: ignore
         st.rerun()
 
-df_raw = load_data_exploration()
+df_raw = cached_load_dataset_exploration()
 
 if df_raw is not None and isinstance(df_raw, pd.DataFrame):
     st.success("✅ Données chargées avec succès.")
