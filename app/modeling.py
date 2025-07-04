@@ -147,14 +147,10 @@ if show_metrics and metrics_table:
     st.dataframe(df_metrics.set_index("compteur"))
 
 # --- Affichage par compteur ---
-for compteur_id, res in results.items():
-    label = SITE_LABELS[compteur_id]
-    with st.expander(f"📉 Rapport pour {label}"):
-
-        run_evaluation_per_compteur(
-            results, SITE_LABELS,
-            show_metrics, show_preds,
-            show_resid, show_interp,
-            periode_limite=DEFAULT_PERIOD,
-            st_module=st
-        )
+run_evaluation_per_compteur(
+    results, SITE_LABELS,
+    show_metrics, show_preds,
+    show_resid, show_interp,
+    periode_limite=DEFAULT_PERIOD,
+    st_module=st
+)
