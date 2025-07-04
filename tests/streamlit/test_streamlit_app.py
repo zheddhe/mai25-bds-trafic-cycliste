@@ -17,12 +17,14 @@ PAGES_TO_TEST = [
 @pytest.mark.parametrize("filename", PAGES_TO_TEST)
 @patch("smartcheck.dataframe_common.load_dataset_from_config", return_value=None)
 def test_streamlit_page_loads(mock_loader, filename):
+    os.environ["IS_TESTING"] = "1"  # activation du mode test
     path = os.path.join(PAGES_DIR, filename)
     spec = importlib.util.spec_from_file_location("page_module", path)
     assert spec is not None, f"spec is None for file: {path}"
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None, f"spec.loader is None for file: {path}"
     spec.loader.exec_module(module)
+    del os.environ["IS_TESTING"]  # nettoyage
 
 
 def test_app_home_title_displayed():

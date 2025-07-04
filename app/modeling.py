@@ -8,11 +8,12 @@ from smartcheck.modeling_project_specific import (
     compute_residuals_plot,
     interpret_model,
 )
+import os
 
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_ml_ready_data"
 DEFAULT_PERIOD = ('2025-04-01', '2025-04-16')
-
+IS_TESTING = os.environ.get("IS_TESTING") == "1"
 SITE_LABELS = {
     ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol - S-N",
     ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol - N-S",
@@ -24,7 +25,6 @@ SITE_LABELS = {
     ('27 quai de la Tournelle', 'NO-SE'): "Tournelle - NO-SE",
     ('27 quai de la Tournelle', 'SE-NO'): "Tournelle - SE-NO",
 }
-
 AVAILABLE_COLUMNS = sorted([
     "weather_code_wmo_code",
     "date_et_heure_de_comptage_year",
@@ -44,12 +44,21 @@ AVAILABLE_COLUMNS = sorted([
 
 @st.cache_data(show_spinner=True)
 def cached_load_dataset_ml():
+    if IS_TESTING:
+        return pd.DataFrame(columns=["nom_du_site_de_comptage",
+                                     "orientation_compteur", "comptage_horaire"])
     return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
 
 
 @st.cache_data(show_spinner=True)
 def cached_train_model(df, model_type, target_col, drop_cols,
                        use_ar_ma, test_ratio):
+    if IS_TESTING:
+        return {
+            "y_test": [1, 2],
+            "y_test_pred": [1.1, 1.9],
+            "X_test_dates": pd.date_range("2025-04-01", periods=2, freq="h")
+        }
     return train_timeseries_model(
         df,
         model_type,

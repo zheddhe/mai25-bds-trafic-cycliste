@@ -1,17 +1,21 @@
 import streamlit as st
 from smartcheck.dataframe_common import load_dataset_from_config
 import pandas as pd
+import os
 
 st.title("🔍 Exploration des données")
 
-
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_refactored_data"
+IS_TESTING = os.environ.get("IS_TESTING") == "1"
 
 
 # --- Chargement des données ---
 @st.cache_data
 def cached_load_dataset_exploration():
+    if IS_TESTING:
+        return pd.DataFrame(columns=["nom_du_site_de_comptage",
+                                     "orientation_compteur", "comptage_horaire"])
     df = load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
     return df
 

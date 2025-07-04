@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from smartcheck.dataframe_common import load_dataset_from_config
+import os
 
 st.title("📈 Visualisations et Statistiques")
 
@@ -9,11 +10,22 @@ st.title("📈 Visualisations et Statistiques")
 DATASET_NAME = "velo_comptage_refactored_data"
 JOURS_ORDONNES = ["Monday", "Tuesday", "Wednesday", "Thursday",
                   "Friday", "Saturday", "Sunday"]
+IS_TESTING = os.environ.get("IS_TESTING") == "1"
 
 
 # --- Chargement des données ---
 @st.cache_data(show_spinner=True)
 def cached_load_dataset_exploration():
+    if IS_TESTING:
+        return pd.DataFrame({
+            "nom_du_site_de_comptage": ["TEST_SITE"],
+            "orientation_compteur": ["N-S"],
+            "comptage_horaire": pd.Series([0], dtype="int"),
+            "arrondissement": ["TEST_ARRONDISSEMENT"],
+            "date_et_heure_de_comptage_hour": [1],
+            'latitude': [48.8566],
+            'longitude': [2.3522],
+        })
     return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
 
 
