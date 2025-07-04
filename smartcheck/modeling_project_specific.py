@@ -9,7 +9,8 @@ from matplotlib.figure import Figure
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import OneHotEncoder, MinMaxScaler, StandardScaler, RobustScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import (
@@ -171,12 +172,13 @@ def interpret_model(
 def train_timeseries_model(
     df_compteur: pd.DataFrame,
     model_type: str,
+    scaler_type: str = "",
     target_col: str = "comptage_horaire",
     timestamp_col: str = "date_et_heure_de_comptage",
     rolling_window: int = 24,
     drop_columns: Optional[list[str]] = None,
     apply_datetime: bool = True,
-    use_ar1_ma24: bool = True,
+    temp_feats: str = "",
     test_ratio: float = 0.2,
 ) -> dict:
     """
@@ -209,7 +211,7 @@ def train_timeseries_model(
         )
     )
 
-    if use_ar1_ma24:
+    if temp_feats == "AR(1) et MM(24)":
         ar_transformer = AutoregressiveFeaturesTransformer(
             rolling_window=rolling_window
         )
@@ -223,19 +225,26 @@ def train_timeseries_model(
     numeric_cols = X_train.select_dtypes(include="number").columns.tolist()
     categorical_cols = X_train.select_dtypes(include='object').columns.tolist()
 
+    if scaler_type == "StandardScaler":
+        scaler = StandardScaler()
+    elif model_type == "RobustScaler":
+        scaler = RobustScaler()
+    else:
+        scaler = MinMaxScaler()
+
     preprocessing = ColumnTransformer([
-        ("num", MinMaxScaler(), numeric_cols),
-        ("cat",
-         OneHotEncoder(
+        ("num", scaler, numeric_cols),
+        ("cat", OneHotEncoder(
              handle_unknown="ignore",
              # drop='first',  # avoid multicolinearity
              sparse_output=False
-         ),
-         categorical_cols)
+         ), categorical_cols)
     ])
 
     if model_type == "KNN":
         model = KNeighborsRegressor(n_jobs=-1)
+    elif model_type == "RandomForest":
+        model = RandomForestRegressor(n_jobs=-1, random_state=1)
     else:
         model = LinearRegression()
 

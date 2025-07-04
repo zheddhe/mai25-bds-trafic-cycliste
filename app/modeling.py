@@ -48,8 +48,8 @@ def cached_load_dataset_ml():
 
 
 @st.cache_data(show_spinner=True)
-def cached_train_model(df, model_type, target_col, drop_cols,
-                       use_ar_ma, test_ratio):
+def cached_train_model(df, model_type, scaler_type, target_col,
+                       drop_cols, temp_feats, test_ratio):
     if os.environ.get("IS_TESTING") == "1":
         return {
             "y_test": [1, 2],
@@ -59,9 +59,10 @@ def cached_train_model(df, model_type, target_col, drop_cols,
     return train_timeseries_model(
         df,
         model_type,
+        scaler_type,
         target_col=target_col,
         drop_columns=drop_cols,
-        use_ar1_ma24=use_ar_ma,
+        temp_feats=temp_feats,
         test_ratio=test_ratio,
     )
 
@@ -75,9 +76,10 @@ sur les données de comptage vélo avec des options personnalisables.
 
 with st.sidebar:
     st.header("🔧 Paramètres")
-    algo = st.radio("Algorithme", ("LinearRegression", "KNN"))
+    algo = st.radio("Algorithme", ("LinearRegression", "KNN", "RandomForest"))
+    temp_feats = st.radio("Variables temporelles additionnelles", ("Aucune", "AR(1) et MM(24)"))
+    scaler = st.radio("Mise à l'échelle", ("MinMaxScaler", "StandardScaler", "RobustScaler"))
     split = st.slider("Répartition Train/Test", 0.1, 0.9, 0.75, 0.05)
-    use_ar_ma = st.checkbox("Ajout AR(1)+MA(24)", value=True)
 
     with st.expander("📊 Rapport"):
         show_metrics = st.checkbox("Afficher métriques", value=True)
@@ -124,9 +126,10 @@ with st.spinner("⏳ Entraînement en cours..."):
             res = cached_train_model(
                 df_site,
                 algo,
+                scaler,
                 "comptage_horaire",
                 drop_cols,
-                use_ar_ma,
+                temp_feats,
                 1 - split,
             )
             results[compteur_id] = res
