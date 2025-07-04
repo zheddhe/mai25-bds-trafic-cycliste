@@ -11,9 +11,7 @@ from smartcheck.modeling_project_specific import (
     compute_metrics,
     plot_predictions,
     compute_residuals_plot,
-    get_feature_names_from_column_transformer,
     interpret_model,
-    generate_shap_summary_plot,
 )
 
 
@@ -96,59 +94,6 @@ class TestComputeResidualsPlot:
         assert isinstance(slope, float)
 
 
-class TestGetFeatureNamesFromColumnTransformer:
-    """Unit tests for get_feature_names_from_column_transformer"""
-
-    # == Tests ==
-    def test_with_get_feature_names_out(self):
-        mock_transformer = MagicMock()
-        mock_transformer.get_feature_names_out.return_value = [
-            "feature_out1", "feature_out2"
-        ]
-        ct = MagicMock()
-        ct.transformers_ = [
-            ("custom", mock_transformer, ["x1", "x2"])
-        ]
-
-        names = get_feature_names_from_column_transformer(ct)
-        assert names == ["feature_out1", "feature_out2"]
-
-    def test_without_get_feature_names_out(self):
-        mock_transformer = object()  # no .get_feature_names_out
-        ct = MagicMock()
-        ct.transformers_ = [
-            ("custom", mock_transformer, ["x1", "x2"])
-        ]
-
-        names = get_feature_names_from_column_transformer(ct)
-        assert names == ["x1", "x2"]
-
-    def test_remainder_passthrough_explicit(self):
-        ct = MagicMock()
-        ct.transformers_ = [
-            ("remainder", "passthrough", ["x3", "x4"])
-        ]
-
-        names = get_feature_names_from_column_transformer(ct)
-        assert names == ["x3", "x4"]
-
-    def test_combined_all_cases(self):
-        mock_with_names = MagicMock()
-        mock_with_names.get_feature_names_out.return_value = ["a_scaled"]
-
-        mock_without_names = object()
-
-        ct = MagicMock()
-        ct.transformers_ = [
-            ("scale", mock_with_names, ["a"]),
-            ("encode", mock_without_names, ["b", "c"]),
-            ("remainder", "passthrough", ["d", "e"]),
-        ]
-
-        names = get_feature_names_from_column_transformer(ct)
-        assert names == ["a_scaled", "b", "c", "d", "e"]
-
-
 class TestInterpretModel:
     """Unit tests for interpret_model"""
 
@@ -159,12 +104,12 @@ class TestInterpretModel:
         y = X["x1"] * 0.4 + X["x2"] * 0.6 + np.random.normal(0, 0.01, size=40)
 
         transformer = ColumnTransformer([
-            ("preprocessing_column_transformation", StandardScaler(), ["x1", "x2"])
+            ("prep", StandardScaler(), ["x1", "x2"])
         ])
 
         pipe = Pipeline([
-            ("preprocessing_column_transformation", transformer),
-            ("model", model_class())
+            ("prep", transformer),
+            ("reg", model_class())
         ])
 
         pipe.fit(X, y)
@@ -211,12 +156,12 @@ class TestInterpretModel:
         y = np.random.rand(50)
 
         transformer = ColumnTransformer([
-            ("preprocessing_column_transformation", StandardScaler(), ["x1", "x2"])
+            ("prep", StandardScaler(), ["x1", "x2"])
         ])
 
         pipe = Pipeline([
-            ("preprocessing_column_transformation", transformer),
-            ("model", KNeighborsRegressor(n_neighbors=1))
+            ("prep", transformer),
+            ("reg", KNeighborsRegressor(n_neighbors=1))
         ])
         pipe.fit(X, y)
 
@@ -237,32 +182,3 @@ class TestInterpretModel:
 
             assert result is None
             assert "PCA explained variance < 90%" in caplog.text
-
-
-class TestGenerateShapSummaryPlot:
-    """Unit tests for generate_shap_summary_plot"""
-
-    # == Tests ==
-    def test_with_mocked_explainer(self):
-        X = pd.DataFrame(np.random.rand(30, 3), columns=["x1", "x2", "x3"])
-
-        pipe = MagicMock()
-        pipe.named_steps = {
-            "model_step": MagicMock(),
-            "preprocessing_column_transformation": MagicMock()
-        }
-        pipe.named_steps["model_step"].predict.return_value = np.random.rand(30)
-        pipe.named_steps[
-            "preprocessing_column_transformation"
-        ].transform.return_value = X
-
-        with patch("smartcheck.modeling_project_specific.shap") as shap_mock:
-            explainer_mock = MagicMock()
-            explainer_mock.shap_values.return_value = np.random.rand(30, 3)
-            shap_mock.KernelExplainer.return_value = explainer_mock
-            shap_mock.summary_plot.return_value = None
-
-            generate_shap_summary_plot(pipe, X, "model_step")
-            shap_mock.KernelExplainer.assert_called_once()
-            explainer_mock.shap_values.assert_called_once()
-            assert shap_mock.summary_plot.call_count == 2

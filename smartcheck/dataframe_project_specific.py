@@ -485,7 +485,7 @@ def extract_datetime_periodic_features(
         df[f"{timestamp_col}_week"] = ts.dt.isocalendar().week
         df[f"{timestamp_col}_week_end"] = df[
             f"{timestamp_col}_day_of_week"
-        ].isin([5, 6])
+        ].apply(lambda x: 1 if x in [5, 6] else 0)
         df[f"{timestamp_col}_sin_hour"] = np.sin(
             2 * np.pi * df[f"{timestamp_col}_hour"] / 24
         )

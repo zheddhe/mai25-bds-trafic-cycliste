@@ -13,7 +13,7 @@ pages = {
     "🧪 Evaluation des modèles": "modeling"
 }
 
-selection = st.sidebar.radio("Go to", list(pages.keys()))
+selection = st.sidebar.radio("Changer de page", list(pages.keys()))
 page_file = PAGES_DIR / f"{pages[selection]}.py"
 
 with open(page_file, encoding="utf-8") as f:
