@@ -4,8 +4,6 @@ from typing import Dict, List, Optional, Tuple
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import shap
-import streamlit as st
 import statsmodels.api as sm
 from matplotlib.figure import Figure
 from sklearn.decomposition import PCA
@@ -168,88 +166,6 @@ def interpret_model(
             return model_figs
 
     return None
-
-
-def get_shap_background(X: pd.DataFrame, method: str, k: int = 100) -> pd.DataFrame:
-    """
-    Generate background data for SHAP explanation.
-
-    Args:
-        X (pd.DataFrame): Training feature set.
-        method (str): One of "sample", "tail", or "kmeans".
-        k (int): Number of samples or clusters.
-
-    Returns:
-        pd.DataFrame: Background sample for SHAP.
-    """
-    if method == "sample":
-        return shap.sample(X, k)
-    elif method == "tail":
-        return X.tail(k)
-    elif method == "kmeans":
-        dense = shap.kmeans(X, k)
-        return pd.DataFrame(dense.data, columns=X.columns)
-    else:
-        raise ValueError(f"Unknown background method: {method}")
-
-
-def render_shap_summary_streamlit(
-    pipe,
-    X: pd.DataFrame,
-    background_method: str = "sample",
-    background_size: int = 100,
-    nb_samples: int = 50,
-    max_display: int = 10,
-    show: bool = True
-) -> None:
-    """
-    Display SHAP summary plot in Streamlit for a sklearn Pipeline.
-
-    Args:
-        pipe: A fitted sklearn pipeline with "prep" and "reg" steps.
-        X (pd.DataFrame): Full feature DataFrame (before transform).
-        background_method (str): 'sample', 'tail', or 'kmeans'.
-        background_size (int): Number of background samples.
-        max_display (int): Max features to display in plot.
-        show (bool): Whether to display plot in Streamlit.
-
-    Returns:
-        None
-    """
-    # === Transform X ===
-    X_transformed = pipe.named_steps["prep"].transform(X)
-    feature_names = pipe.named_steps["prep"].get_feature_names_out()
-    X_df = pd.DataFrame(X_transformed, columns=feature_names)
-
-    # === Background selection ===
-    background = get_shap_background(X_df, method=background_method,
-                                     k=background_size)
-
-    # === Select SHAP explainer ===
-    reg = pipe.named_steps["reg"]
-    model_name = reg.__class__.__name__.lower()
-    if "xgb" in model_name or "tree" in model_name or "forest" in model_name:
-        explainer = shap.Explainer(reg, background)
-    elif "linear" in model_name:
-        explainer = shap.LinearExplainer(reg, background)
-    else:
-        explainer = shap.KernelExplainer(reg.predict, background)
-
-    # === Compute SHAP values ===
-    X_subset = X_df.sample(nb_samples, random_state=42)
-    shap_values = explainer(X_subset)
-
-    # === Plot summary ===
-    shap.summary_plot(shap_values,
-                      features=X_df,
-                      feature_names=feature_names,
-                      max_display=max_display,
-                      plot_type="bar")
-
-    if show:
-        fig = plt.gcf()
-        st.pyplot(fig)
-        plt.clf()
 
 
 def train_timeseries_model(
