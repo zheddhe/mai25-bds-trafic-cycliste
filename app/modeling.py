@@ -4,16 +4,13 @@ from smartcheck.dataframe_common import load_dataset_from_config
 from smartcheck.modeling_project_specific import (
     train_timeseries_model,
     compute_metrics,
-    plot_predictions,
-    compute_residuals_plot,
-    interpret_model,
 )
+from app.utils.model_logic import run_evaluation_per_compteur
 import os
 
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_ml_ready_data"
 DEFAULT_PERIOD = ('2025-04-01', '2025-04-16')
-IS_TESTING = os.environ.get("IS_TESTING") == "1"
 SITE_LABELS = {
     ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol - S-N",
     ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol - N-S",
@@ -44,7 +41,7 @@ AVAILABLE_COLUMNS = sorted([
 
 @st.cache_data(show_spinner=True)
 def cached_load_dataset_ml():
-    if IS_TESTING:
+    if os.environ.get("IS_TESTING") == "1":
         return pd.DataFrame(columns=["nom_du_site_de_comptage",
                                      "orientation_compteur", "comptage_horaire"])
     return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
@@ -53,7 +50,7 @@ def cached_load_dataset_ml():
 @st.cache_data(show_spinner=True)
 def cached_train_model(df, model_type, target_col, drop_cols,
                        use_ar_ma, test_ratio):
-    if IS_TESTING:
+    if os.environ.get("IS_TESTING") == "1":
         return {
             "y_test": [1, 2],
             "y_test_pred": [1.1, 1.9],
@@ -154,39 +151,10 @@ for compteur_id, res in results.items():
     label = SITE_LABELS[compteur_id]
     with st.expander(f"📉 Rapport pour {label}"):
 
-        if show_metrics:
-            st.markdown("### 📈 Métriques")
-            metrics = compute_metrics(res["y_test"], res["y_test_pred"])
-            for k, v in metrics.items():
-                st.info(f"**{k}**: {v}")
-
-        if show_preds:
-            st.markdown("### 🔮 Prédictions")
-            fig = plot_predictions(
-                compteur=label,
-                dates=res["X_test_dates"],
-                y_true=res["y_test"],
-                y_pred=res["y_test_pred"],
-                periode_limite=DEFAULT_PERIOD,
-            )
-            st.pyplot(fig)
-
-        if show_resid:
-            st.markdown("### 🧾 Résidus")
-            fig1, fig2, slope = compute_residuals_plot(
-                compteur=label,
-                dates=res["X_test_dates"],
-                y_true=res["y_test"],
-                y_pred=res["y_test_pred"],
-                periode_limite=DEFAULT_PERIOD,
-            )
-            st.pyplot(fig1)
-            st.info(f"Dérive des résidus : pente = {slope:.4f}")
-            st.pyplot(fig2)
-
-        if show_interp:
-            st.markdown("### 🧠 Interprétation")
-            interp_figs = interpret_model(label, res)
-            if interp_figs:
-                for fig in interp_figs:
-                    st.pyplot(fig)
+        run_evaluation_per_compteur(
+            results, SITE_LABELS,
+            show_metrics, show_preds,
+            show_resid, show_interp,
+            periode_limite=DEFAULT_PERIOD,
+            st_module=st
+        )

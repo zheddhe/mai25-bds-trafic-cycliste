@@ -7,13 +7,12 @@ st.title("🔍 Exploration des données")
 
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_refactored_data"
-IS_TESTING = os.environ.get("IS_TESTING") == "1"
 
 
 # --- Chargement des données ---
 @st.cache_data
 def cached_load_dataset_exploration():
-    if IS_TESTING:
+    if os.environ.get("IS_TESTING") == "1":
         return pd.DataFrame(columns=["nom_du_site_de_comptage",
                                      "orientation_compteur", "comptage_horaire"])
     df = load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
@@ -37,13 +36,17 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
 
     with st.expander("🧮 Analyse par regroupement de "
                      "la variable cible (comptage horaire)"):
-        group_column = st.multiselect("📌 Groupe d’agrégation", [
-            "nom_du_site_de_comptage",
-            "orientation_compteur",
-            "date_et_heure_de_comptage_hour",
-            "date_et_heure_de_comptage_day_of_week",
-            "arrondissement",
-        ])
+        group_column = st.multiselect(
+            "📌 Groupe d’agrégation",
+            [
+                "nom_du_site_de_comptage",
+                "orientation_compteur",
+                "date_et_heure_de_comptage_hour",
+                "date_et_heure_de_comptage_day_of_week",
+                "arrondissement",
+            ],
+            default="nom_du_site_de_comptage"
+        )
 
         if group_column:
             grouped_stats = df_raw.groupby(group_column)[

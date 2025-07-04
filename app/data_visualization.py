@@ -4,19 +4,18 @@ import plotly.express as px
 from smartcheck.dataframe_common import load_dataset_from_config
 import os
 
+
 st.title("📈 Visualisations et Statistiques")
 
-# --- Constants and helpers ---
+
 DATASET_NAME = "velo_comptage_refactored_data"
 JOURS_ORDONNES = ["Monday", "Tuesday", "Wednesday", "Thursday",
                   "Friday", "Saturday", "Sunday"]
-IS_TESTING = os.environ.get("IS_TESTING") == "1"
 
 
-# --- Chargement des données ---
-@st.cache_data(show_spinner=True)
+@st.cache_data
 def cached_load_dataset_exploration():
-    if IS_TESTING:
+    if os.environ.get("IS_TESTING") == "1":
         return pd.DataFrame({
             "nom_du_site_de_comptage": ["TEST_SITE"],
             "orientation_compteur": ["N-S"],
@@ -39,7 +38,6 @@ df_raw = cached_load_dataset_exploration()
 if df_raw is not None and isinstance(df_raw, pd.DataFrame):
     st.success("✅ Données chargées avec succès.")
 
-    # --- Graphique 1 : Boxplot par mois ---
     st.markdown("### 📦 Répartition des comptages horaires par mois")
     if "mois_annee_comptage" in df_raw.columns:
         fig_box_mois = px.box(
@@ -50,7 +48,6 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
         )
         st.plotly_chart(fig_box_mois, use_container_width=True)
 
-    # --- Graphique 2 : Moyenne horaire par jour de semaine ---
     st.markdown("### 📊 Comptage horaire moyen par jour de la semaine")
     if "date_et_heure_de_comptage_dayname" in df_raw.columns:
         df_jour = df_raw.groupby("date_et_heure_de_comptage_dayname")[
@@ -65,7 +62,8 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
         top2_days = df_jour.nlargest(2, "comptage_horaire")[
             "date_et_heure_de_comptage_dayname"
         ].tolist()
-        df_jour["couleur"] = df_jour["date_et_heure_de_comptage_dayname"].apply(
+        df_jour["couleur"] = df_jour[
+            "date_et_heure_de_comptage_dayname"].apply(
             lambda d: "firebrick" if d in top2_days else "royalblue"
         )
 
@@ -77,22 +75,25 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
             color_discrete_map="identity",
             text_auto=True,
             title="Comptage horaire moyen par jour de la semaine",
-            category_orders={"date_et_heure_de_comptage_dayname": JOURS_ORDONNES}
+            category_orders={
+                "date_et_heure_de_comptage_dayname": JOURS_ORDONNES
+            }
         )
         fig_jour.update_layout(showlegend=False)
         st.plotly_chart(fig_jour, use_container_width=True)
 
-    # --- Graphique 3 : Top heures de comptage ---
     st.markdown("### ⏱️ Top 10 des heures avec le plus fort comptage total")
     if "date_et_heure_de_comptage_hour" in df_raw.columns:
         df_heures = df_raw.groupby("date_et_heure_de_comptage_hour")[
             "comptage_horaire"].sum().reset_index()
-        df_heures = df_heures.sort_values("comptage_horaire", ascending=False).head(10)
+        df_heures = df_heures.sort_values("comptage_horaire",
+                                          ascending=False).head(10)
 
         top4_heures = df_heures.nlargest(4, "comptage_horaire")[
             "date_et_heure_de_comptage_hour"
         ].tolist()
-        df_heures["couleur"] = df_heures["date_et_heure_de_comptage_hour"].apply(
+        df_heures["couleur"] = df_heures[
+            "date_et_heure_de_comptage_hour"].apply(
             lambda h: "firebrick" if h in top4_heures else "royalblue"
         )
 
@@ -108,13 +109,12 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
         fig_heure.update_layout(showlegend=False)
         st.plotly_chart(fig_heure, use_container_width=True)
 
-    # --- Graphique 4 : Top 10 stations les plus fréquentées ---
-    st.markdown("### 🚲 Top 10 des stations les plus fréquentées (comptage total)")
+    st.markdown("### 🚲 Top 10 des stations les plus fréquentées")
     if "nom_du_site_de_comptage" in df_raw.columns:
         df_stations = df_raw.groupby("nom_du_site_de_comptage")[
             "comptage_horaire"].sum().reset_index()
-        df_stations = df_stations.sort_values("comptage_horaire",
-                                              ascending=False).head(10)
+        df_stations = df_stations.sort_values(
+            "comptage_horaire", ascending=False).head(10)
         fig_stations = px.bar(
             df_stations,
             x="comptage_horaire",
@@ -123,22 +123,19 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
             text_auto=True,
             color="comptage_horaire",
             color_continuous_scale="magma",
-            title="Top 10 des stations les plus fréquentées (comptage total)"
+            title="Top 10 des stations les plus fréquentées"
         )
         fig_stations.update_layout(yaxis={'categoryorder': 'total ascending'})
         fig_stations.update_layout(showlegend=False)
         st.plotly_chart(fig_stations, use_container_width=True)
 
-    # --- Sunburst Plot ---
     st.markdown("## 🌞 Distribution multi-niveaux (Sunburst)")
-
     with st.expander("🔧 Paramètres Sunburst"):
         col_path_1 = st.selectbox("Niveau 1", ["arrondissement",
                                                "nom_du_site_de_comptage",
                                                "date_et_heure_de_comptage_dayname"])
         col_path_2 = st.selectbox("Niveau 2", ["date_et_heure_de_comptage_hour",
                                                "date_et_heure_de_comptage_dayname"])
-
     if col_path_1 != col_path_2:
         fig_sun = px.sunburst(
             df_raw,
@@ -150,22 +147,17 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
         )
         st.plotly_chart(fig_sun, use_container_width=True)
     else:
-        st.warning("Les niveaux 1 et 2 doivent être "
-                   "différents pour le graphique Sunburst.")
+        st.warning("Les niveaux 1 et 2 doivent être différents pour Sunburst.")
 
-    # --- Carte interactive ---
     st.markdown("## 🗺️ Carte des sites de comptage")
-
     metric_col = "comptage_horaire"
-
-    # Nettoyage et conversion de l'arrondissement en nombre (si nécessaire)
     df_raw["arrondissement_num"] = df_raw[
         "arrondissement"
     ].str.extract(r"(\d+)").astype(float)
 
     df_grouped = df_raw.groupby(
         ['latitude', 'longitude', 'nom_du_site_de_comptage',
-         'arrondissement', 'arrondissement_num'],
+            'arrondissement', 'arrondissement_num'],
         as_index=False
     )[[metric_col]].sum()
 
@@ -196,6 +188,5 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
         )
     )
     st.plotly_chart(fig_map, use_container_width=True)
-
 else:
     st.error("❌ Impossible de charger les données.")
