@@ -14,8 +14,15 @@ DATASET_NAME = "velo_comptage_ml_ready_data"
 DEFAULT_PERIOD = ('2025-04-01', '2025-04-16')
 
 SITE_LABELS = {
-    ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol - S↑N",
-    ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol - N↓S",
+    ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol - S-N",
+    ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol - N-S",
+    ('Totem 64 Rue de Rivoli', 'O-E'): "Rivoli - O-E",
+    ('Pont de Bercy', 'NE-SO'): "Bercy - NE-SO",
+    ('Pont de Bercy', 'NE-SO'): "Bercy - NE-SO",
+    ('135 avenue Daumesnil', 'SE-NO'): "Daumesnil - SE-NO",
+    ("180 avenue d'Italie", 'N-S'): "Italie - N-S",
+    ('27 quai de la Tournelle', 'NO-SE'): "Tournelle - NO-SE",
+    ('27 quai de la Tournelle', 'SE-NO'): "Tournelle - SE-NO",
 }
 
 AVAILABLE_COLUMNS = sorted([
@@ -34,9 +41,11 @@ AVAILABLE_COLUMNS = sorted([
     "date_et_heure_de_comptage_sin_week",
 ])
 
+
 @st.cache_data(show_spinner=True)
 def cached_load_dataset_ml():
     return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
+
 
 @st.cache_data(show_spinner=True)
 def cached_train_model(df, model_type, target_col, drop_cols,
@@ -50,6 +59,7 @@ def cached_train_model(df, model_type, target_col, drop_cols,
         test_ratio=test_ratio,
     )
 
+
 # --- UI Setup ---
 st.title("🧪 Évaluation des modèles")
 st.markdown("""
@@ -60,21 +70,13 @@ sur les données de comptage vélo avec des options personnalisables.
 with st.sidebar:
     st.header("🔧 Paramètres")
     algo = st.radio("Algorithme", ("LinearRegression", "KNN"))
-    split = st.slider("Équilibre Train/Test", 0.1, 0.9, 0.75, 0.05)
+    split = st.slider("Répartition Train/Test", 0.1, 0.9, 0.75, 0.05)
     use_ar_ma = st.checkbox("Ajout AR(1)+MA(24)", value=True)
-
-    label_options = list(SITE_LABELS.values())
-    selected_labels = st.multiselect("Compteurs ", label_options, default=label_options)
-    selected_sites = [k for k, v in SITE_LABELS.items() if v in selected_labels]
-
-    drop_cols = st.multiselect("❌ Colonnes à exclure",
-                                options=AVAILABLE_COLUMNS,
-                                default=AVAILABLE_COLUMNS)
 
     with st.expander("📊 Rapport"):
         show_metrics = st.checkbox("Afficher métriques", value=True)
         show_preds = st.checkbox("Afficher prédictions", value=True)
-        show_resid = st.checkbox("Afficher résidus", value=True)
+        show_resid = st.checkbox("Afficher résidus", value=False)
         show_interp = st.checkbox("Afficher interprétation", value=False)
 
     col1, col2 = st.columns(2)
@@ -86,13 +88,26 @@ with st.sidebar:
         st.rerun()
 
 # --- Chargement des données ---
-df = cached_load_dataset_ml()
-if df is None or not isinstance(df, pd.DataFrame):
-    st.error("❌ Erreur lors du chargement des données.")
-    st.stop()
+with st.spinner("⏳ Chargement en cours..."):
+    df = cached_load_dataset_ml()
+    if df is None or not isinstance(df, pd.DataFrame):
+        st.error("❌ Erreur lors du chargement des données.")
+        st.stop()
 
 st.success("✅ Données chargées avec succès.")
 grouped = df.groupby(["nom_du_site_de_comptage", "orientation_compteur"])
+
+# --- Options de filtrage ---
+label_options = list(SITE_LABELS.values())
+selected_labels = st.multiselect("🎯 Compteurs à modéliser",
+                                 label_options, default=label_options)
+selected_sites = [k for k, v in SITE_LABELS.items() if v in selected_labels]
+
+drop_cols = st.multiselect(
+    "❌ Colonnes à exclure",
+    options=AVAILABLE_COLUMNS,
+    default=AVAILABLE_COLUMNS
+)
 
 results = {}
 metrics_table = []
@@ -111,7 +126,9 @@ with st.spinner("⏳ Entraînement en cours..."):
             results[compteur_id] = res
             if show_metrics:
                 metrics = compute_metrics(res["y_test"], res["y_test_pred"])
-                metrics_table.append({"compteur": SITE_LABELS[compteur_id], **metrics})
+                metrics_table.append({"compteur": SITE_LABELS[compteur_id],
+                                      **{'description': compteur_id},
+                                      **metrics})
 
 if not results:
     st.warning("Aucun compteur sélectionné.")
@@ -119,7 +136,7 @@ if not results:
 
 # --- Synthèse globale des performances ---
 if show_metrics and metrics_table:
-    st.markdown("## 🧾 Synthèse des métriques par compteur")
+    st.markdown("## 🧾 Synthèse des métriques de modélisation par compteur")
     df_metrics = pd.DataFrame(metrics_table)
     st.dataframe(df_metrics.set_index("compteur"))
 
