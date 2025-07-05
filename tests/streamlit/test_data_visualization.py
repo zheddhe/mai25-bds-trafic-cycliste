@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import pytest
 from typing import cast
-import app.data_visualization as dv
+import app.pages.data_visualization as dv
 
 
 @pytest.fixture(autouse=True)

@@ -77,8 +77,10 @@ sur les données de comptage vélo avec des options personnalisables.
 with st.sidebar:
     st.header("🔧 Paramètres")
     algo = st.radio("Algorithme", ("LinearRegression", "KNN", "RandomForest"))
-    temp_feats = st.radio("Variables temporelles additionnelles", ("Aucune", "AR(1) et MM(24)"))
-    scaler = st.radio("Mise à l'échelle", ("MinMaxScaler", "StandardScaler", "RobustScaler"))
+    temp_feats = st.radio("Variables temporelles additionnelles",
+                          ("Aucune", "AR(1) et MM(24)"))
+    scaler = st.radio("Mise à l'échelle",
+                      ("MinMaxScaler", "StandardScaler", "RobustScaler"))
     split = st.slider("Répartition Train/Test", 0.1, 0.9, 0.75, 0.05)
 
     with st.expander("📊 Rapport"):

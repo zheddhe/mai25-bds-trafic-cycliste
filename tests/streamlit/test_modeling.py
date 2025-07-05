@@ -2,7 +2,7 @@ import os
 import pytest
 import pandas as pd
 from smartcheck.modeling_project_specific import compute_metrics
-import app.modeling as am
+import app.pages.modeling as am
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +29,8 @@ def test_cached_train_model_returns_fixed_result():
         "comptage_horaire": [100],
     })
     result = am.cached_train_model(
-        dummy_df, "LinearRegression", "comptage_horaire", [], False, 0.25
+        dummy_df, "LinearRegression", "MinMaxScaler",
+        "comptage_horaire", [], False, 0.25
     )
     assert "y_test" in result
     assert len(result["y_test"]) == 2
@@ -44,6 +45,7 @@ def test_compute_metrics_on_test_output():
             "comptage_horaire": [42],
         }),
         "KNN",
+        "MinMaxScaler",
         "comptage_horaire",
         [],
         False,
