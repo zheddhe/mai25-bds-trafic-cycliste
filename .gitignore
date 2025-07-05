@@ -178,4 +178,5 @@ cython_debug/
 
 # ML models keras
 *.keras
+*.pth
 /runs/*
