@@ -4,8 +4,7 @@ import shutil
 from pathlib import Path
 
 PYTHON_VERSION = "3.12"
-PYTHON_VERSION_DL_TF = "3.9"
-PYTHON_VERSION_DL_TORCH = "3.12"
+PYTHON_VERSION_DL = "3.9"
 
 
 def remove_paths(session, paths):
@@ -66,8 +65,8 @@ def package(session):
     session.log("Package session complete.")
 
 
-@nox.session(python=PYTHON_VERSION_DL_TF, venv_backend="conda",
-             name=f"dl-tensorflow-{PYTHON_VERSION_DL_TF}")
+@nox.session(python=PYTHON_VERSION_DL, venv_backend="conda",
+             name=f"dl-tensorflow-{PYTHON_VERSION_DL}")
 def deep_learning_tf(session):
     """DL session for TensorFlow GPU with Python 3.9."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
@@ -88,10 +87,10 @@ def deep_learning_tf(session):
     session.log("TensorFlow GPU environment ready.")
 
 
-@nox.session(python=PYTHON_VERSION_DL_TORCH, venv_backend="conda",
-             name=f"dl-torch-{PYTHON_VERSION_DL_TORCH}")
+@nox.session(python=PYTHON_VERSION_DL, venv_backend="conda",
+             name=f"dl-torch-{PYTHON_VERSION_DL}")
 def deep_learning_torch(session):
-    """DL session for PyTorch GPU with Python 3.12."""
+    """DL session for PyTorch GPU with Python 3.9."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
 
     # PyTorch GPU via wheels cu118
@@ -99,10 +98,11 @@ def deep_learning_torch(session):
         "torch==2.3.1+cu118",
         "torchvision==0.18.1+cu118",
         "torchaudio==2.3.1+cu118",
+        "tensorboard",
         "-f", "https://download.pytorch.org/whl/torch_stable.html"
     )
 
-    session.install("-e", ".[py312, dev]")
+    session.install("-e", ".[py39, dev]")
 
     session.run("python", "-c", "import torch; "
                 "print('Torch CUDA:', torch.cuda.is_available())")

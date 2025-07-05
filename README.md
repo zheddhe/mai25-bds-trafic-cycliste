@@ -87,7 +87,7 @@ pip install nox
 nox -s build-3.12 --reuse-existing
 
 # Rebuild and complete virtual env for pytorch deep learning notebooks
-nox -s dl-torch-3.12 --reuse-existing
+nox -s dl-torch-3.9 --reuse-existing
 
 # Rebuild and complete virtual env for tensorflow deep learning notebooks
 nox -s dl-tensorflow-3.9 --reuse-existing
