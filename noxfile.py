@@ -96,17 +96,13 @@ def deep_learning_torch(session):
 
     # PyTorch GPU via wheels cu118
     session.install(
-        "torch==2.3.0+cu118",
-        "torchvision==0.18.0+cu118",
-        "torchaudio==2.3.0+cu118",
+        "torch==2.3.1+cu118",
+        "torchvision==0.18.1+cu118",
+        "torchaudio==2.3.1+cu118",
         "-f", "https://download.pytorch.org/whl/torch_stable.html"
     )
 
-    session.install(
-        "-e",
-        ".[py312, dev]",
-        "--extra-index-url=https://download.pytorch.org/whl/cu118"
-    )
+    session.install("-e", ".[py312, dev]")
 
     session.run("python", "-c", "import torch; "
                 "print('Torch CUDA:', torch.cuda.is_available())")
