@@ -98,8 +98,13 @@ def deep_learning_torch(session):
         "torch==2.3.1+cu118",
         "torchvision==0.18.1+cu118",
         "torchaudio==2.3.1+cu118",
-        "tensorboard",
         "-f", "https://download.pytorch.org/whl/torch_stable.html"
+    )
+
+    # Additional torch specifics that needs to be installed knowing where to find PyTorch
+    session.install(
+        "tensorboard",
+        "torchsummary"
     )
 
     session.install("-e", ".[py39, dev]")
