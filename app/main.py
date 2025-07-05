@@ -2,8 +2,8 @@ import streamlit as st
 from pathlib import Path
 from app.config import APP_NAME
 
-# Set path to the pages directory
-PAGES_DIR = Path(__file__).parent / "pages"
+# Set path to the sections directory
+PAGES_DIR = Path(__file__).parent / "sections"
 
 st.set_page_config(page_title=APP_NAME, layout="wide")
 

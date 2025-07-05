@@ -2,7 +2,7 @@ import os
 import pytest
 import pandas as pd
 from smartcheck.modeling_project_specific import compute_metrics
-import app.pages.modeling as am
+import app.sections.modeling as am
 
 
 @pytest.fixture(autouse=True)

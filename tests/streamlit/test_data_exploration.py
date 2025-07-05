@@ -7,7 +7,7 @@ import pandas as pd
 def test_data_exploration_with_failure(mock_loader):
     mock_loader.return_value = None
 
-    at = AppTest.from_file("app/pages/data_exploration.py")
+    at = AppTest.from_file("app/sections/data_exploration.py")
     at.run()
 
     # simulate cache clear + rerun
@@ -22,7 +22,7 @@ def test_data_exploration_with_success(mock_loader):
     df_fake = pd.DataFrame({"a": range(5), "b": range(5)})
     mock_loader.return_value = df_fake
 
-    at = AppTest.from_file("app/pages/data_exploration.py")
+    at = AppTest.from_file("app/sections/data_exploration.py")
     at.run()
 
     # simulate cache clear + rerun

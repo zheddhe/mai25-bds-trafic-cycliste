@@ -33,12 +33,12 @@ This project implements a full machine learning and MLOps pipeline in three main
 ```
 mai25-bds-trafic-cycliste/
 ├── app/                    # Streamlit app
-│   ├── streamlit_app.py    # main entry point
+│   ├── main.py             # main entry point of the app
 │   ├── config.py
 │   ├── utils/
 │   │   ├── model_logic.py
 │   │   └── streamlit_helpers.py
-│   └── pages/
+│   └── sections/
 │       ├── home.py
 │       ├── data_visualization.py
 │       ├── data_exploration.py
@@ -131,7 +131,7 @@ This interactive app allows for data exploration, visualization, and model resul
 ### ▶️ Launch the app
 
 ```bash
-streamlit run app/streamlit_app.py
+streamlit run app/main.py
 ```
 
 You can navigate between pages from the sidebar:

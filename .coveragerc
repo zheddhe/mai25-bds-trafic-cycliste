@@ -3,7 +3,7 @@ branch = True
 source = 
     smartcheck
     app
-    streamlit_app
+    main
 omit =
     *noxfile.py
     **/__init__.py
@@ -28,4 +28,4 @@ directory = htmlcov
 source =
     smartcheck
     app
-    streamlit_app
+    main

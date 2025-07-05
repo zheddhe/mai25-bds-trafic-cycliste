@@ -5,8 +5,8 @@ from pathlib import Path
 from unittest.mock import patch
 from streamlit.testing.v1 import AppTest
 
-PAGES_DIR = Path(__file__).resolve().parent.parent.parent / "app" / "pages"
-APP_FILE = Path(__file__).resolve().parent.parent.parent / "app" / "streamlit_app.py"
+PAGES_DIR = Path(__file__).resolve().parent.parent.parent / "app" / "sections"
+APP_FILE = Path(__file__).resolve().parent.parent.parent / "app" / "main.py"
 
 PAGES_TO_TEST = [
     "home.py",
