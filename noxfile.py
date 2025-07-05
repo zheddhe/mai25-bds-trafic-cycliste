@@ -104,7 +104,8 @@ def deep_learning_torch(session):
     # Additional torch specifics that needs to be installed knowing where to find PyTorch
     session.install(
         "tensorboard",
-        "torchsummary"
+        "torchsummary",
+        "captum",
     )
 
     session.install("-e", ".[py39, dev]")
