@@ -101,7 +101,7 @@ def deep_learning_torch(session):
         "-f", "https://download.pytorch.org/whl/torch_stable.html"
     )
 
-    # Additional torch specifics that needs to be installed knowing where to find PyTorch
+    # Additional libraries that needs to be installed knowing where to find PyTorch
     session.install(
         "tensorboard",
         "torchsummary",

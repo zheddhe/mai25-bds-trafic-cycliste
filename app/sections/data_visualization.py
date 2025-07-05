@@ -33,7 +33,8 @@ with st.sidebar:
         cached_load_dataset_exploration.clear()  # type: ignore
         st.rerun()
 
-df_raw = cached_load_dataset_exploration()
+with st.spinner("⏳ Chargement en cours..."):
+    df_raw = cached_load_dataset_exploration()
 
 if df_raw is not None and isinstance(df_raw, pd.DataFrame):
     st.success("✅ Données chargées avec succès.")
