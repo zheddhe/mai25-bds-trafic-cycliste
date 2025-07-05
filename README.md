@@ -33,13 +33,17 @@ This project implements a full machine learning and MLOps pipeline in three main
 ```
 mai25-bds-trafic-cycliste/
 ├── app/                    # Streamlit app
-│   ├── home.py
-│   ├── data_visualization.py
-│   ├── data_exploration.py
-│   ├── modeling.py
+│   ├── streamlit_app.py    # main entry point
+│   ├── config.py
 │   ├── utils/
-│   └── config.py
-├── smartcheck/             # Source code (project core)
+│   │   ├── model_logic.py
+│   │   └── streamlit_helpers.py
+│   └── pages/
+│       ├── home.py
+│       ├── data_visualization.py
+│       ├── data_exploration.py
+│       └── modeling.py
+├── smartcheck/             # Project Core logic
 │   ├── logger_config.py                    # Log management tools
 │   ├── dataframe_common.py                 # Shared data loading tools
 │   ├── classification_common.py            # Classification Modeling tools
@@ -48,11 +52,10 @@ mai25-bds-trafic-cycliste/
 │   ├── preprocessing_project_specific.py   # Advanced project specific transformers
 │   └── resources/
 │       └── config.yaml
-├── tests/                  # Unit tests (pytest)
+├── tests/                  # Unit tests (pytest for core and app)
 ├── notebooks/              # Jupyter notebooks (not packaged)
 ├── README.md               # Project documentation
 ├── LICENSE                 # MIT license
-├── requirements.txt        # Pip requirements
 ├── MANIFEST.in             # Packaging resources configuration for setuptools
 ├── pyproject.toml          # Python project configuration
 ├── noxfile.py              # NOX session configuration
