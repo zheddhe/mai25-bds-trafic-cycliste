@@ -1,6 +1,9 @@
 import streamlit as st
 from pathlib import Path
+import logging
 from app.config import APP_NAME
+from smartcheck.logger_config import setup_logger
+setup_logger(logging.INFO)
 
 # Set path to the sections directory
 PAGES_DIR = Path(__file__).parent / "sections"

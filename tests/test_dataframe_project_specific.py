@@ -46,6 +46,16 @@ class TestExtractDatetimeFeatures:
         assert result["date_et_heure_de_comptage_year"].tolist() == [2025, 2025]
         assert result["date_et_heure_de_comptage_day_of_year"].tolist() == [88, 89]
 
+    def test_datetime_features_extraction_sarimax(self, sample):
+        result = extract_datetime_features(
+            sample,
+            timestamp_col="date_et_heure_de_comptage",
+            tz_local="Europe/Paris",
+            for_sarimax=True
+        )
+        assert result["date_et_heure_de_comptage_local"].dt.hour.tolist() == [2, 3]
+        assert "date_et_heure_de_comptage_day_of_year" not in result.columns
+
     def test_invalid_datetime_format_raises(self):
         df = pd.DataFrame({"bad_ts": ["invalid-timestamp"]})
         with pytest.raises(Exception):

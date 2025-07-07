@@ -61,6 +61,16 @@ class TestDatetimePreprocessingTransformer:
         }
         assert set(result.columns) == expected_cols
 
+    def test_transform_extracts_expected_fields_sarimax(self, naive_df):
+        transformer = DatetimePreprocessingTransformer("timestamp",
+                                                       for_sarimax=True)
+        result = transformer.transform(naive_df)
+        expected_cols = {
+            "timestamp_utc",
+            "timestamp_local",
+        }
+        assert set(result.columns) == expected_cols
+
     def test_transform_column_missing_raises(self, missing_col_df):
         transformer = DatetimePreprocessingTransformer("timestamp")
         with pytest.raises(KeyError, match="timestamp"):

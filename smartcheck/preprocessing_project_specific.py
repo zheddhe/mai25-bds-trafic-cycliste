@@ -38,8 +38,9 @@ class DatetimePreprocessingTransformer(BaseEstimator, TransformerMixin):
         timestamp_col (str): Name of input timestamp column.
     """
 
-    def __init__(self, timestamp_col: str):
+    def __init__(self, timestamp_col: str, for_sarimax: bool = False):
         self.timestamp_col = timestamp_col
+        self.for_sarimax = for_sarimax
 
     def fit(self, X: pd.DataFrame, y=None):
         return self
@@ -47,8 +48,12 @@ class DatetimePreprocessingTransformer(BaseEstimator, TransformerMixin):
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         X_t = extract_datetime_features(
             X,
-            timestamp_col=self.timestamp_col
+            timestamp_col=self.timestamp_col,
+            for_sarimax=self.for_sarimax
         )
+        if self.for_sarimax:
+            cols_to_drop = [self.timestamp_col]
+            X_t = X_t.drop(columns=cols_to_drop, errors="ignore")
         return X_t
 
 

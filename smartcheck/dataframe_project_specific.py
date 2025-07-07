@@ -1,8 +1,8 @@
 import io
 import logging
 import requests
-from typing import Tuple
-from typing import Optional, Union
+import pprint
+from typing import Tuple, Optional, Union
 from requests.exceptions import HTTPError, RequestException
 
 import pytz
@@ -24,7 +24,8 @@ logger = logging.getLogger(__name__)
 def extract_datetime_features(
     df: pd.DataFrame,
     timestamp_col: str,
-    tz_local: str = "Europe/Paris"
+    tz_local: str = "Europe/Paris",
+    for_sarimax: bool = False,
 ) -> pd.DataFrame:
     """
     Parse ISO8601 timestamps with offset in `timestamp_col`, convert to UTC
@@ -52,15 +53,16 @@ def extract_datetime_features(
             .dt.tz_convert(pytz.timezone(tz_local))
         )
         ts = df[f"{timestamp_col}_local"]
-        df[f"{timestamp_col}_year"] = ts.dt.year
-        df[f"{timestamp_col}_month"] = ts.dt.month
-        df[f"{timestamp_col}_day"] = ts.dt.day
-        df[f"{timestamp_col}_day_of_year"] = ts.dt.dayofyear
-        df[f"{timestamp_col}_day_of_week"] = ts.dt.dayofweek
-        df[f"{timestamp_col}_hour"] = ts.dt.hour
-        df[f"{timestamp_col}_week"] = ts.dt.isocalendar().week
-        df[f"{timestamp_col}_dayname"] = ts.dt.day_name()
-        df[f"{timestamp_col}_monthname"] = ts.dt.month_name()
+        if not for_sarimax:
+            df[f"{timestamp_col}_year"] = ts.dt.year
+            df[f"{timestamp_col}_month"] = ts.dt.month
+            df[f"{timestamp_col}_day"] = ts.dt.day
+            df[f"{timestamp_col}_day_of_year"] = ts.dt.dayofyear
+            df[f"{timestamp_col}_day_of_week"] = ts.dt.dayofweek
+            df[f"{timestamp_col}_hour"] = ts.dt.hour
+            df[f"{timestamp_col}_week"] = ts.dt.isocalendar().week
+            df[f"{timestamp_col}_dayname"] = ts.dt.day_name()
+            df[f"{timestamp_col}_monthname"] = ts.dt.month_name()
 
         return df
 
@@ -542,9 +544,6 @@ def train_test_split_time_aware(
     """
     df = df.copy()
 
-    # Sort chronologically by the first timestamp column
-    df = df.sort_values(by=timestamp_cols[0])
-
     # Extract datetime cols for later plotting
     features_dates = df[timestamp_cols].copy()
 
@@ -562,3 +561,121 @@ def train_test_split_time_aware(
     y_test = target[-n_test:]
 
     return X_train, X_train_dates, X_test, X_test_dates, y_train, y_test
+
+
+def train_test_split_time_aware_sarimax(
+    df_input: pd.DataFrame,
+    timestamp_col: str,
+    target_col: str,
+    test_size: float = 0.2,
+    freq: str = "h",
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, dict]:
+    """
+    Perform a chronological train/test split for SARIMAX models, using a
+    datetime index with optional frequency enforcement and handling of
+    missing values.
+
+    Args:
+        df: DataFrame containing all relevant columns (exogenous, endogenous,
+            and datetime).
+        timestamp_col: Name of the datetime column to use as index.
+        target_col: Name of the target (endogenous) column.
+        test_size: Proportion of rows to allocate to the test set.
+        freq: Optional frequency string to enforce (e.g., "h", "d", etc.).
+
+    Returns:
+        A tuple (X_train, X_test, y_train, y_test, dict_missing_ranges), where
+        dict_missing_ranges contains metadata about missing timestamp ranges,
+        if any.
+    """
+    df = df_input.copy()
+    df = df.set_index(timestamp_col)
+
+    try:
+        df = df.asfreq(freq)
+    except ValueError:
+        raise ValueError(
+            f"Cannot apply frequency '{freq}' — the index may be irregular."
+        )
+
+    dict_missing_ranges = index_to_datetime_missing_ranges(
+        df, timestamp_col=timestamp_col
+    )
+    if isinstance(dict_missing_ranges, dict) and dict_missing_ranges:
+        raise ValueError(
+            f"Missing data for several range\n: {pprint.pformat(dict_missing_ranges)}"
+        )
+
+    # Separate features and target
+    features = df.drop(columns=[target_col])
+    target = df[target_col]
+
+    # Chronological split
+    n_test = int(len(df) * test_size)
+    X_train = features.iloc[:-n_test]
+    X_test = features.iloc[-n_test:]
+    y_train = target.iloc[:-n_test]
+    y_test = target.iloc[-n_test:]
+
+    return X_train, X_test, y_train, y_test, dict_missing_ranges
+
+
+def index_to_datetime_missing_ranges(df_with_index: pd.DataFrame,
+                                     timestamp_col: str,
+                                     label_prefix: str = "range") -> dict:
+    """
+    Detects contiguous blocks of rows with at least one NaN value
+    and returns a dictionary describing the corresponding time ranges.
+
+    Args:
+        df_with_index (pd.DataFrame): A DataFrame containing a datetime column.
+        timestamp_col (str): Name of the datetime column to extract time ranges.
+        label_prefix (str): Prefix used for naming each range key.
+
+    Returns:
+        dict: A dictionary of the form:
+            {
+                'range_1': {
+                    'start': datetime,
+                    'end': datetime,
+                    'nb_missing': int
+                },
+                ...
+            }
+    """
+    # Ensure a fresh copy with integer-based row index
+    df = df_with_index.reset_index()
+
+    # Identify rows with at least one missing value
+    index_list = df[df.isna().any(axis=1)].index.tolist()
+
+    if not index_list:
+        return {}
+
+    ranges = {}
+    range_id = 1
+    start = index_list[0]
+
+    # Iterate through the list of missing indices to detect contiguous blocks
+    for i in range(1, len(index_list)):
+        if index_list[i] != index_list[i - 1] + 1:
+            end = index_list[i - 1]
+            sub_dates = df.loc[start:end, timestamp_col]
+            ranges[f"{label_prefix}_{range_id}"] = {
+                "start": sub_dates.iloc[0],
+                "end": sub_dates.iloc[-1],
+                "nb_missing": end - start + 1,
+            }
+            range_id += 1
+            start = index_list[i]
+
+    # Handle the final block
+    end = index_list[-1]
+    sub_dates = df.loc[start:end, timestamp_col]
+    ranges[f"{label_prefix}_{range_id}"] = {
+        "start": sub_dates.iloc[0],
+        "end": sub_dates.iloc[-1],
+        "nb_missing": end - start + 1,
+    }
+
+    return ranges

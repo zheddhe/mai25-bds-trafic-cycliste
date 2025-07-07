@@ -1,8 +1,9 @@
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, cast, Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 import seaborn as sns
 import statsmodels.api as sm
 from matplotlib.figure import Figure
@@ -10,6 +11,8 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.base import BaseEstimator, RegressorMixin
+from statsmodels.tsa.statespace.sarimax import SARIMAX, SARIMAXResults
 from sklearn.preprocessing import (
     OneHotEncoder, MinMaxScaler,
     StandardScaler, RobustScaler
@@ -76,7 +79,7 @@ def compute_residuals_plot(
     df = dates.copy()
     df["date"] = df["date_et_heure_de_comptage_local"]
     df["y_true"] = y_true.values
-    df["y_pred"] = y_pred
+    df["y_pred"] = y_pred.values
     df["residuals"] = df["y_true"] - df["y_pred"]
     df = df.sort_values("date")
 
@@ -224,13 +227,14 @@ def train_timeseries_model(
         X_test, X_test_dates, y_test = ar_transformer.transform_test(
             X_test, X_test_dates, y_test
         )
+        logger.info("AR(1) et MM(24) features are applied")
 
     numeric_cols = X_train.select_dtypes(include="number").columns.tolist()
     categorical_cols = X_train.select_dtypes(include='object').columns.tolist()
 
     if scaler_type == "StandardScaler":
         scaler = StandardScaler()
-    elif model_type == "RobustScaler":
+    elif scaler_type == "RobustScaler":
         scaler = RobustScaler()
     else:
         scaler = MinMaxScaler()
@@ -255,6 +259,7 @@ def train_timeseries_model(
         ("prep", preprocessing),
         ("reg", model)
     ])
+    logger.info(f"Pipeline Model specs used: {pipe_model}")
 
     pipe_model.fit(X_train, y_train)
     y_test_pred = pipe_model.predict(X_test)
@@ -269,3 +274,52 @@ def train_timeseries_model(
         "y_test": y_test,
         "y_test_pred": y_test_pred,
     }
+
+
+class SARIMAXWrapper(BaseEstimator, RegressorMixin):
+    def __init__(self, order=(1, 0, 0), seasonal_order=(0, 0, 0, 0), 
+                 trend=None, use_exo=True):
+        self.order = order
+        self.seasonal_order = seasonal_order
+        self.trend = trend
+        self.use_exo = use_exo
+
+    def fit(self, X: Optional[Union[np.ndarray, pd.DataFrame]] = None,
+            y: Optional[Union[np.ndarray, pd.Series]] = None):
+        if y is None:
+            raise ValueError(
+                "y (endogenous variable) must be provided for SARIMAX."
+            )
+
+        exog = X if self.use_exo else None
+        self.model_ = SARIMAX(
+            endog=y,
+            exog=exog,
+            order=self.order,
+            seasonal_order=self.seasonal_order,
+            trend=self.trend,
+            enforce_stationarity=False,
+            enforce_invertibility=False,
+        )
+        self.results_ = cast(SARIMAXResults, self.model_.fit(disp=False))
+        self.n_train_ = len(y)  # pour prédiction future
+        return self
+
+    def predict(self, X: Optional[Union[np.ndarray, pd.DataFrame]] = None,
+                n_periods: Optional[int] = None) -> np.ndarray:
+        if not hasattr(self, "results_"):
+            raise ValueError("Model must be fitted before calling predict.")
+
+        exog = X if self.use_exo else None
+        if n_periods is None:
+            if X is not None:
+                n_periods = len(X)
+            else:
+                raise ValueError(
+                    "You must provide either X or n_periods for forecasting."
+                )
+
+        start = self.n_train_
+        end = start + n_periods - 1
+
+        return self.results_.predict(start=start, end=end, exog=exog)
