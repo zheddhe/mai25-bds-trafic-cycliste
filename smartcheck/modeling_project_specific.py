@@ -277,7 +277,7 @@ def train_timeseries_model(
 
 
 class SARIMAXWrapper(BaseEstimator, RegressorMixin):
-    def __init__(self, order=(1, 0, 0), seasonal_order=(0, 0, 0, 0), 
+    def __init__(self, order=(1, 0, 0), seasonal_order=(0, 0, 0, 0),
                  trend=None, use_exo=True):
         self.order = order
         self.seasonal_order = seasonal_order
