@@ -176,7 +176,8 @@ cython_debug/
 # VS Code specifics
 .vscode
 
-# ML models keras
+# ML models & artifacts
 *.keras
 *.pth
 /runs/*
+*.joblib
