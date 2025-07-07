@@ -6,8 +6,8 @@ st.markdown(
     Bienvenue sur l'application de démonstration du projet `mai25-bds-trafic-cycliste`.
 
     Utilisez la barre latérale pour explorer :
-    - Le travail préparatoire sur les données
-    - La visualisation et l'analyse statistiques des données
+    - Le résultat du travail préparatoire sur les données
+    - La visualisation et l'analyse des données
     - La modélisation et son évaluation
     '''
 )
