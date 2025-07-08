@@ -79,7 +79,7 @@ def compute_residuals_plot(
     df = dates.copy()
     df["date"] = df["date_et_heure_de_comptage_local"]
     df["y_true"] = y_true.values
-    df["y_pred"] = y_pred.values
+    df["y_pred"] = y_pred
     df["residuals"] = df["y_true"] - df["y_pred"]
     df = df.sort_values("date")
 
