@@ -106,6 +106,8 @@ def deep_learning_torch(session):
         "tensorboard",
         "torchsummary",
         "captum",
+        "transformers",
+        "datasets",
     )
 
     session.install("-e", ".[py39, dev]")
