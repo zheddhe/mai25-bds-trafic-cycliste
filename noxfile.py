@@ -78,7 +78,7 @@ def deep_learning_tf(session):
         "tensorflow=2.10.0=gpu_py39h9bca9fa_0",
     )
 
-    session.install("-e", ".[py39, dev]")
+    session.install("-e", ".[py39, dev]", silent=False)
 
     session.run(
         "python", "-c", "import tensorflow as tf; "
@@ -109,6 +109,7 @@ def deep_learning_torch(session):
         "transformers[torch]",
         "datasets",
         "evaluate",
+        silent=False,
     )
 
     session.install("-e", ".[py39, dev]")

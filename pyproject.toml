@@ -70,6 +70,7 @@ py312 = [
     "requests==2.32.4",
     "shap==0.48.0",
     "streamlit==1.46.1",
+    "nltk==3.9.1",
 ]
 
 dev = [
