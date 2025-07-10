@@ -71,6 +71,7 @@ py312 = [
     "shap==0.48.0",
     "streamlit==1.46.1",
     "nltk==3.9.1",
+    "wordcloud==1.9.4",
 ]
 
 dev = [
