@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mai25-bds-trafic-cycliste"
 version = "0.2.1"
-description = "Velib data science project for MLE April 2025 promotion"
+description = "bike trafic science project for MLE April 2025 promotion"
 authors = [
     { name = "Rémy CANAL", email = "remy.canal@live.fr" },
     { name = "Elias DJOUADI", email = "dummy@mail.com" },
@@ -100,7 +100,7 @@ include-package-data = true
 "smartcheck" = ["resources/*.yaml"]
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-config=.coveragerc"
+addopts = "--cov --cov-config=.coveragerc --cov-report=html --cov-report=term"
 testpaths = ["tests"]
 pythonpath = ["."]
 filterwarnings = [
