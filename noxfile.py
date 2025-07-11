@@ -49,7 +49,7 @@ def clean_all(session):
 def build(session):
     """Run code linting and full test suite with coverage and HTML report."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
-    session.install("-e", ".[py312, dev]", silent=False)
+    session.install("-e", ".[py312, test, dev]", silent=False)
     session.run("flake8")
     session.run("pytest")
     session.log("Build session complete. Coverage report in htmlcov/index.html")
@@ -78,7 +78,7 @@ def deep_learning_tf(session):
         "tensorflow=2.10.0=gpu_py39h9bca9fa_0",
     )
 
-    session.install("-e", ".[py39, dev]", silent=False)
+    session.install("-e", ".[py39, test, dev]", silent=False)
 
     session.run(
         "python", "-c", "import tensorflow as tf; "
@@ -112,7 +112,7 @@ def deep_learning_torch(session):
         silent=False,
     )
 
-    session.install("-e", ".[py39, dev]")
+    session.install("-e", ".[py39, test, dev]")
 
     session.run("python", "-c", "import torch; "
                 "print('Torch CUDA:', torch.cuda.is_available())")
