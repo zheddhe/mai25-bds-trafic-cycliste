@@ -151,7 +151,7 @@ def interpret_model(
             X_proj = pca.fit_transform(X_transformed)
 
             if pca.explained_variance_ratio_.sum() < 0.9:
-                logger.warning("PCA explained variance < 90%%, skipping plot.")
+                logger.warning("PCA explained variance < 90%, skipping plot.")
                 return None
 
             coeffs = pca.components_.T
