@@ -255,7 +255,8 @@ def train_timeseries_model(
     elif model_type == "RandomForest":
         model = RandomForestRegressor(n_jobs=-1, random_state=1)
     elif model_type == "XGBoost":
-        model = XGBRegressor(n_estimators=100,
+        model = XGBRegressor(
+            n_estimators=100,
             max_depth=3,
             learning_rate=0.1,
             objective='reg:squarederror'

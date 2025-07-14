@@ -109,7 +109,8 @@ with st.sidebar:
 
     ar_nb = st.slider("Nb d'Auto-Régression", 0, 7, 0, 1)
     mm_nb = st.slider("Nb de Moyennes Mobiles", 0, 7, 0, 1)
-    mm_season = st.number_input("Taille de la fenêtre mobile (1 lag = 1 heure)", min_value=2, max_value=24*7, value=24)
+    mm_season = st.number_input("Taille de la fenêtre mobile (1 lag = 1 heure)",
+                                min_value=2, max_value=24*7, value=24)
 
     scaler = st.radio("Mise à l'échelle",
                       ("MinMaxScaler", "StandardScaler", "RobustScaler"))

@@ -275,11 +275,11 @@ class AutoregressiveFeaturesTransformer:
     Designed to work with (X, X_dates, y) triplets for time series modeling.
     """
 
-    def __init__(self, 
-                 nb_ar: int = 1, 
-                 nb_mm: int = 0, 
-                 roll_wind: int = 2,
-                ):
+    def __init__(
+            self,
+            nb_ar: int = 1,
+            nb_mm: int = 0,
+            roll_wind: int = 2):
         self.nb_ar = nb_ar
         self.nb_mm = nb_mm
         self.roll_wind = roll_wind
