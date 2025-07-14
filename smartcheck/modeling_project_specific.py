@@ -262,6 +262,8 @@ def train_timeseries_model(
     logger.info(f"Pipeline Model specs used: {pipe_model}")
 
     pipe_model.fit(X_train, y_train)
+    
+    y_train_pred = pipe_model.predict(X_train)
     y_test_pred = pipe_model.predict(X_test)
 
     return {
@@ -271,6 +273,7 @@ def train_timeseries_model(
         "X_test": X_test,
         "X_test_dates": X_test_dates,
         "y_train": y_train,
+        "y_train_pred": y_train_pred,
         "y_test": y_test,
         "y_test_pred": y_test_pred,
     }
