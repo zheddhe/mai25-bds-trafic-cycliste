@@ -5,7 +5,10 @@ from smartcheck.modeling_project_specific import (
     train_timeseries_model,
     compute_metrics,
 )
-from app.utils.model_logic import run_evaluation_per_compteur
+from app.utils.model_logic import (
+    run_evaluation_per_compteur,
+    display_metrics_table,
+)
 import os
 
 # --- Constants and helpers ---
@@ -136,10 +139,20 @@ with st.spinner("⏳ Entraînement en cours..."):
             )
             results[compteur_id] = res
             if show_metrics:
-                metrics = compute_metrics(res["y_test"], res["y_test_pred"])
-                metrics_table.append({"compteur": SITE_LABELS[compteur_id],
-                                      **{'description': compteur_id},
-                                      **metrics})
+                train_metrics = compute_metrics(res["y_train"], res["y_train_pred"])
+                test_metrics = compute_metrics(res["y_test"], res["y_test_pred"])
+                combined_row = {
+                    "compteur": SITE_LABELS[compteur_id],
+                    "description": compteur_id,
+                    "R2_train": train_metrics.get("R2", None),
+                    "RMSE_train": train_metrics.get("RMSE", None),
+                    "MAE_train": train_metrics.get("MAE", None),
+                    "R2_test": test_metrics.get("R2", None),
+                    "RMSE_test": test_metrics.get("RMSE", None),
+                    "MAE_test": test_metrics.get("MAE", None),
+                }
+                metrics_table.append(combined_row)
+
 
 if not results:
     st.warning("Aucun compteur sélectionné.")
@@ -148,8 +161,7 @@ if not results:
 # --- Synthèse globale des performances ---
 if show_metrics and metrics_table:
     st.markdown("## 🧾 Synthèse des métriques de modélisation par compteur")
-    df_metrics = pd.DataFrame(metrics_table)
-    st.dataframe(df_metrics.set_index("compteur"))
+    display_metrics_table(metrics_table, st_module=st)
 
 # --- Affichage par compteur ---
 run_evaluation_per_compteur(
