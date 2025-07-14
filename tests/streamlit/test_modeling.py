@@ -52,8 +52,8 @@ def test_compute_metrics_on_test_output():
         0.3
     )
     metrics = compute_metrics(res["y_test"], res["y_test_pred"])
-    assert "mae" in metrics
-    assert metrics["mae"] >= 0
+    assert "MAE" in metrics
+    assert metrics["MAE"] >= 0
 
 
 def test_error_if_dataset_is_none(monkeypatch):

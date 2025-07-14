@@ -29,7 +29,7 @@ class TestComputeMetrics:
     def test_returns_expected_keys(self, dummy_data):
         y_true, y_pred = dummy_data
         metrics = compute_metrics(y_true, y_pred)
-        assert set(metrics.keys()) == {"r2", "rmse", "mae"}
+        assert set(metrics.keys()) == {"R2", "RMSE", "MAE"}
         assert all(isinstance(v, float) for v in metrics.values())
 
 
