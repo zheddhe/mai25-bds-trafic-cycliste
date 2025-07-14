@@ -57,6 +57,27 @@ class DatetimePreprocessingTransformer(BaseEstimator, TransformerMixin):
         return X_t
 
 
+class DatetimePeriodicsTransformer(BaseEstimator, TransformerMixin):
+    """
+    scikit-learn transformer that extracts datetime components and periodic features
+    from a timestamp column, and drops the original timestamp col.
+
+    Parameters:
+        timestamp_col (str): name of the timestamp column in ISO8601 format.
+    """
+
+    def __init__(self, timestamp_col: str):
+        self.timestamp_col = timestamp_col
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_t = extract_datetime_periodic_features(X, timestamp_col=self.timestamp_col)
+        cols_to_drop = [self.timestamp_col]
+        return X_t.drop(columns=cols_to_drop, errors="ignore")
+
+
 class ColumnFilterTransformer(BaseEstimator, TransformerMixin):
     """
     Transformer to select a predefined subset of columns from a DataFrame.
@@ -246,27 +267,6 @@ class SchoolHolidayTransformer(BaseEstimator, TransformerMixin):
             location=self.location,
             zone=self.zone
         )
-
-
-class DatetimePeriodicsTransformer(BaseEstimator, TransformerMixin):
-    """
-    scikit-learn transformer that extracts datetime components and periodic features
-    from a timestamp column, and drops the original timestamp + local datetime.
-
-    Parameters:
-        timestamp_col (str): name of the timestamp column in ISO8601 format.
-    """
-
-    def __init__(self, timestamp_col: str):
-        self.timestamp_col = timestamp_col
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        X_t = extract_datetime_periodic_features(X, timestamp_col=self.timestamp_col)
-        cols_to_drop = [self.timestamp_col]
-        return X_t.drop(columns=cols_to_drop, errors="ignore")
 
 
 class AutoregressiveFeaturesTransformer:

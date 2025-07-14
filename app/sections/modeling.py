@@ -65,21 +65,44 @@ SITE_LABELS_DEFAULT = {
     ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol - N-S",
     ('102 boulevard de Magenta', 'SE-NO'): "Magenta - O-E",
 }
-AVAILABLE_COLUMNS = sorted([
+EXCLUDED_COLUMNS_DEFAULT = [
     "weather_code_wmo_code",
     "date_et_heure_de_comptage_year",
     "date_et_heure_de_comptage_month",
-    "date_et_heure_de_comptage_week",
     "date_et_heure_de_comptage_day",
-    "date_et_heure_de_comptage_day_of_week",
     "date_et_heure_de_comptage_day_of_year",
+    "date_et_heure_de_comptage_day_of_week",
     "date_et_heure_de_comptage_hour",
+    "date_et_heure_de_comptage_week",
     "latitude",
     "longitude",
     "date_et_heure_de_comptage_cos_month",
     "date_et_heure_de_comptage_sin_month",
     "date_et_heure_de_comptage_sin_week",
-])
+]
+AVAILABLE_COLUMNS_TO_EXCLUDE = [
+    "weather_code_wmo_code_category",
+    "arrondissement",
+    "jour_ferie",
+    "vacances_scolaires",
+    "temperature_2m_c",
+    "rain_mm",
+    "snowfall_cm",
+    "elevation",
+    "date_et_heure_de_comptage_week_end",
+    "date_et_heure_de_comptage_sin_hour",
+    "date_et_heure_de_comptage_cos_hour",
+    "date_et_heure_de_comptage_sin_day_of_week",
+    "date_et_heure_de_comptage_cos_day_of_week",
+    "date_et_heure_de_comptage_cos_week",
+]
+AVAILABLE_COLUMNS = EXCLUDED_COLUMNS_DEFAULT+AVAILABLE_COLUMNS_TO_EXCLUDE
+MANDATORY_COLUMNS = [
+    "nom_du_site_de_comptage",
+    "orientation_compteur",
+    "date_et_heure_de_comptage_local",
+    "comptage_horaire",
+]
 AVAILABLE_MODELS = [
     "LinearRegression",
     "KNN",
@@ -134,8 +157,13 @@ with st.sidebar:
     with st.expander("❌ **Variables explicatives à exclure**"):
         df_checkbox = pd.DataFrame({
             "Variable": AVAILABLE_COLUMNS,
-            "Exclue": [True] * len(AVAILABLE_COLUMNS)  # checked by default
+            "Exclue": [
+                col in EXCLUDED_COLUMNS_DEFAULT
+                for col in AVAILABLE_COLUMNS
+            ]
         })
+        st.markdown("🔒 Les colonnes suivantes sont obligatoires:")
+        st.code("\n".join(MANDATORY_COLUMNS), language="markdown")
         edited_df = st.data_editor(
             df_checkbox,
             column_config={
@@ -145,7 +173,7 @@ with st.sidebar:
             use_container_width=True,
             num_rows="fixed",
         )
-        drop_cols = edited_df[edited_df["Exclue"]]["Variable"].tolist()
+        drop_cols = edited_df.loc[edited_df["Exclue"], "Variable"].tolist()
 
 # --- Chargement des données ---
 with st.spinner("⏳ Chargement du dataset en cours..."):
