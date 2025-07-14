@@ -11,6 +11,7 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
 from sklearn.base import BaseEstimator, RegressorMixin
 from statsmodels.tsa.statespace.sarimax import SARIMAX, SARIMAXResults
 from sklearn.preprocessing import (
@@ -181,10 +182,9 @@ def train_timeseries_model(
     scaler_type: str = "",
     target_col: str = "comptage_horaire",
     timestamp_col: str = "date_et_heure_de_comptage",
-    rolling_window: int = 24,
     drop_columns: Optional[list[str]] = None,
     apply_datetime: bool = True,
-    temp_feats: str = "",
+    temp_feats: list[int] = [0, 0, 1],
     test_ratio: float = 0.2,
 ) -> dict:
     """
@@ -217,9 +217,11 @@ def train_timeseries_model(
         )
     )
 
-    if temp_feats == "AR(1) et MM(24)":
+    if temp_feats != [0, 0, 1]:
         ar_transformer = AutoregressiveFeaturesTransformer(
-            rolling_window=rolling_window
+            nb_ar=temp_feats[0],
+            nb_mm=temp_feats[1],
+            roll_wind=temp_feats[2],
         )
         X_train, X_train_dates, y_train = ar_transformer.fit_transform(
             X_train, X_train_dates, y_train
@@ -227,7 +229,7 @@ def train_timeseries_model(
         X_test, X_test_dates, y_test = ar_transformer.transform_test(
             X_test, X_test_dates, y_test
         )
-        logger.info("AR(1) et MM(24) features are applied")
+        logger.info(f"AR({temp_feats[0]}) et MM({temp_feats[1]}) features are applied")
 
     numeric_cols = X_train.select_dtypes(include="number").columns.tolist()
     categorical_cols = X_train.select_dtypes(include='object').columns.tolist()
@@ -243,7 +245,7 @@ def train_timeseries_model(
         ("num", scaler, numeric_cols),
         ("cat", OneHotEncoder(
              handle_unknown="ignore",
-             # drop='first',  # avoid multicolinearity
+             # drop='first',  # avoid multicolinearity but introduce warnings
              sparse_output=False
          ), categorical_cols)
     ])
@@ -252,6 +254,12 @@ def train_timeseries_model(
         model = KNeighborsRegressor(n_jobs=-1)
     elif model_type == "RandomForest":
         model = RandomForestRegressor(n_jobs=-1, random_state=1)
+    elif model_type == "XGBoost":
+        model = XGBRegressor(n_estimators=100,
+            max_depth=3,
+            learning_rate=0.1,
+            objective='reg:squarederror'
+        )
     else:
         model = LinearRegression()
 
@@ -262,7 +270,7 @@ def train_timeseries_model(
     logger.info(f"Pipeline Model specs used: {pipe_model}")
 
     pipe_model.fit(X_train, y_train)
-    
+
     y_train_pred = pipe_model.predict(X_train)
     y_test_pred = pipe_model.predict(X_test)
 

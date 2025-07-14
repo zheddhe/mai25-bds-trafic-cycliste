@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+from datetime import datetime
 from smartcheck.modeling_project_specific import (
     compute_metrics,
     plot_predictions,
@@ -98,11 +99,40 @@ def display_metrics_table(metrics_table, st_module=None):
             vmin=0.0,
             vmax=1.0,
         )
-        .highlight_max(axis=0, 
-                       subset=["R2_test", "R2_train"], 
+        .highlight_max(axis=0,
+                       subset=["R2_test", "R2_train"],
                        props="font-weight: bold;")
-        .highlight_min(axis=0, 
-                       subset=["RMSE_test", "RMSE_train"], 
+        .highlight_min(axis=0,
+                       subset=["RMSE_test", "RMSE_train"],
                        props="font-weight: bold;")
     )
-    st.dataframe(styled_df, use_container_width=True)
+    st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+
+def get_selected_period(
+    default_start,
+    default_end,
+    min_dt_str,
+    max_dt_str,
+    label: str,
+    st_module=None
+):
+    st = st_module or __import__("streamlit")
+
+    def to_naive(dt):
+        if isinstance(dt, str):
+            dt = datetime.fromisoformat(dt)
+        return dt.replace(tzinfo=None)
+
+    start_dt = to_naive(default_start)
+    end_dt = to_naive(default_end)
+    min_dt = to_naive(min_dt_str)
+    max_dt = to_naive(max_dt_str)
+
+    return st.slider(
+        label,
+        min_value=min_dt,
+        max_value=max_dt,
+        value=(start_dt, end_dt),
+        format="YYYY-MM-DD"
+    )

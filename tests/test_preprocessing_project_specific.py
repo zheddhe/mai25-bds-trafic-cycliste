@@ -439,7 +439,7 @@ class TestAutoregressiveFeaturesTransformer:
 
     @pytest.fixture
     def transformer(self):
-        return AutoregressiveFeaturesTransformer(rolling_window=3)
+        return AutoregressiveFeaturesTransformer(roll_wind=3)
 
     # === Tests ===
     def test_fit_transform_returns_expected_shapes(

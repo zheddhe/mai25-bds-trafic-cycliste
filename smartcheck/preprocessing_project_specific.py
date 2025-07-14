@@ -275,24 +275,35 @@ class AutoregressiveFeaturesTransformer:
     Designed to work with (X, X_dates, y) triplets for time series modeling.
     """
 
-    def __init__(self, rolling_window: int):
-        self.rolling_window = rolling_window
+    def __init__(self, 
+                 nb_ar: int = 1, 
+                 nb_mm: int = 0, 
+                 roll_wind: int = 2,
+                ):
+        self.nb_ar = nb_ar
+        self.nb_mm = nb_mm
+        self.roll_wind = roll_wind
         self.fitted_ = False
 
     def fit_transform(self, X: pd.DataFrame, X_dates: pd.DataFrame,
                       y: pd.Series) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
         """
-        Applies AR(1) and rolling features to X and aligns X_dates and y.
+        Applies AR(N) and rolling features to X and aligns X_dates and y.
         Only past data is used: shift(1) avoids data leakage.
 
         Returns:
             X_transformed, X_dates_transformed, y_transformed
         """
         df = X.copy()
-        df["target_lag1"] = y.shift(1)
-        df["target_roll_mean"] = y.shift(1).rolling(
-            window=self.rolling_window, center=False
-        ).mean()
+        if self.nb_ar > 0:
+            for ar in range(1, self.nb_ar+1):
+                df[f"target_ar_{ar}"] = y.shift(ar)
+        if self.nb_mm > 0:
+            for s in range(1, self.nb_mm+1):
+                df[f"target_mm_{self.roll_wind}_{s}"] = y.shift(1).rolling(
+                    window=s*self.roll_wind,
+                    center=False,
+                ).mean()
 
         # Drop rows with NaN introduced by shift and rolling
         valid_idx = df.dropna().index
@@ -316,11 +327,15 @@ class AutoregressiveFeaturesTransformer:
             raise RuntimeError("Must call fit_transform before transform_test.")
 
         df = X.copy()
-        df["target_lag1"] = y.shift(1)
-        df["target_roll_mean"] = y.shift(1).rolling(
-            window=self.rolling_window,
-            # center=False
-        ).mean()
+        if self.nb_ar > 0:
+            for ar in range(1, self.nb_ar+1):
+                df[f"target_ar_{ar}"] = y.shift(ar)
+        if self.nb_mm > 0:
+            for s in range(1, self.nb_mm+1):
+                df[f"target_mm_{self.roll_wind}_{s}"] = y.shift(1).rolling(
+                    window=s*self.roll_wind,
+                    center=False,
+                ).mean()
 
         # Drop initial rows with NaN to avoid leakage
         valid_idx = df.dropna().index
