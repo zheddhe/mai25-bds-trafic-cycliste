@@ -11,7 +11,7 @@ authors = [
     { name = "Elias DJOUADI", email = "dummy@mail.com" },
     { name = "Raphaël PARMENTIER", email = "dummy@mail.com" }
 ]
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.9,<3.13"
 
 # NOTE: no direct dependencies — all handled through optional profiles
