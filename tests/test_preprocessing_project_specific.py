@@ -439,7 +439,7 @@ class TestAutoregressiveFeaturesTransformer:
 
     @pytest.fixture
     def transformer(self):
-        return AutoregressiveFeaturesTransformer(rolling_window=3)
+        return AutoregressiveFeaturesTransformer(nb_ar=1, nb_mm=1, roll_wind=3)
 
     # === Tests ===
     def test_fit_transform_returns_expected_shapes(
@@ -448,13 +448,13 @@ class TestAutoregressiveFeaturesTransformer:
         X, X_dates, y = sample_data
         X_out, X_dates_out, y_out = transformer.fit_transform(X, X_dates, y)
 
-        expected_len = len(y) - transformer.rolling_window
+        expected_len = len(y) - transformer.roll_wind
         assert X_out.shape[0] == expected_len
         assert X_dates_out.shape[0] == expected_len
         assert y_out.shape[0] == expected_len
 
-        assert "target_lag1" in X_out.columns
-        assert "target_roll_mean" in X_out.columns
+        assert "target_ar_1" in X_out.columns
+        assert "target_mm_3_1" in X_out.columns
         assert transformer.fitted_ is True
 
     def test_transform_test_requires_fit_transform(
@@ -474,12 +474,12 @@ class TestAutoregressiveFeaturesTransformer:
             X, X_dates, y
         )
 
-        expected_len = len(y) - transformer.rolling_window
+        expected_len = len(y) - transformer.roll_wind
         assert X_test.shape[0] == expected_len
-        assert "target_lag1" in X_test.columns
-        assert "target_roll_mean" in X_test.columns
-        assert not X_test["target_lag1"].isna().any()
-        assert not X_test["target_roll_mean"].isna().any()
+        assert "target_ar_1" in X_test.columns
+        assert "target_mm_3_1" in X_test.columns
+        assert not X_test["target_ar_1"].isna().any()
+        assert not X_test["target_mm_3_1"].isna().any()
 
     def test_transform_outputs_are_aligned(self, transformer, sample_data):
         X, X_dates, y = sample_data

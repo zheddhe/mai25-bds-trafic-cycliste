@@ -4,17 +4,14 @@ import plotly.express as px
 from smartcheck.dataframe_common import load_dataset_from_config
 import os
 
-
-st.title("📈 Visualisations et Statistiques")
-
-
+# --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_refactored_data"
 JOURS_ORDONNES = ["Monday", "Tuesday", "Wednesday", "Thursday",
                   "Friday", "Saturday", "Sunday"]
 
 
 @st.cache_data
-def cached_load_dataset_exploration():
+def cached_load_dataset_visualization():
     if os.environ.get("IS_TESTING") == "1":
         return pd.DataFrame({
             "nom_du_site_de_comptage": ["TEST_SITE"],
@@ -28,16 +25,18 @@ def cached_load_dataset_exploration():
     return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
 
 
+st.title("📈 Visualisations et Statistiques")
+
 with st.sidebar:
-    if st.button("🔁 Recharger les données", key="reload_button"):
-        cached_load_dataset_exploration.clear()  # type: ignore
+    if st.button("🔁 Dataset", key="reload_button"):
+        cached_load_dataset_visualization.clear()  # type: ignore
         st.rerun()
 
-with st.spinner("⏳ Chargement en cours..."):
-    df_raw = cached_load_dataset_exploration()
+with st.spinner("⏳ Chargement du dataset en cours..."):
+    df_raw = cached_load_dataset_visualization()
 
 if df_raw is not None and isinstance(df_raw, pd.DataFrame):
-    st.success("✅ Données chargées avec succès.")
+    st.success(f"✅ Données [{DATASET_NAME}] chargées avec succès.")
 
     st.markdown("### 📦 Répartition des comptages horaires par mois")
     if "mois_annee_comptage" in df_raw.columns:
@@ -45,7 +44,17 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
             df_raw,
             x="mois_annee_comptage",
             y="comptage_horaire",
-            title="Répartition des comptages horaires par mois"
+            title="Répartition des comptages horaires par mois",
+            points=False  # delete individual points
+        )
+        fig_box_mois.update_traces(
+            hovertemplate=(
+                "Q1 = %{q1}<br>" +
+                "Median = %{median}<br>" +
+                "Q3 = %{q3}<br>" +
+                "Lower Fence = %{lowerfence}<br>" +
+                "Upper Fence = %{upperfence}<br><extra></extra>"
+            )
         )
         st.plotly_chart(fig_box_mois, use_container_width=True)
 
