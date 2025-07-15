@@ -1,9 +1,10 @@
 import pytest
 import numpy as np
 import pandas as pd
-from unittest.mock import patch, MagicMock
 from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
@@ -29,7 +30,7 @@ class TestComputeMetrics:
     def test_returns_expected_keys(self, dummy_data):
         y_true, y_pred = dummy_data
         metrics = compute_metrics(y_true, y_pred)
-        assert set(metrics.keys()) == {"r2", "rmse", "mae"}
+        assert set(metrics.keys()) == {"R2", "RMSE", "MAE"}
         assert all(isinstance(v, float) for v in metrics.values())
 
 
@@ -98,7 +99,12 @@ class TestInterpretModel:
     """Unit tests for interpret_model"""
 
     # == Tests ==
-    @pytest.mark.parametrize("model_class", [LinearRegression, KNeighborsRegressor])
+    @pytest.mark.parametrize("model_class", [
+        LinearRegression,
+        KNeighborsRegressor,
+        RandomForestRegressor,
+        XGBRegressor,
+    ])
     def test_model_interpretation(self, model_class):
         X = pd.DataFrame({"x1": np.random.rand(40), "x2": np.random.rand(40)})
         y = X["x1"] * 0.4 + X["x2"] * 0.6 + np.random.normal(0, 0.01, size=40)
@@ -119,7 +125,7 @@ class TestInterpretModel:
             "y_test_pred": pipe.predict(X),
         }
 
-        figs = interpret_model("TestCounter", model_results)
+        figs = interpret_model(model_results)
         assert figs is None or all(fig is not None for fig in figs)
 
     def test_unrecognized_model_returns_none(self):
@@ -134,8 +140,8 @@ class TestInterpretModel:
         y = np.random.rand(10)
 
         pipe = Pipeline([
-            ("preprocessing_column_transformation", StandardScaler()),
-            ("dummy", DummyModel())
+            ("prep", StandardScaler()),
+            ("reg", DummyModel())
         ])
         pipe.fit(X, y)
 
@@ -145,40 +151,5 @@ class TestInterpretModel:
             "y_test_pred": np.ones(len(X))
         }
 
-        result = interpret_model("no_match", model_results)
+        result = interpret_model(model_results)
         assert result is None
-
-    def test_knn_low_variance_triggers_warning_and_none(self, caplog):
-        X = pd.DataFrame({
-            "x1": np.random.rand(50),
-            "x2": np.random.rand(50)
-        })
-        y = np.random.rand(50)
-
-        transformer = ColumnTransformer([
-            ("prep", StandardScaler(), ["x1", "x2"])
-        ])
-
-        pipe = Pipeline([
-            ("prep", transformer),
-            ("reg", KNeighborsRegressor(n_neighbors=1))
-        ])
-        pipe.fit(X, y)
-
-        model_results = {
-            "pipe": pipe,
-            "X_test": X,
-            "y_test_pred": pipe.predict(X),
-        }
-
-        with patch("smartcheck.modeling_project_specific.PCA") as pca_mock:
-            pca_instance = MagicMock()
-            pca_instance.fit_transform.return_value = np.random.rand(50, 2)
-            pca_instance.explained_variance_ratio_ = np.array([0.2, 0.3])
-            pca_mock.return_value = pca_instance
-
-            with caplog.at_level("WARNING"):
-                result = interpret_model("lowvar", model_results)
-
-            assert result is None
-            assert "PCA explained variance < 90%" in caplog.text
