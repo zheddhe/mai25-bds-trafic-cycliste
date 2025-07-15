@@ -108,6 +108,9 @@ AVAILABLE_MODELS = [
     "KNN",
     "RandomForest",
     "XGBoost",
+    "Lasso",
+    "Ridge",
+    "ElasticNet (avec recherche Bayesienne)",
 ]
 
 # --- UI Setup ---
@@ -151,8 +154,8 @@ with st.sidebar:
         )
         show_metrics = st.checkbox("Afficher métriques", value=True)
         show_preds = st.checkbox("Afficher prédictions", value=True)
-        show_resid = st.checkbox("Afficher résidus", value=False)
-        show_interp = st.checkbox("Afficher interprétation", value=False)
+        show_resid = st.checkbox("Afficher résidus", value=True)
+        show_interp = st.checkbox("Afficher interprétation", value=True)
 
     with st.expander("❌ **Variables explicatives à exclure**"):
         df_checkbox = pd.DataFrame({
