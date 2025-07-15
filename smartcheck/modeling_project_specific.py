@@ -277,21 +277,30 @@ def train_timeseries_model(
 
 
 class SARIMAXWrapper(BaseEstimator, RegressorMixin):
-    def __init__(self, order=(1, 0, 0), seasonal_order=(0, 0, 0, 0),
-                 trend=None, use_exo=True):
+    def __init__(
+        self,
+        order=(1, 0, 0),
+        seasonal_order=(0, 0, 0, 0),
+        trend=None,
+        use_exo=True
+    ):
         self.order = order
         self.seasonal_order = seasonal_order
         self.trend = trend
         self.use_exo = use_exo
 
-    def fit(self, X: Optional[Union[np.ndarray, pd.DataFrame]] = None,
-            y: Optional[Union[np.ndarray, pd.Series]] = None):
+    def fit(
+        self,
+        X: Optional[Union[np.ndarray, pd.DataFrame]] = None,
+        y: Optional[Union[np.ndarray, pd.Series]] = None
+    ):
         if y is None:
             raise ValueError(
                 "y (endogenous variable) must be provided for SARIMAX."
             )
 
         exog = X if self.use_exo else None
+        logger.info("Fitting SARIMAX model.")
         self.model_ = SARIMAX(
             endog=y,
             exog=exog,
@@ -302,11 +311,15 @@ class SARIMAXWrapper(BaseEstimator, RegressorMixin):
             enforce_invertibility=False,
         )
         self.results_ = cast(SARIMAXResults, self.model_.fit(disp=False))
-        self.n_train_ = len(y)  # pour prédiction future
+        self.n_train_ = len(y)
+        logger.info("SARIMAX model fitted successfully.")
         return self
 
-    def predict(self, X: Optional[Union[np.ndarray, pd.DataFrame]] = None,
-                n_periods: Optional[int] = None) -> np.ndarray:
+    def predict(
+        self,
+        X: Optional[Union[np.ndarray, pd.DataFrame]] = None,
+        n_periods: Optional[int] = None
+    ) -> np.ndarray:
         if not hasattr(self, "results_"):
             raise ValueError("Model must be fitted before calling predict.")
 
@@ -321,5 +334,11 @@ class SARIMAXWrapper(BaseEstimator, RegressorMixin):
 
         start = self.n_train_
         end = start + n_periods - 1
-
+        logger.info("Predicting future values (out-of-sample).")
         return self.results_.predict(start=start, end=end, exog=exog)
+
+    def predict_in_sample(self) -> np.ndarray:
+        if not hasattr(self, "results_"):
+            raise ValueError("Model must be fitted before calling predict.")
+        logger.info("Returning in-sample fitted values.")
+        return self.results_.fittedvalues  # type: ignore
