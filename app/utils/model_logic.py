@@ -79,7 +79,7 @@ def run_evaluation_per_compteur(results, site_labels,
 
             if show_interp:
                 st.markdown("### 🧠 Interprétation")
-                interp_figs = interpret_model(label, res)
+                interp_figs = interpret_model(res)
                 if interp_figs:
                     for fig in interp_figs:
                         st.pyplot(fig)
