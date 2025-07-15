@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mai25-bds-trafic-cycliste"
-version = "0.2.1"
+version = "0.3.0"
 description = "bike trafic science project for MLE April 2025 promotion"
 authors = [
     { name = "Rémy CANAL", email = "remy.canal@live.fr" },
