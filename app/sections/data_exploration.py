@@ -55,7 +55,26 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
             grouped_stats = df_raw.groupby(group_column)[
                 ["comptage_horaire"]
             ].agg(["count", "sum", "mean", "std"])
-            st.dataframe(grouped_stats)
+            df_stats = pd.DataFrame(grouped_stats)
+            styled_df = (
+                df_stats.style
+                .background_gradient(
+                    subset=pd.IndexSlice[:, (
+                        'comptage_horaire',
+                        'count'
+                    )],  # type: ignore
+                    vmin=0,
+                    cmap="RdYlGn",  # green = good, red = bad
+                )
+                .background_gradient(
+                    subset=pd.IndexSlice[:, (
+                        'comptage_horaire',
+                        'sum'
+                    )],  # type: ignore
+                    cmap="coolwarm",
+                )
+            )
+            st.dataframe(styled_df, use_container_width=True)
 
     with st.expander("🚨 Doublons et valeurs manquantes"):
         st.write(f"Nombre de lignes dupliquées : {df_raw.duplicated().sum()}")
