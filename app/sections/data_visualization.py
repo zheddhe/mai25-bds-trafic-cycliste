@@ -11,7 +11,7 @@ JOURS_ORDONNES = ["Monday", "Tuesday", "Wednesday", "Thursday",
 
 
 @st.cache_data
-def cached_load_dataset_exploration():
+def cached_load_dataset_visualization():
     if os.environ.get("IS_TESTING") == "1":
         return pd.DataFrame({
             "nom_du_site_de_comptage": ["TEST_SITE"],
@@ -29,11 +29,11 @@ st.title("📈 Visualisations et Statistiques")
 
 with st.sidebar:
     if st.button("🔁 Dataset", key="reload_button"):
-        cached_load_dataset_exploration.clear()  # type: ignore
+        cached_load_dataset_visualization.clear()  # type: ignore
         st.rerun()
 
 with st.spinner("⏳ Chargement du dataset en cours..."):
-    df_raw = cached_load_dataset_exploration()
+    df_raw = cached_load_dataset_visualization()
 
 if df_raw is not None and isinstance(df_raw, pd.DataFrame):
     st.success(f"✅ Données [{DATASET_NAME}] chargées avec succès.")
@@ -45,7 +45,7 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
             x="mois_annee_comptage",
             y="comptage_horaire",
             title="Répartition des comptages horaires par mois",
-            points=False  # ⛔ supprime les points individuels
+            points=False  # delete individual points
         )
         fig_box_mois.update_traces(
             hovertemplate=(
