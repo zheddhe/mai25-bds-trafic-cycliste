@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mai25-bds-trafic-cycliste"
-version = "0.3.0"
+version = "0.2.1"
 description = "bike trafic science project for MLE April 2025 promotion"
 authors = [
     { name = "Rémy CANAL", email = "remy.canal@live.fr" },
     { name = "Elias DJOUADI", email = "dummy@mail.com" },
     { name = "Raphaël PARMENTIER", email = "dummy@mail.com" }
 ]
-license = "MIT"
+license = { text = "MIT" }
 requires-python = ">=3.9,<3.13"
 
 # NOTE: no direct dependencies — all handled through optional profiles

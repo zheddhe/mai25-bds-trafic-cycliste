@@ -1,6 +1,4 @@
 import matplotlib.pyplot as plt
-import pandas as pd
-from datetime import datetime
 from smartcheck.modeling_project_specific import (
     compute_metrics,
     plot_predictions,
@@ -36,19 +34,9 @@ def run_evaluation_per_compteur(results, site_labels,
 
             if show_metrics:
                 st.markdown("### 📈 Métriques")
-                metrics_table = []
-                train_metrics = compute_metrics(res["y_train"], res["y_train_pred"])
-                test_metrics = compute_metrics(res["y_test"], res["y_test_pred"])
-                combined_row = {
-                    "R2_train": train_metrics.get("R2", None),
-                    "RMSE_train": train_metrics.get("RMSE", None),
-                    "MAE_train": train_metrics.get("MAE", None),
-                    "R2_test": test_metrics.get("R2", None),
-                    "RMSE_test": test_metrics.get("RMSE", None),
-                    "MAE_test": test_metrics.get("MAE", None),
-                }
-                metrics_table.append(combined_row)
-                display_metrics_table(metrics_table, st_module=st)
+                metrics = compute_metrics(res["y_test"], res["y_test_pred"])
+                for k, v in metrics.items():
+                    st.info(f"**{k}**: {v}")
 
             if show_preds:
                 st.markdown("### 🔮 Prédictions")
@@ -79,60 +67,8 @@ def run_evaluation_per_compteur(results, site_labels,
 
             if show_interp:
                 st.markdown("### 🧠 Interprétation")
-                interp_figs = interpret_model(res)
+                interp_figs = interpret_model(label, res)
                 if interp_figs:
                     for fig in interp_figs:
                         st.pyplot(fig)
                         plt.close(fig)
-
-
-def display_metrics_table(metrics_table, st_module=None):
-    st = st_module or __import__("streamlit")
-
-    df_metrics = pd.DataFrame(metrics_table)
-    styled_df = (
-        df_metrics.style
-        .format(precision=2)
-        .background_gradient(
-            subset=["R2_train", "R2_test"],
-            cmap="RdYlGn",  # green = good, red = bad
-            vmin=0.0,
-            vmax=1.0,
-        )
-        .highlight_max(axis=0,
-                       subset=["R2_test", "R2_train"],
-                       props="font-weight: bold;")
-        .highlight_min(axis=0,
-                       subset=["RMSE_test", "RMSE_train"],
-                       props="font-weight: bold;")
-    )
-    st.dataframe(styled_df, use_container_width=True, hide_index=True)
-
-
-def get_selected_period(
-    default_start,
-    default_end,
-    min_dt_str,
-    max_dt_str,
-    label: str,
-    st_module=None
-):
-    st = st_module or __import__("streamlit")
-
-    def to_naive(dt):
-        if isinstance(dt, str):
-            dt = datetime.fromisoformat(dt)
-        return dt.replace(tzinfo=None)
-
-    start_dt = to_naive(default_start)
-    end_dt = to_naive(default_end)
-    min_dt = to_naive(min_dt_str)
-    max_dt = to_naive(max_dt_str)
-
-    return st.slider(
-        label,
-        min_value=min_dt,
-        max_value=max_dt,
-        value=(start_dt, end_dt),
-        format="YYYY-MM-DD"
-    )

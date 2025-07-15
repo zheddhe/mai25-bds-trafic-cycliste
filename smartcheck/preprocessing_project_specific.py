@@ -57,27 +57,6 @@ class DatetimePreprocessingTransformer(BaseEstimator, TransformerMixin):
         return X_t
 
 
-class DatetimePeriodicsTransformer(BaseEstimator, TransformerMixin):
-    """
-    scikit-learn transformer that extracts datetime components and periodic features
-    from a timestamp column, and drops the original timestamp col.
-
-    Parameters:
-        timestamp_col (str): name of the timestamp column in ISO8601 format.
-    """
-
-    def __init__(self, timestamp_col: str):
-        self.timestamp_col = timestamp_col
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        X_t = extract_datetime_periodic_features(X, timestamp_col=self.timestamp_col)
-        cols_to_drop = [self.timestamp_col]
-        return X_t.drop(columns=cols_to_drop, errors="ignore")
-
-
 class ColumnFilterTransformer(BaseEstimator, TransformerMixin):
     """
     Transformer to select a predefined subset of columns from a DataFrame.
@@ -269,41 +248,51 @@ class SchoolHolidayTransformer(BaseEstimator, TransformerMixin):
         )
 
 
+class DatetimePeriodicsTransformer(BaseEstimator, TransformerMixin):
+    """
+    scikit-learn transformer that extracts datetime components and periodic features
+    from a timestamp column, and drops the original timestamp + local datetime.
+
+    Parameters:
+        timestamp_col (str): name of the timestamp column in ISO8601 format.
+    """
+
+    def __init__(self, timestamp_col: str):
+        self.timestamp_col = timestamp_col
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_t = extract_datetime_periodic_features(X, timestamp_col=self.timestamp_col)
+        cols_to_drop = [self.timestamp_col]
+        return X_t.drop(columns=cols_to_drop, errors="ignore")
+
+
 class AutoregressiveFeaturesTransformer:
     """
     Adds autoregressive and rolling average features to X.
     Designed to work with (X, X_dates, y) triplets for time series modeling.
     """
 
-    def __init__(
-            self,
-            nb_ar: int = 1,
-            nb_mm: int = 0,
-            roll_wind: int = 2):
-        self.nb_ar = nb_ar
-        self.nb_mm = nb_mm
-        self.roll_wind = roll_wind
+    def __init__(self, rolling_window: int):
+        self.rolling_window = rolling_window
         self.fitted_ = False
 
     def fit_transform(self, X: pd.DataFrame, X_dates: pd.DataFrame,
                       y: pd.Series) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
         """
-        Applies AR(N) and rolling features to X and aligns X_dates and y.
+        Applies AR(1) and rolling features to X and aligns X_dates and y.
         Only past data is used: shift(1) avoids data leakage.
 
         Returns:
             X_transformed, X_dates_transformed, y_transformed
         """
         df = X.copy()
-        if self.nb_ar > 0:
-            for ar in range(1, self.nb_ar+1):
-                df[f"target_ar_{ar}"] = y.shift(ar)
-        if self.nb_mm > 0:
-            for s in range(1, self.nb_mm+1):
-                df[f"target_mm_{self.roll_wind}_{s}"] = y.shift(1).rolling(
-                    window=s*self.roll_wind,
-                    center=False,
-                ).mean()
+        df["target_lag1"] = y.shift(1)
+        df["target_roll_mean"] = y.shift(1).rolling(
+            window=self.rolling_window, center=False
+        ).mean()
 
         # Drop rows with NaN introduced by shift and rolling
         valid_idx = df.dropna().index
@@ -327,15 +316,11 @@ class AutoregressiveFeaturesTransformer:
             raise RuntimeError("Must call fit_transform before transform_test.")
 
         df = X.copy()
-        if self.nb_ar > 0:
-            for ar in range(1, self.nb_ar+1):
-                df[f"target_ar_{ar}"] = y.shift(ar)
-        if self.nb_mm > 0:
-            for s in range(1, self.nb_mm+1):
-                df[f"target_mm_{self.roll_wind}_{s}"] = y.shift(1).rolling(
-                    window=s*self.roll_wind,
-                    center=False,
-                ).mean()
+        df["target_lag1"] = y.shift(1)
+        df["target_roll_mean"] = y.shift(1).rolling(
+            window=self.rolling_window,
+            # center=False
+        ).mean()
 
         # Drop initial rows with NaN to avoid leakage
         valid_idx = df.dropna().index

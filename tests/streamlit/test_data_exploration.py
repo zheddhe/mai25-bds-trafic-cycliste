@@ -29,6 +29,5 @@ def test_data_exploration_with_success(mock_loader):
     at.sidebar.button("reload_button").click()
     at.run()
 
-    expected_msg = "✅ Données [velo_comptage_refactored_data] chargées avec succès."
-    assert any(s.value == expected_msg for s in at.success)
+    assert any("Données chargées avec succès." in s.value for s in at.success)
     assert len(at.dataframe) > 0

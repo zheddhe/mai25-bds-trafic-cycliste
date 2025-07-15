@@ -4,14 +4,13 @@ from typing import Dict, List, Optional, Tuple, cast, Union
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import seaborn as sns
 import statsmodels.api as sm
 from matplotlib.figure import Figure
-from sklearn.linear_model import LinearRegression, ElasticNet, Lasso, Ridge
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import TimeSeriesSplit
-from skopt import BayesSearchCV
-from xgboost import XGBRegressor
 from sklearn.base import BaseEstimator, RegressorMixin
 from statsmodels.tsa.statespace.sarimax import SARIMAX, SARIMAXResults
 from sklearn.preprocessing import (
@@ -37,9 +36,9 @@ logger = logging.getLogger(__name__)
 
 def compute_metrics(y_true: pd.Series, y_pred: pd.Series) -> Dict[str, float]:
     return {
-        "R2": r2_score(y_true, y_pred),
-        "RMSE": root_mean_squared_error(y_true, y_pred),
-        "MAE": mean_absolute_error(y_true, y_pred),
+        "r2": r2_score(y_true, y_pred),
+        "rmse": root_mean_squared_error(y_true, y_pred),
+        "mae": mean_absolute_error(y_true, y_pred),
     }
 
 
@@ -125,77 +124,54 @@ def compute_residuals_plot(
 
 
 def interpret_model(
+    compteur: str,
     model_results: dict,
 ) -> Optional[List[Figure]]:
-    """
-    Generates a feature importance bar chart for interpretable models,
-    including LinearRegression, ElasticNet, Ridge, Lasso, and XGBoost
-    (including when wrapped in BayesSearchCV).
-
-    Returns a list with a single matplotlib Figure showing sorted feature
-    importances, or None if the model is not interpretable via coefficients.
-    """
     pipe = model_results["pipe"]
+    X_test = model_results["X_test"]
+    y_pred = model_results["y_test_pred"]
+
     model_figs = []
+    for _, step in pipe.named_steps.items():
+        if isinstance(step, LinearRegression):
+            features = pipe.named_steps["prep"].get_feature_names_out()
+            coeffs = step.coef_
+            importance = pd.Series(coeffs, index=features).sort_values()
+            fig, ax = plt.subplots(figsize=(8, 10))
+            importance.plot(kind="barh", ax=ax)
+            ax.set_title("Feature Importance – Linear Model")
+            model_figs.append(fig)
+            return model_figs
 
-    reg_step = pipe.named_steps["reg"]
+        if isinstance(step, KNeighborsRegressor):
+            pipe_input = pipe.named_steps["prep"]
+            X_transformed = pipe_input.transform(X_test)
+            pca = PCA(n_components=2)
+            X_proj = pca.fit_transform(X_transformed)
 
-    # === Handle models wrapped in BayesSearchCV ==
-    if isinstance(reg_step, BayesSearchCV):
-        model = reg_step.best_estimator_  # type: ignore
-    else:
-        model = reg_step
+            if pca.explained_variance_ratio_.sum() < 0.9:
+                logger.warning("PCA explained variance < 90%%, skipping plot.")
+                return None
 
-    # === Try to extract transformed feature names ===
-    prep = pipe.named_steps["prep"]
-    if hasattr(prep, "get_feature_names_out"):
-        features = prep.get_feature_names_out()
-    else:
-        features = [f"feat_{i}" for i in range(model.n_features_in_)]
+            coeffs = pca.components_.T
+            df_plot = pd.DataFrame({
+                "PC1": X_proj[:, 0],
+                "PC2": X_proj[:, 1],
+                "prediction": y_pred,
+            })
 
-    # === Linear models: plot coefficients ===
-    if isinstance(model, (LinearRegression, ElasticNet, Ridge, Lasso)):
-        coeffs = model.coef_
-        importance = pd.Series(coeffs, index=features).sort_values()
+            fig, ax = plt.subplots(figsize=(10, 8))
+            sns.scatterplot(
+                x="PC1", y="PC2", hue="prediction",
+                data=df_plot, palette="coolwarm", ax=ax
+            )
+            for i in range(X_test.shape[1]):
+                ax.arrow(0, 0, coeffs[i, 0]*1.5, coeffs[i, 1]*1.5,
+                         color="black", alpha=0.5, head_width=0.01)
+            ax.set_title(f"PCA – Counter {compteur}")
+            model_figs.append(fig)
+            return model_figs
 
-        fig, ax = plt.subplots(figsize=(8, 10))
-        importance.plot(kind="barh", ax=ax)
-        ax.set_title(f"Feature Importance – {type(model).__name__}")
-        model_figs.append(fig)
-        return model_figs
-
-    # === XGBoost: plot feature importance based on gain ===
-    elif isinstance(model, XGBRegressor):
-        booster = model.get_booster()
-        importance_dict = booster.get_score(importance_type="gain")
-
-        # Map back feature names (XGBoost uses f0, f1, ...)
-        importance_series = pd.Series({
-            features[int(k[1:])]: v for k, v in importance_dict.items()
-        }).sort_values()
-
-        fig, ax = plt.subplots(figsize=(8, 10))
-        importance_series.plot(kind="barh", ax=ax)
-        ax.set_title("Feature Importance – XGBoost (gain)")
-        model_figs.append(fig)
-        return model_figs
-
-    # === RandomForest: feature importances ===
-    elif isinstance(model, RandomForestRegressor):
-        importance = pd.Series(model.feature_importances_, index=features).sort_values()
-
-        fig, ax = plt.subplots(figsize=(8, 10))
-        importance.plot(kind="barh", ax=ax)
-        ax.set_title("Feature Importance – Random Forest")
-        model_figs.append(fig)
-        return model_figs
-
-    # === KNN: no native interpretability ===
-    elif isinstance(model, KNeighborsRegressor):
-        logger.warning("KNN has no native feature importances.")
-        return None
-
-    # === No interpretable model found ===
     return None
 
 
@@ -205,9 +181,10 @@ def train_timeseries_model(
     scaler_type: str = "",
     target_col: str = "comptage_horaire",
     timestamp_col: str = "date_et_heure_de_comptage",
+    rolling_window: int = 24,
     drop_columns: Optional[list[str]] = None,
     apply_datetime: bool = True,
-    temp_feats: list[int] = [0, 0, 1],
+    temp_feats: str = "",
     test_ratio: float = 0.2,
 ) -> dict:
     """
@@ -240,11 +217,9 @@ def train_timeseries_model(
         )
     )
 
-    if temp_feats[:2] != [0, 0]:
+    if temp_feats == "AR(1) et MM(24)":
         ar_transformer = AutoregressiveFeaturesTransformer(
-            nb_ar=temp_feats[0],
-            nb_mm=temp_feats[1],
-            roll_wind=temp_feats[2],
+            rolling_window=rolling_window
         )
         X_train, X_train_dates, y_train = ar_transformer.fit_transform(
             X_train, X_train_dates, y_train
@@ -252,7 +227,7 @@ def train_timeseries_model(
         X_test, X_test_dates, y_test = ar_transformer.transform_test(
             X_test, X_test_dates, y_test
         )
-        logger.info(f"AR({temp_feats[0]}) et MM({temp_feats[1]}) features are applied")
+        logger.info("AR(1) et MM(24) features are applied")
 
     numeric_cols = X_train.select_dtypes(include="number").columns.tolist()
     categorical_cols = X_train.select_dtypes(include='object').columns.tolist()
@@ -268,7 +243,7 @@ def train_timeseries_model(
         ("num", scaler, numeric_cols),
         ("cat", OneHotEncoder(
              handle_unknown="ignore",
-             # drop='first',  # avoid multicolinearity but introduce warnings
+             # drop='first',  # avoid multicolinearity
              sparse_output=False
          ), categorical_cols)
     ])
@@ -277,33 +252,6 @@ def train_timeseries_model(
         model = KNeighborsRegressor(n_jobs=-1)
     elif model_type == "RandomForest":
         model = RandomForestRegressor(n_jobs=-1, random_state=1)
-    elif model_type == "XGBoost":
-        model = XGBRegressor(
-            n_estimators=100,
-            max_depth=3,
-            learning_rate=0.1,
-            objective='reg:squarederror'
-        )
-    elif model_type == "Lasso":
-        model = Lasso(max_iter=10000, random_state=1)
-    elif model_type == "Ridge":
-        model = Ridge(max_iter=10000, random_state=1)
-    elif model_type == "ElasticNet (avec recherche Bayesienne)":
-        tscv = TimeSeriesSplit(n_splits=5)
-        search_space = {
-            'alpha': (1e-3, 100.0, 'log-uniform'),
-            'l1_ratio': (0.1, 1.0)
-        }
-        model = BayesSearchCV(
-            estimator=ElasticNet(max_iter=20000),
-            search_spaces=search_space,
-            cv=tscv,
-            n_iter=25,
-            scoring='neg_mean_squared_error',
-            n_jobs=-1,
-            # verbose=2,
-            random_state=1
-        )
     else:
         model = LinearRegression()
 
@@ -314,18 +262,6 @@ def train_timeseries_model(
     logger.info(f"Pipeline Model specs used: {pipe_model}")
 
     pipe_model.fit(X_train, y_train)
-
-    if model_type == "ElasticNet (avec recherche Bayesienne)":
-        fitted_model = pipe_model.named_steps['reg']
-        best_model = fitted_model.best_estimator_
-        logger.info(f"Meilleur alpha : {best_model.alpha}")
-        logger.info(f"Meilleur l1_ratio : {best_model.l1_ratio}")
-        if best_model.alpha < 0.01 or best_model.l1_ratio < 0.2:
-            logger.warning(
-                "⚠️ Faible régularisation détectée : le modèle peut surajuster "
-                "ou mal converger. Envisager Ridge ou un resserrage de l’espace "
-                "de recherche.")
-    y_train_pred = pipe_model.predict(X_train)
     y_test_pred = pipe_model.predict(X_test)
 
     return {
@@ -335,7 +271,6 @@ def train_timeseries_model(
         "X_test": X_test,
         "X_test_dates": X_test_dates,
         "y_train": y_train,
-        "y_train_pred": y_train_pred,
         "y_test": y_test,
         "y_test_pred": y_test_pred,
     }
