@@ -1,7 +1,6 @@
 import io
 import logging
 import requests
-import pprint
 from typing import Tuple, Optional, Union
 from requests.exceptions import HTTPError, RequestException
 
@@ -601,10 +600,6 @@ def train_test_split_time_aware_sarimax(
     dict_missing_ranges = index_to_datetime_missing_ranges(
         df, timestamp_col=timestamp_col
     )
-    if isinstance(dict_missing_ranges, dict) and dict_missing_ranges:
-        raise ValueError(
-            f"Missing data for several range\n: {pprint.pformat(dict_missing_ranges)}"
-        )
 
     # Separate features and target
     features = df.drop(columns=[target_col])
@@ -662,8 +657,10 @@ def index_to_datetime_missing_ranges(df_with_index: pd.DataFrame,
             end = index_list[i - 1]
             sub_dates = df.loc[start:end, timestamp_col]
             ranges[f"{label_prefix}_{range_id}"] = {
-                "start": sub_dates.iloc[0],
-                "end": sub_dates.iloc[-1],
+                "date_start": sub_dates.iloc[0],
+                "date_end": sub_dates.iloc[-1],
+                "index_start": start,
+                "index_end": end,
                 "nb_missing": end - start + 1,
             }
             range_id += 1
@@ -673,8 +670,10 @@ def index_to_datetime_missing_ranges(df_with_index: pd.DataFrame,
     end = index_list[-1]
     sub_dates = df.loc[start:end, timestamp_col]
     ranges[f"{label_prefix}_{range_id}"] = {
-        "start": sub_dates.iloc[0],
-        "end": sub_dates.iloc[-1],
+        "date_start": sub_dates.iloc[0],
+        "date_end": sub_dates.iloc[-1],
+        "index_start": start,
+        "index_end": end,
         "nb_missing": end - start + 1,
     }
 
