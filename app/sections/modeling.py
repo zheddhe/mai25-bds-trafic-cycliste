@@ -96,8 +96,6 @@ Cette page vous permet de tester différents modèles de régression
 sur les données de comptage vélo avec des options personnalisables.
 > - Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
 drive
-> - Après entrainement, vous pourrez visualiser les paramètres retenus et les métriques
-et visualisation des prédictions pour chaque compteur sélectionné
 """)
 
 # --- Chargement des données ---
@@ -136,6 +134,8 @@ with st.sidebar:
     mm_season = st.number_input("Taille de la fenêtre mobile (1 lag = 1 heure)",
                                 min_value=2, max_value=24*7,
                                 value=24, key="mm_season_inp")
+    use_forecast = st.checkbox("Calculer les prédiction en forecast",
+                               value=False, key="use_forecast_cb")
 
     # --- Sélection du scaler ---
     scaler = st.radio("Mise à l'échelle",
@@ -193,6 +193,7 @@ train_config = {
     "ar_nb": ar_nb,
     "mm_nb": mm_nb,
     "mm_season": mm_season,
+    "use_forecast": use_forecast,
     "split": split,
     "drop_cols": drop_cols.copy(),
     "selected_dates": selected_dates,
@@ -216,6 +217,7 @@ with st.spinner("⏳ Entraînement des modèles en cours..."):
                 drop_columns=drop_cols,
                 temp_feats=[ar_nb, mm_nb, mm_season],
                 test_ratio=1 - split,
+                forecast=use_forecast
             )
             results[compteur_id] = res
             train_metrics = compute_metrics(res["y_train"],

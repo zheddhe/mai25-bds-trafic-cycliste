@@ -457,20 +457,22 @@ class TestAutoregressiveFeaturesTransformer:
         assert "target_mm_3_1" in X_out.columns
         assert transformer.fitted_ is True
 
-    def test_transform_test_requires_fit_transform(
+    def test_transform_with_known_y_requires_fit_transform(
         self, transformer, sample_data
     ):
         X, X_dates, y = sample_data
-        with pytest.raises(RuntimeError,
-                           match="Must call fit_transform before transform_test."):
-            transformer.transform_test(X, X_dates, y)
+        with pytest.raises(
+            RuntimeError,
+            match="Must call fit_transform before transform_with_known_y."
+        ):
+            transformer.transform_with_known_y(X, X_dates, y)
 
-    def test_transform_test_reproduces_features(
+    def test_transform_with_known_y_reproduces_features(
         self, transformer, sample_data
     ):
         X, X_dates, y = sample_data
         transformer.fit_transform(X, X_dates, y)
-        X_test, X_dates_test, y_test = transformer.transform_test(
+        X_test, X_dates_test, y_test = transformer.transform_with_known_y(
             X, X_dates, y
         )
 
@@ -484,7 +486,7 @@ class TestAutoregressiveFeaturesTransformer:
     def test_transform_outputs_are_aligned(self, transformer, sample_data):
         X, X_dates, y = sample_data
         transformer.fit_transform(X, X_dates, y)
-        X_test, dates_test, y_test = transformer.transform_test(
+        X_test, dates_test, y_test = transformer.transform_with_known_y(
             X, X_dates, y
         )
 

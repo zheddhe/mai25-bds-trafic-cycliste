@@ -150,19 +150,22 @@ def display_train_parameters(
         col1, col2 = st.columns([1, 1.2])
         with col1:
             st.markdown(f"""
-            - **Modèle** : `{train_config['model']}`
-            - **Scaler** : `{train_config['scaler']}`
+            - **Modèle utilisé** : `{train_config['model']}`
+            - **Mise à l'échelle utilisé** : `{train_config['scaler']}`
             - **Nb d'Auto-régression** : `{train_config['ar_nb']}`
             - **Nb de Moyenne mobile** : `{train_config['mm_nb']}`
-            - **Fenêtre moyenne mobile (heures)** : `{train_config['mm_season']}`
-            - **Répartition Train/Test** : {int(train_config['split'] * 100)}% /
-                {int((1 - train_config['split']) * 100)}%
-            - **Plage d'affichage prédictions** : {train_config['selected_dates'][0]}
-                → {train_config['selected_dates'][1]}
-            - **Afficher métriques** : {train_config['show_metrics']}
-            - **Afficher prédictions** : {train_config['show_preds']}
-            - **Afficher résidus** : {train_config['show_resid']}
-            - **Afficher interprétation** : {train_config['show_interp']}
+            - **Taille de la fenêtre (heures)** : `{train_config['mm_season']}`
+            - **Prédiction dynamique des AR/MM** : `{train_config['use_forecast']}`
+            - **Taux de répartition Train/Test** :
+            `{int(train_config['split'] * 100)}%` /
+            `{int((1 - train_config['split']) * 100)}%`
+            - **Plage d'affichage des prédictions** :
+            `{train_config['selected_dates'][0]}` → 
+            `{train_config['selected_dates'][1]}`
+            - **Afficher les métriques** : `{train_config['show_metrics']}`
+            - **Afficher les prédictions** : `{train_config['show_preds']}`
+            - **Afficher les résidus et la pente** : `{train_config['show_resid']}`
+            - **Afficher l'interprétation** : `{train_config['show_interp']}`
             """)
         with col2:
             df_cols_exclues = pd.DataFrame({

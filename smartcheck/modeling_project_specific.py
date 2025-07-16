@@ -209,6 +209,7 @@ def train_timeseries_model(
     apply_datetime: bool = True,
     temp_feats: list[int] = [0, 0, 1],
     test_ratio: float = 0.2,
+    forecast: bool = True,
 ) -> dict:
     """
     Full training logic on a single compteur, with optional AR features and split.
@@ -240,6 +241,7 @@ def train_timeseries_model(
         )
     )
 
+    ar_transformer = None
     if temp_feats[:2] != [0, 0]:
         ar_transformer = AutoregressiveFeaturesTransformer(
             nb_ar=temp_feats[0],
@@ -249,10 +251,8 @@ def train_timeseries_model(
         X_train, X_train_dates, y_train = ar_transformer.fit_transform(
             X_train, X_train_dates, y_train
         )
-        X_test, X_test_dates, y_test = ar_transformer.transform_test(
-            X_test, X_test_dates, y_test
-        )
-        logger.info(f"AR({temp_feats[0]}) et MM({temp_feats[1]}) features are applied")
+        logger.info(f"AR({temp_feats[0]}) et MM({temp_feats[1]})"
+                    " features are applied on train data")
 
     numeric_cols = X_train.select_dtypes(include="number").columns.tolist()
     categorical_cols = X_train.select_dtypes(include='object').columns.tolist()
@@ -326,9 +326,46 @@ def train_timeseries_model(
                 "ou mal converger. Envisager Ridge ou un resserrage de l’espace "
                 "de recherche.")
     y_train_pred = pipe_model.predict(X_train)
-    y_test_pred = pipe_model.predict(X_test)
+
+    if ar_transformer:
+        if not forecast:
+            X_test, X_test_dates, y_test = ar_transformer.transform_with_known_y(
+                X_test, X_test_dates, y_test
+            )
+            y_test_pred = pipe_model.predict(X_test)
+        else:
+            # Assemble full prediction base:
+            # - all train rows with y known
+            # - all test rows with y unknown (NaN), but features known
+            X_full = pd.concat(
+                [X_train, X_test],
+                ignore_index=True
+            )
+            y_full = pd.concat(
+                [y_train, pd.Series([np.nan] * len(y_test))],
+                ignore_index=True
+            )
+            dates_full = pd.concat(
+                [X_train_dates, X_test_dates],
+                ignore_index=True
+            )
+            last_window_df = X_full.copy()
+            last_window_df[target_col] = y_full
+            last_window_df[timestamp_col] = dates_full
+            y_test_pred = recursive_forecast_model(
+                pipe_model,
+                ar_transformer,
+                last_window_df=last_window_df,
+                horizon=len(y_test),
+                target_col=target_col
+            )
+    else:
+        y_test_pred = pipe_model.predict(X_test)
 
     return {
+        "timestamp_col": timestamp_col,
+        "target_col": target_col,
+        "ar_transformer": ar_transformer,
         "pipe": pipe_model,
         "X_train": X_train,
         "X_train_dates": X_train_dates,
@@ -407,3 +444,71 @@ class SARIMAXWrapper(BaseEstimator, RegressorMixin):
             raise ValueError("Model must be fitted before calling predict.")
         logger.info("Returning in-sample fitted values.")
         return self.results_.fittedvalues  # type: ignore
+
+
+def recursive_forecast_model(
+    pipe: Pipeline,
+    ar_transformer: AutoregressiveFeaturesTransformer,
+    last_window_df: pd.DataFrame,
+    horizon: int,
+    target_col: str
+) -> List[float]:
+    """
+    Efficient recursive forecast using AR/MM features and exogenous inputs.
+
+    Args:
+        pipe (Pipeline): Trained pipeline (prep + regressor).
+        ar_transformer: Fitted AutoregressiveFeaturesTransformer.
+        last_window_df (pd.DataFrame): Full base with historical train + test X.
+        horizon (int): Number of future steps to forecast.
+        timestamp_col (str): Name of datetime column.
+        target_col (str): Name of target variable.
+
+    Returns:
+        List[float]: Forecasted target values (one per horizon step).
+    """
+    future_preds = []
+    current_df = last_window_df.copy()
+
+    # Prepare history buffer (NumPy for speed)
+    required_lag = max(
+        ar_transformer.nb_ar,
+        ar_transformer.nb_mm * ar_transformer.roll_wind
+    )
+    recent_y = np.array(
+        current_df[target_col].dropna().values, dtype=np.float32
+    )
+
+    if len(recent_y) < required_lag:
+        raise ValueError(
+            f"Insufficient history: need at least {required_lag} values in "
+            f"`recent_y`, but only {len(recent_y)} provided."
+        )
+
+    # Pre-buffer exogenous features (sans target)
+    steps_to_forecast = current_df[current_df[target_col].isna()]
+    exog_features = steps_to_forecast.drop(columns=[target_col])
+    exog_features = exog_features.reset_index(drop=True)
+    forecast_rows = []
+
+    for i in range(horizon):
+        exog_row = exog_features.iloc[[i]].copy()
+
+        try:
+            X_next = ar_transformer.transform_recursive_step(
+                exog_row, recent_y.tolist()
+            )
+        except Exception as e:
+            logger.warning(f"[STEP {i}] Failed to create AR features: {e}")
+            break
+
+        X_next_prepped = pipe.named_steps["prep"].transform(X_next)
+        y_pred = pipe.named_steps["reg"].predict(X_next_prepped)[0]
+
+        future_preds.append(y_pred)
+        recent_y = np.append(recent_y, y_pred)
+
+        exog_row[target_col] = y_pred
+        forecast_rows.append(exog_row)
+
+    return future_preds
