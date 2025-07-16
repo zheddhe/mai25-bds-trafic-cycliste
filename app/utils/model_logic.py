@@ -160,7 +160,7 @@ def display_train_parameters(
             `{int(train_config['split'] * 100)}%` /
             `{int((1 - train_config['split']) * 100)}%`
             - **Plage d'affichage des prédictions** :
-            `{train_config['selected_dates'][0]}` → 
+            `{train_config['selected_dates'][0]}` →
             `{train_config['selected_dates'][1]}`
             - **Afficher les métriques** : `{train_config['show_metrics']}`
             - **Afficher les prédictions** : `{train_config['show_preds']}`
