@@ -1,6 +1,8 @@
 import pytest
 import numpy as np
 import pandas as pd
+import warnings
+from statsmodels.tools.sm_exceptions import ConvergenceWarning
 from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
@@ -13,6 +15,7 @@ from smartcheck.modeling_project_specific import (
     plot_predictions,
     compute_residuals_plot,
     interpret_model,
+    SARIMAXWrapper,
 )
 
 
@@ -153,3 +156,73 @@ class TestInterpretModel:
 
         result = interpret_model(model_results)
         assert result is None
+
+
+class TestSARIMAXWrapper:
+    """Unit tests for SARIMAXWrapper"""
+
+    # == Fixtures ==
+    @pytest.fixture
+    def dummy_series(self):
+        np.random.seed(42)
+        t = np.arange(100)
+        y = pd.Series(
+            np.sin(2 * np.pi * t / 24) + np.random.normal(0, 0.1, size=len(t))
+        )
+        X = pd.DataFrame({"temp": np.random.rand(len(t))})
+        return X, y
+
+    def test_fit_and_predict_with_exog(self, dummy_series):
+        X, y = dummy_series
+        model = SARIMAXWrapper(
+            order=(1, 0, 0),
+            seasonal_order=(1, 1, 0, 24),
+            use_exo=True
+        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=ConvergenceWarning)
+            model.fit(X, y)
+        assert hasattr(model, "results_")
+        preds = model.predict(X)
+        assert isinstance(preds, (np.ndarray, pd.Series))
+        assert len(preds) == len(X)
+
+    def test_fit_and_predict_without_exog(self, dummy_series):
+        _, y = dummy_series
+        model = SARIMAXWrapper(order=(1, 0, 0), use_exo=False)
+        model.fit(None, y)
+        assert hasattr(model, "results_")
+        preds = model.predict(n_periods=10)
+        assert isinstance(preds, (np.ndarray, pd.Series))
+        assert len(preds) == 10
+
+    def test_predict_in_sample(self, dummy_series):
+        X, y = dummy_series
+        model = SARIMAXWrapper(order=(1, 0, 0))
+        model.fit(X, y)
+        fitted = model.predict_in_sample()
+        assert isinstance(fitted, (np.ndarray, pd.Series))
+        assert len(fitted) == len(y)
+
+    def test_predict_without_fit_raises(self):
+        model = SARIMAXWrapper()
+        with pytest.raises(ValueError, match="Model must be fitted"):
+            model.predict(n_periods=5)
+
+    def test_in_sample_without_fit_raises(self):
+        model = SARIMAXWrapper()
+        with pytest.raises(ValueError, match="Model must be fitted"):
+            model.predict_in_sample()
+
+    def test_missing_y_raises(self, dummy_series):
+        X, _ = dummy_series
+        model = SARIMAXWrapper()
+        with pytest.raises(ValueError, match="y .* must be provided"):
+            model.fit(X, None)
+
+    def test_missing_X_and_n_periods_raises(self, dummy_series):
+        _, y = dummy_series
+        model = SARIMAXWrapper()
+        model.fit(None, y)
+        with pytest.raises(ValueError, match="You must provide either X or n_periods"):
+            model.predict()

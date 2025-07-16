@@ -3,7 +3,7 @@ import logging
 import requests
 from typing import Tuple, Optional, Union
 from requests.exceptions import HTTPError, RequestException
-
+import pprint
 import pytz
 import pandas as pd
 import numpy as np
@@ -568,6 +568,7 @@ def train_test_split_time_aware_sarimax(
     target_col: str,
     test_size: float = 0.2,
     freq: str = "h",
+    interpol_max: int = 0,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, dict]:
     """
     Perform a chronological train/test split for SARIMAX models, using a
@@ -600,6 +601,13 @@ def train_test_split_time_aware_sarimax(
     dict_missing_ranges = index_to_datetime_missing_ranges(
         df, timestamp_col=timestamp_col
     )
+    if isinstance(dict_missing_ranges, dict) and dict_missing_ranges:
+        logging.info("⚠️ Missing data for several range\n:"
+                     f"{pprint.pformat(dict_missing_ranges)}")
+        if max(r["nb_missing"] for r in dict_missing_ranges.values()) <= interpol_max:
+            # on admet l'interpolation systématique pour les cas avec maximum
+            # interpol_max valeur d'index sans données
+            df = interpolate_mixed_dataframe(df)
 
     # Separate features and target
     features = df.drop(columns=[target_col])
@@ -628,15 +636,7 @@ def index_to_datetime_missing_ranges(df_with_index: pd.DataFrame,
         label_prefix (str): Prefix used for naming each range key.
 
     Returns:
-        dict: A dictionary of the form:
-            {
-                'range_1': {
-                    'start': datetime,
-                    'end': datetime,
-                    'nb_missing': int
-                },
-                ...
-            }
+        dict: A dictionary with missing range informations
     """
     # Ensure a fresh copy with integer-based row index
     df = df_with_index.reset_index()
@@ -678,3 +678,27 @@ def index_to_datetime_missing_ranges(df_with_index: pd.DataFrame,
     }
 
     return ranges
+
+
+def interpolate_mixed_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Interpolates a DataFrame with mixed types (numerical and categorical),
+    assuming missing rows were created via asfreq() and should be imputed.
+
+    Numerical columns: interpolated linearly (or time-based if index is datetime)
+    Categorical columns: forward-fill, then backward-fill if necessary
+    """
+    df_interp = df.copy()
+
+    # Séparer les colonnes par type
+    num_cols = df_interp.select_dtypes(include=["number"]).columns
+    cat_cols = df_interp.select_dtypes(include=["object", "category", "bool"]).columns
+
+    # Interpolation pour colonnes numériques
+    df_interp[num_cols] = df_interp[num_cols].interpolate(method="time",
+                                                          limit_direction="both")
+
+    # Remplissage pour colonnes catégorielles
+    df_interp[cat_cols] = df_interp[cat_cols].ffill().bfill()
+
+    return df_interp

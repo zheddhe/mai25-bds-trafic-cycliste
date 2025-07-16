@@ -19,6 +19,7 @@ from smartcheck.dataframe_project_specific import (
     add_school_vacation_column,
     extract_datetime_periodic_features,
     train_test_split_time_aware,
+    train_test_split_time_aware_sarimax,
 )
 
 
@@ -721,4 +722,87 @@ class TestTrainTestSplitTimeAware:
                 df=base_df,
                 timestamp_cols=["nonexistent"],
                 target_col="target"
+            )
+
+
+class TestTrainTestSplitTimeAwareSarimax:
+    """Unit tests for train_test_split_time_aware_sarimax"""
+
+    # === Fixtures ===
+    @pytest.fixture
+    def df_regular_hourly(self):
+        timestamps = pd.date_range("2024-01-01", periods=24, freq="h")
+        return pd.DataFrame({
+            "ts": timestamps,
+            "y": np.arange(24),
+            "x1": np.random.randn(24)
+        })
+
+    @pytest.fixture
+    def df_with_missing(self):
+        timestamps = pd.date_range("2024-01-01", periods=30, freq="h")
+        timestamps = timestamps.delete([5, 6, 20])  # introduce gaps
+        return pd.DataFrame({
+            "ts": timestamps,
+            "y": np.arange(len(timestamps)),
+            "x1": np.random.randn(len(timestamps))
+        })
+
+    # === Test ===
+    def test_split_returns_correct_shapes(self, df_regular_hourly):
+        X_tr, X_te, y_tr, y_te, gaps = train_test_split_time_aware_sarimax(
+            df_regular_hourly,
+            timestamp_col="ts",
+            target_col="y",
+            test_size=0.25
+        )
+
+        assert isinstance(X_tr, pd.DataFrame)
+        assert isinstance(X_te, pd.DataFrame)
+        assert isinstance(y_tr, pd.Series)
+        assert isinstance(y_te, pd.Series)
+        assert isinstance(gaps, dict)
+
+        n_total = df_regular_hourly.shape[0]
+        n_test = int(n_total * 0.25)
+        assert len(X_te) == n_test
+        assert len(X_tr) + len(X_te) == n_total
+
+    def test_missing_data_detected(self, df_with_missing):
+        _, _, _, _, gaps = train_test_split_time_aware_sarimax(
+            df_with_missing,
+            timestamp_col="ts",
+            target_col="y",
+            test_size=0.2
+        )
+
+        assert isinstance(gaps, dict)
+        assert len(gaps) > 0
+        assert all("nb_missing" in v for v in gaps.values())
+
+    def test_interpolation_if_gap_allowed(self, df_with_missing):
+        _, _, _, _, gaps = train_test_split_time_aware_sarimax(
+            df_with_missing,
+            timestamp_col="ts",
+            target_col="y",
+            test_size=0.2,
+            interpol_max=3
+        )
+
+        assert all(v["nb_missing"] <= 3 for v in gaps.values())
+
+    def test_invalid_frequency_raises(self):
+        df = pd.DataFrame({
+            "ts": ["not_a_datetime"] * 5,
+            "y": [1, 2, 3, 4, 5],
+            "x1": [0] * 5
+        })
+        df["ts"] = pd.Series(df["ts"])
+
+        with pytest.raises(ValueError, match="Cannot apply frequency"):
+            train_test_split_time_aware_sarimax(
+                df,
+                timestamp_col="ts",
+                target_col="y",
+                test_size=0.2
             )
