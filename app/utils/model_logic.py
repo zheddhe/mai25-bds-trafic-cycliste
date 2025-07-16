@@ -136,3 +136,50 @@ def get_selected_period(
         value=(start_dt, end_dt),
         format="YYYY-MM-DD"
     )
+
+
+def display_train_parameters(
+    train_config,
+    available_columns,
+    st_module=None
+):
+    st = st_module or __import__("streamlit")
+
+    with st.expander("🧾 Résumé des paramètres d'entrainement courants",
+                     expanded=False):
+        col1, col2 = st.columns([1, 1.2])
+        with col1:
+            st.markdown(f"""
+            - **Modèle** : `{train_config['model']}`
+            - **Scaler** : `{train_config['scaler']}`
+            - **Nb d'Auto-régression** : `{train_config['ar_nb']}`
+            - **Nb de Moyenne mobile** : `{train_config['mm_nb']}`
+            - **Fenêtre moyenne mobile (heures)** : `{train_config['mm_season']}`
+            - **Répartition Train/Test** : {int(train_config['split'] * 100)}% /
+                {int((1 - train_config['split']) * 100)}%
+            - **Plage d'affichage prédictions** : {train_config['selected_dates'][0]}
+                → {train_config['selected_dates'][1]}
+            - **Afficher métriques** : {train_config['show_metrics']}
+            - **Afficher prédictions** : {train_config['show_preds']}
+            - **Afficher résidus** : {train_config['show_resid']}
+            - **Afficher interprétation** : {train_config['show_interp']}
+            """)
+        with col2:
+            df_cols_exclues = pd.DataFrame({
+                "Variables": available_columns,
+                "Exclue": [
+                    col in train_config["drop_cols"]
+                    for col in available_columns
+                ]
+            })
+            st.data_editor(
+                df_cols_exclues,
+                column_config={
+                    "Exclue": st.column_config.CheckboxColumn("Exclue",
+                                                              disabled=True)
+                },
+                hide_index=True,
+                use_container_width=True,
+                disabled=True,
+                num_rows="dynamic"
+            )
