@@ -20,7 +20,7 @@ DATASET_NAME = "velo_comptage_refactored_data"
 st.title("🔍 Exploration des données")
 
 with st.sidebar:
-    if st.button("🔁 Dataset", key="reload_button"):
+    if st.button("🔁 Rechargement du Dataset", key="reload_button"):
         cached_load_dataset_exploration.clear()  # type: ignore
         st.rerun()
 

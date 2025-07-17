@@ -28,7 +28,7 @@ def cached_load_dataset_visualization():
 st.title("📈 Visualisations et Statistiques")
 
 with st.sidebar:
-    if st.button("🔁 Dataset", key="reload_button"):
+    if st.button("🔁 Rechargement du Dataset", key="reload_button"):
         cached_load_dataset_visualization.clear()  # type: ignore
         st.rerun()
 
