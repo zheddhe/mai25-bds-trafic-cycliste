@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, List, Optional, Tuple, cast, Union
-
+from datetime import timedelta
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -64,7 +64,10 @@ def plot_predictions(
     ax.set_xlabel("Date")
     ax.set_ylabel("Hourly Count")
     if periode_limite:
-        ax.set_xlim(*pd.to_datetime(periode_limite).to_pydatetime())
+        start, end = pd.to_datetime(periode_limite).to_pydatetime()
+        if start == end:
+            end = start + timedelta(days=1)
+        ax.set_xlim(start, end)
     ax.legend()
     ax.grid(True)
     return fig
@@ -98,7 +101,10 @@ def compute_residuals_plot(
     ax1.set_xlabel("Date")
     ax1.set_ylabel("Residual")
     if periode_limite:
-        ax1.set_xlim(*pd.to_datetime(periode_limite).to_pydatetime())
+        start, end = pd.to_datetime(periode_limite).to_pydatetime()
+        if start == end:
+            end = start + timedelta(days=1)
+        ax1.set_xlim(start, end)
     ax1.legend()
     ax1.grid(True)
 
@@ -117,7 +123,10 @@ def compute_residuals_plot(
     ax2.set_xlabel("Date")
     ax2.set_ylabel("Residual")
     if periode_limite:
-        ax2.set_xlim(*pd.to_datetime(periode_limite).to_pydatetime())
+        start, end = pd.to_datetime(periode_limite).to_pydatetime()
+        if start == end:
+            end = start + timedelta(days=1)
+        ax2.set_xlim(start, end)
     ax2.legend()
     ax2.grid(True)
 
@@ -322,7 +331,7 @@ def train_timeseries_model(
         logger.info(f"Meilleur l1_ratio : {best_model.l1_ratio}")
         if best_model.alpha < 0.01 or best_model.l1_ratio < 0.2:
             logger.warning(
-                "⚠️ Faible régularisation détectée : le modèle peut surajuster "
+                "Faible régularisation détectée : le modèle peut surajuster "
                 "ou mal converger. Envisager Ridge ou un resserrage de l’espace "
                 "de recherche.")
     y_train_pred = pipe_model.predict(X_train)

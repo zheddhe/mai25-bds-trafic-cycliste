@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
-from smartcheck.dataframe_common import load_dataset_from_config
+from smartcheck.dataframe_common import (
+    load_dataset_from_config,
+    apply_percent_range_selection,
+)
 from smartcheck.modeling_project_specific import (
     train_timeseries_model,
     compute_metrics,
@@ -22,10 +25,37 @@ def cached_load_dataset_ml():
     return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
 
 
+@st.cache_data(show_spinner=True)
+def cached_train_model(df_compteur,
+                       model_type,
+                       scaler_type,
+                       target_col,
+                       drop_columns,
+                       temp_feats,
+                       test_ratio,
+                       forecast):
+    if os.environ.get("IS_TESTING") == "1":
+        return {
+            "y_test": [1, 2],
+            "y_test_pred": [1.1, 1.9],
+            "X_test_dates": pd.date_range("2025-04-01", periods=2, freq="h")
+        }
+    return train_timeseries_model(
+        df_compteur=df_compteur,
+        model_type=model_type,
+        scaler_type=scaler_type,
+        target_col=target_col,
+        drop_columns=drop_columns,
+        temp_feats=temp_feats,
+        test_ratio=test_ratio,
+        forecast=forecast,
+    )
+
+
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_ml_ready_data"
-DEFAULT_TEST_PERIOD = ('2025-04-01', '2025-04-16')
-MAX_TEST_PERIOD = ('2025-01-02', '2025-04-16')
+DEFAULT_TEST_PERIOD = ('2025-04-01', '2025-04-14')
+MAX_TEST_PERIOD = ('2025-01-02', '2025-04-14')
 SITE_LABELS = {
     ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol - S-N",
     ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol - N-S",
@@ -89,7 +119,6 @@ AVAILABLE_MODELS = [
     "ElasticNet (avec recherche Bayesienne)",
 ]
 
-# --- UI Setup ---
 st.title("🧪 Évaluation des modèles")
 st.markdown("""
 Cette page vous permet de tester différents modèles de régression
@@ -108,7 +137,10 @@ with st.spinner("⏳ Chargement du dataset en cours..."):
 st.success(f"✅ Données [{DATASET_NAME}] chargées avec succès.")
 grouped = df.groupby(["nom_du_site_de_comptage", "orientation_compteur"])
 
+# --- Enrichissement du menu ---
 with st.sidebar:
+
+    # --- Bouton de rechargement des données de comptage ---
     if st.button("🔁 Rechargement du Dataset"):
         cached_load_dataset_ml.clear()  # type: ignore
         st.rerun()
@@ -142,8 +174,11 @@ with st.sidebar:
                       ("MinMaxScaler", "StandardScaler", "RobustScaler"),
                       key="scaler_rad")
 
-    # --- Répartition train/test ---
-    split = st.slider("Répartition Train/Test", 0.1, 0.9, 0.75, 0.05, key="split_sld")
+    # --- Echantillonnage du dataset + répartition train/test ---
+    range = st.slider("Plage du dataset d'origine", 0.0, 100.0, (0.0, 100.0), 0.1,
+                      format="%.1f %%", key="range_sld")
+    split = st.slider("Répartition Train/Test", 0.1, 0.9, 0.75, 0.05,
+                      key="split_sld")
 
     # --- Sélection des variables explicatives ---
     with st.expander("❌ **Variables explicatives à exclure**"):
@@ -194,6 +229,7 @@ train_config = {
     "mm_nb": mm_nb,
     "mm_season": mm_season,
     "use_forecast": use_forecast,
+    "range": range,
     "split": split,
     "drop_cols": drop_cols.copy(),
     "selected_dates": selected_dates,
@@ -204,20 +240,31 @@ train_config = {
 }
 display_train_parameters(train_config, AVAILABLE_COLUMNS, st)
 
+# --- Controles Generaux avant entrainement et rendu
+if not selected_sites:
+    st.warning("Sélectionnez au moins un compteur à modéliser.")
+    st.stop()
+if range[0] == range[1]:
+    st.warning("La plage sélectionnée est vide.")
+    st.stop()
+
 with st.spinner("⏳ Entraînement des modèles en cours..."):
     results = {}
     metrics_table = []
     for compteur_id, df_compteur in grouped:
         if compteur_id in selected_sites:
-            res = train_timeseries_model(
-                df_compteur,
-                model,
-                scaler,
+            res = cached_train_model(
+                df_compteur=apply_percent_range_selection(
+                    df_compteur,
+                    range,
+                ),
+                model_type=model,
+                scaler_type=scaler,
                 target_col="comptage_horaire",
                 drop_columns=drop_cols,
                 temp_feats=[ar_nb, mm_nb, mm_season],
                 test_ratio=1 - split,
-                forecast=use_forecast
+                forecast=use_forecast,
             )
             results[compteur_id] = res
             train_metrics = compute_metrics(res["y_train"],
@@ -235,10 +282,6 @@ with st.spinner("⏳ Entraînement des modèles en cours..."):
                 "MAE_test": test_metrics.get("MAE", None),
             }
             metrics_table.append(combined_row)
-
-if not results:
-    st.warning("Sélectionnez au moins un compteur à modéliser.")
-    st.stop()
 
 # --- Synthèse globale des performances ---
 if train_config and train_config["show_metrics"] and metrics_table:
