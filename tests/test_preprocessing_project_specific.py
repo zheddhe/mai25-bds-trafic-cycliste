@@ -493,3 +493,50 @@ class TestAutoregressiveFeaturesTransformer:
         # Check index alignment
         assert X_test.index.equals(dates_test.index)
         assert X_test.index.equals(y_test.index)
+
+    def test_transform_recursive_step_creates_features(
+        self, transformer, sample_data
+    ):
+        X, X_dates, y = sample_data
+        transformer.fit_transform(X, X_dates, y)
+
+        recent_X = X.iloc[[-1]]
+        recent_y = list(y)
+
+        result = transformer.transform_recursive_step(recent_X, recent_y)
+
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape[0] == 1
+        assert "target_ar_1" in result.columns
+        assert "target_mm_3_1" in result.columns
+        assert not pd.isna(result["target_ar_1"].iloc[0])
+        # Peut être NaN si historique insuffisant pour MM
+
+    def test_transform_recursive_step_requires_fit(self, sample_data):
+        X, X_dates, y = sample_data
+        transformer = AutoregressiveFeaturesTransformer(nb_ar=2, nb_mm=1)
+        with pytest.raises(RuntimeError, match="fit_transform.*before"):
+            transformer.transform_recursive_step(X.iloc[[-1]], list(y))
+
+    def test_transform_recursive_step_insufficient_y_raises(self, transformer):
+        recent_X = pd.DataFrame({"feature": [10]})
+        recent_y = [1]  # insuffisant si nb_ar > 1
+        transformer.fitted_ = True
+        transformer.nb_ar = 3
+
+        with pytest.raises(ValueError, match="Insufficient values in recent_y"):
+            transformer.transform_recursive_step(recent_X, recent_y)
+
+    def test_transform_recursive_step_partial_mm_nan(self, transformer):
+        transformer.fitted_ = True
+        transformer.nb_ar = 1
+        transformer.nb_mm = 1
+        transformer.roll_wind = 5
+
+        recent_X = pd.DataFrame({"feature": [1.0]})
+        recent_y = [10.0, 20.0]  # < window size = 5, should produce NaN for MM
+
+        result = transformer.transform_recursive_step(recent_X, recent_y)
+
+        assert "target_mm_5_1" in result.columns
+        assert np.isnan(result["target_mm_5_1"].iloc[0])

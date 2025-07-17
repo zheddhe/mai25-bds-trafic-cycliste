@@ -2,8 +2,9 @@ import pytest
 import numpy as np
 import pandas as pd
 import warnings
+from unittest.mock import patch, MagicMock
 from statsmodels.tools.sm_exceptions import ConvergenceWarning
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
@@ -16,7 +17,10 @@ from smartcheck.modeling_project_specific import (
     compute_residuals_plot,
     interpret_model,
     SARIMAXWrapper,
+    train_timeseries_model,
+    recursive_forecast_model,
 )
+from smartcheck.modeling_project_specific import AutoregressiveFeaturesTransformer
 
 
 class TestComputeMetrics:
@@ -226,3 +230,261 @@ class TestSARIMAXWrapper:
         model.fit(None, y)
         with pytest.raises(ValueError, match="You must provide either X or n_periods"):
             model.predict()
+
+
+class TestTrainTimeseriesModel:
+    """Unit tests for train_timeseries_model"""
+
+    # == Fixtures ==
+    @pytest.fixture
+    def dummy_df(self):
+        """Small DataFrame with numeric and categorical data"""
+        n = 48
+        timestamps = pd.date_range(
+            start="2024-01-01", periods=n, freq="h"
+        )
+        return pd.DataFrame({
+            "date_et_heure_de_comptage": timestamps,
+            "comptage_horaire": np.linspace(100, 200, n),
+            "temperature": np.random.uniform(5, 15, n),
+            "jour_semaine": ["lundi", "mardi"] * (n // 2),
+        })
+
+    @pytest.fixture(params=[
+        "KNN",
+        "RandomForest",
+        "XGBoost",
+        "Lasso",
+        "Ridge",
+        "LinearRegression"
+    ])
+    def base_model_type(self, request):
+        return request.param
+
+    @pytest.fixture
+    def simple_df(self):
+        n = 40
+        return pd.DataFrame({
+            "date_et_heure_de_comptage": pd.date_range(
+                start="2024-01-01", periods=n, freq="h"
+            ),
+            "comptage_horaire": np.random.rand(n) * 100,
+            "temperature": np.random.uniform(0, 10, n),
+            "jour_semaine": ["lun", "mar"] * (n // 2),
+        })
+
+    # == Tests ==
+    @patch("smartcheck.modeling_project_specific.Pipeline.fit")
+    @patch("smartcheck.modeling_project_specific.Pipeline.predict")
+    def test_train_knn_model_without_ar(
+        self, mock_predict, mock_fit, dummy_df
+    ):
+        mock_fit.return_value = None
+        mock_predict.side_effect = lambda X: np.ones(len(X))
+
+        results = train_timeseries_model(
+            df_compteur=dummy_df,
+            model_type="KNN",
+            scaler_type="StandardScaler",
+            temp_feats=[0, 0, 1],
+            forecast=False
+        )
+
+        assert isinstance(results, dict)
+        assert set(results.keys()) >= {
+            "pipe", "X_train", "y_train_pred", "y_test_pred"
+        }
+        assert results["X_train"].shape[0] > 0
+        assert all(np.array(results["y_test_pred"]) == 1.0)
+
+    @patch("smartcheck.modeling_project_specific.Pipeline.fit")
+    @patch("smartcheck.modeling_project_specific.Pipeline.predict")
+    def test_train_with_ar_features(
+        self, mock_predict, mock_fit, dummy_df
+    ):
+        mock_fit.return_value = None
+        mock_predict.side_effect = lambda X: np.zeros(len(X))
+
+        results = train_timeseries_model(
+            df_compteur=dummy_df,
+            model_type="LinearRegression",
+            temp_feats=[2, 2, 3],
+            forecast=False
+        )
+
+        assert results["ar_transformer"] is not None
+        assert all(np.array(results["y_train_pred"]) == 0.0)
+
+    @patch("smartcheck.modeling_project_specific.Pipeline.fit")
+    @patch("smartcheck.modeling_project_specific.Pipeline.predict")
+    def test_forecast_mode_enabled(
+        self, mock_predict, mock_fit, dummy_df
+    ):
+        mock_fit.return_value = None
+        mock_predict.side_effect = lambda X: np.full(len(X), 42.0)
+
+        with patch(
+            "smartcheck.modeling_project_specific.recursive_forecast_model"
+        ) as mock_recursive:
+            mock_recursive.return_value = np.full(
+                shape=(len(dummy_df) // 5,), fill_value=99.0
+            )
+
+            results = train_timeseries_model(
+                df_compteur=dummy_df,
+                model_type="Ridge",
+                temp_feats=[1, 1, 3],
+                forecast=True
+            )
+
+            assert mock_recursive.called
+            assert (results["y_test_pred"] == 99.0).all()
+
+    @patch("smartcheck.modeling_project_specific.Pipeline.fit")
+    @patch("smartcheck.modeling_project_specific.Pipeline.predict")
+    def test_supported_models_run(
+        self, mock_predict, mock_fit, base_model_type, simple_df
+    ):
+        mock_fit.return_value = None
+        mock_predict.side_effect = lambda X: np.ones(len(X))
+
+        result = train_timeseries_model(
+            df_compteur=simple_df,
+            model_type=base_model_type,
+            scaler_type="RobustScaler",
+            temp_feats=[0, 0, 1]
+        )
+        assert isinstance(result["pipe"].named_steps["reg"], (
+            KNeighborsRegressor,
+            RandomForestRegressor,
+            XGBRegressor,
+            Lasso,
+            Ridge,
+            LinearRegression
+        ))
+
+    @patch("smartcheck.modeling_project_specific.Pipeline.fit")
+    @patch("smartcheck.modeling_project_specific.Pipeline.predict")
+    def test_elasticnet_search_logs_warning(
+        self, mock_predict, mock_fit, simple_df, caplog
+    ):
+        mock_fit.return_value = None
+        mock_predict.return_value = np.zeros(len(simple_df) // 5)
+
+        mock_best_estimator = MagicMock()
+        mock_best_estimator.alpha = 0.005
+        mock_best_estimator.l1_ratio = 0.1
+
+        mock_bayes_search = MagicMock()
+        mock_bayes_search.best_estimator_ = mock_best_estimator
+
+        with patch(
+            "smartcheck.modeling_project_specific.BayesSearchCV",
+            return_value=mock_bayes_search
+        ):
+            result = train_timeseries_model(
+                df_compteur=simple_df,
+                model_type="ElasticNet (avec recherche Bayesienne)",
+                temp_feats=[0, 0, 1]
+            )
+
+        assert "Meilleur alpha" in caplog.text
+        assert "Meilleur l1_ratio" in caplog.text
+        assert "Faible régularisation détectée" in caplog.text
+        assert isinstance(
+            result["pipe"].named_steps["reg"], MagicMock
+        )
+
+
+class TestRecursiveForecastModel:
+    """Unit tests for recursive_forecast_model"""
+
+    # == Fixtures ==
+    @pytest.fixture
+    def dummy_last_window_df(self):
+        n_train = 12
+        n_test = 3
+        values = np.arange(n_train, dtype=float)  # y known
+        nan_part = [np.nan] * n_test  # y unknown (to predict)
+        y_all = np.concatenate([values, nan_part])
+        return pd.DataFrame({
+            "date_et_heure_de_comptage": pd.date_range(
+                start="2024-01-01", periods=n_train + n_test, freq="h"
+            ),
+            "comptage_horaire": y_all,
+            "feature1": np.random.rand(n_train + n_test),
+            "feature2": np.random.randint(1, 5, n_train + n_test)
+        })
+
+    @pytest.fixture
+    def mock_ar_transformer(self):
+        transformer = MagicMock(spec=AutoregressiveFeaturesTransformer)
+        transformer.nb_ar = 3
+        transformer.nb_mm = 1
+        transformer.roll_wind = 2
+        transformer.transform_recursive_step.side_effect = lambda x, y: x.copy()
+        return transformer
+
+    @pytest.fixture
+    def mock_pipe(self):
+        prep = MagicMock()
+        reg = MagicMock()
+        prep.transform.side_effect = lambda X: X[["feature1", "feature2"]].values
+        reg.predict.side_effect = lambda X: np.full(X.shape[0], 42.0)
+
+        pipe = MagicMock()
+        pipe.named_steps = {"prep": prep, "reg": reg}
+        return pipe
+
+    # == Tests ==
+    def test_forecast_runs_and_returns_values(
+        self, dummy_last_window_df, mock_pipe, mock_ar_transformer
+    ):
+        result = recursive_forecast_model(
+            pipe=mock_pipe,
+            ar_transformer=mock_ar_transformer,
+            last_window_df=dummy_last_window_df,
+            horizon=3,
+            target_col="comptage_horaire"
+        )
+        assert isinstance(result, list)
+        assert len(result) == 3
+        assert all(y == 42.0 for y in result)
+
+    def test_raises_if_history_insufficient(
+        self, dummy_last_window_df, mock_pipe, mock_ar_transformer
+    ):
+        # Force besoin d'un historique plus long que disponible
+        mock_ar_transformer.nb_ar = 20
+        with pytest.raises(ValueError, match="Insufficient history"):
+            recursive_forecast_model(
+                pipe=mock_pipe,
+                ar_transformer=mock_ar_transformer,
+                last_window_df=dummy_last_window_df,
+                horizon=3,
+                target_col="comptage_horaire"
+            )
+
+    def test_stops_loop_on_transform_failure(
+        self, dummy_last_window_df, mock_pipe, caplog
+    ):
+        transformer = MagicMock(spec=AutoregressiveFeaturesTransformer)
+        transformer.nb_ar = 2
+        transformer.nb_mm = 1
+        transformer.roll_wind = 1
+
+        transformer.transform_recursive_step.side_effect = [
+            dummy_last_window_df.iloc[[0]],
+            Exception("step failure")  # fail at step 1
+        ]
+
+        result = recursive_forecast_model(
+            pipe=mock_pipe,
+            ar_transformer=transformer,
+            last_window_df=dummy_last_window_df,
+            horizon=3,
+            target_col="comptage_horaire"
+        )
+
+        assert len(result) == 1
+        assert "Failed to create AR features" in caplog.text
