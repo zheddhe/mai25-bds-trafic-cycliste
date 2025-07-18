@@ -511,6 +511,12 @@ def extract_datetime_periodic_features(
         df[f"{timestamp_col}_cos_week"] = np.cos(
             2 * np.pi * df[f"{timestamp_col}_week"] / 52
         )
+        df[f"{timestamp_col}_sin_day_of_year"] = np.sin(
+            2 * np.pi * df[f"{timestamp_col}_day_of_year"] / 365
+        )
+        df[f"{timestamp_col}_cos_day_of_year"] = np.cos(
+            2 * np.pi * df[f"{timestamp_col}_day_of_year"] / 365
+        )
         return df
 
     except Exception as exc:

@@ -68,23 +68,27 @@ SITE_LABELS = {
     ('27 quai de la Tournelle', 'SE-NO'): "Tournelle - SE-NO",
 }
 SITE_LABELS_DEFAULT = {
+    ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol - S-N",
     ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol - N-S",
     ('102 boulevard de Magenta', 'SE-NO'): "Magenta - O-E",
+    ('Pont de Bercy', 'NE-SO'): "Bercy - NE-SO",
+    ('Pont de Bercy', 'NE-SO'): "Bercy - NE-SO",
+    ('135 avenue Daumesnil', 'SE-NO'): "Daumesnil - SE-NO",
+    ("180 avenue d'Italie", 'N-S'): "Italie - N-S",
+    ('27 quai de la Tournelle', 'NO-SE'): "Tournelle - NO-SE",
+    ('27 quai de la Tournelle', 'SE-NO'): "Tournelle - SE-NO",
 }
 EXCLUDED_COLUMNS_DEFAULT = [
     "weather_code_wmo_code",
-    "date_et_heure_de_comptage_year",
-    "date_et_heure_de_comptage_month",
+    "date_et_heure_de_comptage_hour",
     "date_et_heure_de_comptage_day",
     "date_et_heure_de_comptage_day_of_year",
     "date_et_heure_de_comptage_day_of_week",
-    "date_et_heure_de_comptage_hour",
     "date_et_heure_de_comptage_week",
+    "date_et_heure_de_comptage_month",
+    "date_et_heure_de_comptage_year",
     "latitude",
     "longitude",
-    "date_et_heure_de_comptage_cos_month",
-    "date_et_heure_de_comptage_sin_month",
-    "date_et_heure_de_comptage_sin_week",
 ]
 AVAILABLE_COLUMNS_TO_EXCLUDE = [
     "weather_code_wmo_code_category",
@@ -100,7 +104,12 @@ AVAILABLE_COLUMNS_TO_EXCLUDE = [
     "date_et_heure_de_comptage_cos_hour",
     "date_et_heure_de_comptage_sin_day_of_week",
     "date_et_heure_de_comptage_cos_day_of_week",
+    "date_et_heure_de_comptage_sin_week",
     "date_et_heure_de_comptage_cos_week",
+    "date_et_heure_de_comptage_cos_month",
+    "date_et_heure_de_comptage_sin_month",
+    "date_et_heure_de_comptage_cos_day_of_year",
+    "date_et_heure_de_comptage_sin_day_of_year",
 ]
 AVAILABLE_COLUMNS = EXCLUDED_COLUMNS_DEFAULT+AVAILABLE_COLUMNS_TO_EXCLUDE
 MANDATORY_COLUMNS = [
