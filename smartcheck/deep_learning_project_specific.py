@@ -1,6 +1,8 @@
 import torch
+import pandas as pd
 from torch.utils.data import Dataset
 import torch.nn as nn
+from typing import Tuple
 
 
 class HourlyCounterDataset(Dataset):
@@ -52,3 +54,33 @@ class CNNForecastWithExog(nn.Module):
         combined = torch.cat([y_feat, exo_feat], dim=1)
         out = self.fc(combined)
         return out
+
+
+def df_train_test_split_time_aware(
+    df: pd.DataFrame,
+    timestamp_column: str,
+    test_size: float = 0.2,
+    sort: bool = True,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Chronological train/test split for a dataframe.
+
+    Args:
+        df: DataFrame containing all data.
+        timestamp_col: Columns related to time (timezone aware).
+        test_size: Fraction of data to use for testing.
+
+    Returns:
+        df_train, df_test
+    """
+    df = df.copy()
+
+    if sort:
+        df = df.sort_values(by=timestamp_column)
+
+    # Chronological split
+    n_test = int(len(df) * test_size)
+    df_train = df[:-n_test]
+    df_test = df[-n_test:]
+
+    return df_train, df_test
