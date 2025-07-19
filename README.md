@@ -8,21 +8,24 @@
 > Developed as part of the April 2025 Machine Learning Engineering (MLE) full training program.
 
 ---
- 
+
 ## 🧭 Overview
 
 This project implements a full machine learning and MLOps pipeline in three main stages:
 
 ### 1. 📐 Data Product Management
+
 - Define business goals
 - Scope the data lifecycle
 
 ### 2. 📊 Data Science
+
 - Data analysis and visualization
 - Model development and evaluation
 - Advanced preprocessing helpers and strategies
 
 ### 3. ⚙️ MLOps
+
 - Code packaging and automation
 - Reproducibility and continuous testing
 
@@ -30,7 +33,7 @@ This project implements a full machine learning and MLOps pipeline in three main
 
 ## 🧱 Project Structure
 
-```
+``` text
 mai25-bds-trafic-cycliste/
 ├── app/                    # Streamlit app
 │   ├── main.py             # main entry point of the app
@@ -135,6 +138,7 @@ streamlit run app/main.py
 ```
 
 You can navigate between pages from the sidebar:
+
 - 🏠 Introduction au projet
 - 🔍 Exploration des données
 - 📈 Visualisation et Statistiques
