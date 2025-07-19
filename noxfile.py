@@ -4,7 +4,8 @@ import shutil
 from pathlib import Path
 
 PYTHON_VERSION = "3.12"
-PYTHON_VERSION_DL = "3.9"
+PYTHON_VERSION_DL = "3.10"
+PYTHON_VERSION_DL_TF = "3.9"
 
 
 def remove_paths(session, paths):
@@ -65,10 +66,10 @@ def package(session):
     session.log("Package session complete.")
 
 
-@nox.session(python=PYTHON_VERSION_DL, venv_backend="conda",
-             name=f"dl-tensorflow-{PYTHON_VERSION_DL}")
+@nox.session(python=PYTHON_VERSION_DL_TF, venv_backend="conda",
+             name=f"dl-tensorflow-{PYTHON_VERSION_DL_TF}")
 def deep_learning_tf(session):
-    """DL session for TensorFlow GPU with Python 3.9."""
+    """DL session for TensorFlow GPU with compatible Python."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
 
     # Installation depuis conda, build GPU officielle
@@ -90,7 +91,7 @@ def deep_learning_tf(session):
 @nox.session(python=PYTHON_VERSION_DL, venv_backend="conda",
              name=f"dl-torch-{PYTHON_VERSION_DL}")
 def deep_learning_torch(session):
-    """DL session for PyTorch GPU with Python 3.9."""
+    """DL session for PyTorch GPU with compatible Python."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
 
     # PyTorch GPU via wheels cu118
@@ -112,7 +113,7 @@ def deep_learning_torch(session):
         silent=False,
     )
 
-    session.install("-e", ".[py39, test, dev]")
+    session.install("-e", ".[py310, test, dev]")
 
     session.run("python", "-c", "import torch; "
                 "print('Torch CUDA:', torch.cuda.is_available())")
