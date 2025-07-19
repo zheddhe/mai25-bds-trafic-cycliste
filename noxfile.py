@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 
 PYTHON_VERSION = "3.12"
-PYTHON_VERSION_DL = "3.10"
+PYTHON_VERSION_DL = "3.12"
 PYTHON_VERSION_DL_TF = "3.9"
 
 
@@ -94,12 +94,20 @@ def deep_learning_torch(session):
     """DL session for PyTorch GPU with compatible Python."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
 
-    # PyTorch GPU via wheels cu118
+    # Torch GPU via wheels cu118
     session.install(
-        "torch==2.3.1+cu118",
-        "torchvision==0.18.1+cu118",
-        "torchaudio==2.3.1+cu118",
-        "-f", "https://download.pytorch.org/whl/torch_stable.html"
+        "torch==2.7.1+cu118",
+        "-f", "https://download.pytorch.org/whl/torch/"
+    )
+    # TorchVision GPU via wheels cu118
+    session.install(
+        "torchvision==0.22.1+cu118",
+        "-f", "https://download.pytorch.org/whl/torchvision/"
+    )
+    # TorchAudio GPU via wheels cu118
+    session.install(
+        "torchaudio==2.7.1+cu118",
+        "-f", "https://download.pytorch.org/whl/torchaudio/"
     )
 
     # Additional libraries that needs to be installed knowing where to find PyTorch
@@ -113,7 +121,7 @@ def deep_learning_torch(session):
         silent=False,
     )
 
-    session.install("-e", ".[py310, test, dev]")
+    session.install("-e", ".[py312, test, dev]", silent=False)
 
     session.run("python", "-c", "import torch; "
                 "print('Torch CUDA:', torch.cuda.is_available())")

@@ -3,6 +3,8 @@ import pandas as pd
 from torch.utils.data import Dataset
 import torch.nn as nn
 from typing import Tuple
+from tsfm_public.toolkit import TimeSeriesPreprocessor
+from sklearn.preprocessing import OrdinalEncoder
 
 
 class HourlyCounterDataset(Dataset):
@@ -84,3 +86,14 @@ def df_train_test_split_time_aware(
     df_test = df[-n_test:]
 
     return df_train, df_test
+
+
+class SafeTimeSeriesPreprocessorOrdinal(TimeSeriesPreprocessor):
+    def _train_categorical_encoder(self, df):
+        cols_to_encode = self._get_columns_to_encode()
+        if cols_to_encode:
+            self.categorical_encoder = OrdinalEncoder(
+                handle_unknown="use_encoded_value",
+                unknown_value=999
+            )
+            self.categorical_encoder.fit(df[cols_to_encode])
