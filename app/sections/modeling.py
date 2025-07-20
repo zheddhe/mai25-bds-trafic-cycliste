@@ -58,8 +58,8 @@ DEFAULT_TEST_PERIOD = ('2025-04-01', '2025-04-14')
 MAX_TEST_PERIOD = ('2025-01-02', '2025-04-14')
 SITE_LABELS = {
     ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol_S-N",
-    ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol-N-S",
-    ('102 boulevard de Magenta', 'SE-NO'): "Magenta-O-E",
+    ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol_N-S",
+    ('102 boulevard de Magenta', 'SE-NO'): "Magenta_SE-NO",
     ('Pont de Bercy', 'NE-SO'): "Bercy_NE-SO",
     ('Pont de Bercy', 'NE-SO'): "Bercy_NE-SO",
     ('135 avenue Daumesnil', 'SE-NO'): "Daumesnil_SE-NO",
@@ -69,8 +69,8 @@ SITE_LABELS = {
 }
 SITE_LABELS_DEFAULT = {
     ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol_S-N",
-    ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol-N-S",
-    ('102 boulevard de Magenta', 'SE-NO'): "Magenta-O-E",
+    ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol_N-S",
+    ('102 boulevard de Magenta', 'SE-NO'): "Magenta_SE-NO",
     ('Pont de Bercy', 'NE-SO'): "Bercy_NE-SO",
     ('Pont de Bercy', 'NE-SO'): "Bercy_NE-SO",
     ('135 avenue Daumesnil', 'SE-NO'): "Daumesnil_SE-NO",
