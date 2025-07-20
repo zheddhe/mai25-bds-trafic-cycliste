@@ -3,9 +3,14 @@ import logging
 import yaml
 import re
 import joblib
+import pprint
 import pandas as pd
-from typing import Tuple
-from tsfm_public.toolkit import TimeSeriesPreprocessor
+import numpy as np
+from typing import Tuple, Dict, Any
+from tsfm_public.toolkit.time_series_preprocessor import (
+    TimeSeriesPreprocessor,
+    TYPE_TO_STRING,
+)
 from sklearn.preprocessing import OrdinalEncoder
 from transformers import (
     Trainer  # type: ignore
@@ -57,13 +62,6 @@ class SafeTimeSeriesPreprocessorOrdinal(TimeSeriesPreprocessor):
             )
             self.categorical_encoder.fit(df[cols_to_encode])
 
-            if logging.getLogger().isEnabledFor(logging.DEBUG):
-                for i, col in enumerate(cols_to_encode):
-                    cats = self.categorical_encoder.categories_[i]
-                    assert "__UNKNOWN__" in cats, (  # type: ignore
-                        f"__UNKNOWN__ missing from {col}"
-                    )
-
     def _replace_unknowns(
         self,
         df: pd.DataFrame,
@@ -102,6 +100,66 @@ class SafeTimeSeriesPreprocessorOrdinal(TimeSeriesPreprocessor):
                 df[cols_to_encode]
             )
         return df
+
+    def to_dict(self) -> Dict[str, Any]:
+        output = super(TimeSeriesPreprocessor, self).to_dict()
+
+        for k, v in self.scaler_dict.items():
+            output["scaler_dict"][k] = v.to_dict()
+
+        for k, v in self.target_scaler_dict.items():
+            output["target_scaler_dict"][k] = v.to_dict()
+
+        if self.scaling_id_columns and self.scaling:
+            akey = next(iter(self.target_scaler_dict.keys()))
+            if isinstance(akey, tuple):
+                key_types = [type(k) for k in akey]
+            else:
+                key_types = [type(akey)]
+        else:
+            key_types = []
+
+        output["scaling_id_columns_types"] = [
+            TYPE_TO_STRING[k] for k in key_types
+        ]
+
+        # PATCH: manual serialization of OrdinalEncoder
+        if self.categorical_encoder and isinstance(
+            self.categorical_encoder, OrdinalEncoder
+        ):
+            encoder = self.categorical_encoder
+            output["categorical_encoder"] = {
+                "type": "sklearn.preprocessing.OrdinalEncoder",
+                "categories": [list(c) for c in encoder.categories_],  # type: ignore
+                "handle_unknown": encoder.handle_unknown,  # type: ignore
+                "unknown_value": encoder.unknown_value,  # type: ignore
+            }
+        elif self.categorical_encoder:
+            raise ValueError("Unsupported encoder type for serialization.")
+
+        return output
+
+    @classmethod
+    def from_dict(
+        cls,
+        feature_extractor_dict: Dict[str, Any],
+        **kwargs
+    ) -> "SafeTimeSeriesPreprocessorOrdinal":
+        obj = super().from_dict(feature_extractor_dict, **kwargs)
+
+        cat_enc = feature_extractor_dict.get("categorical_encoder")
+        if (
+            isinstance(cat_enc, dict)
+            and cat_enc.get("type") == "sklearn.preprocessing.OrdinalEncoder"
+        ):
+            encoder = OrdinalEncoder(
+                handle_unknown=cat_enc.get("handle_unknown", "error"),
+                unknown_value=cat_enc.get("unknown_value", None),
+            )
+            encoder.categories_ = [np.array(c) for c in cat_enc["categories"]]
+            obj.categorical_encoder = encoder
+
+        return obj
 
 
 def save_preprocessor_state(tsp: SafeTimeSeriesPreprocessorOrdinal, save_dir: str):
@@ -181,13 +239,16 @@ def save_granite_model(experiment, model_results: dict, save_dir: str = "."):
     exp_params = model_results["exp_params"]
     best_checkpoint = model_results["best_checkpoint"]
     name = exp_params["name"].replace(" ", "-")
+    ctxt = f"c{exp_params['context_length']}"
+    fcm_ctxt = f"fcm{exp_params['fcm_context_length']}"
+    pred = f"p{exp_params['prediction_length']}"
     start = exp_params["sub_range"][0]
     sub_range = exp_params["sub_range"]
     stop = sub_range[1] - 1 if len(sub_range) > 1 else "end"
 
     filename = (
         f"granite_results_{best_checkpoint}"
-        f"_{name}_{start}-{stop}.joblib"
+        f"_{name}_{ctxt}_{fcm_ctxt}_{pred}_{start}-{stop}.joblib"
     )
     filepath = f"{save_dir}/{filename}"
     joblib.dump(model_results, filepath)
@@ -197,12 +258,14 @@ def save_granite_model(experiment, model_results: dict, save_dir: str = "."):
 
 def train_or_resume(
     trainer: Trainer,
-    exp_params: dict = {}
+    exp_params: dict = {},
 ) -> str:
-    if hasattr(exp_params, "best_checkpoint_dir"):
-        checkpoint_dir = exp_params["best_checkpoint_dir"]
-    elif hasattr(exp_params, "last_checkpoint_dir"):
-        checkpoint_dir = exp_params["last_checkpoint_dir"]
+    name = exp_params["name"]
+    out_dir = exp_params["out_dir"]
+    logging.info("\n" + pprint.pformat(exp_params))
+    if "best_checkpoint" in exp_params:
+        best_checkpoint = exp_params['best_checkpoint']
+        checkpoint_dir = os.path.join(out_dir, f"output_{name}", best_checkpoint)
     else:
         checkpoint_dir = ""
     logging.info(f"Checkpoint_dir identified : [{checkpoint_dir}]")
