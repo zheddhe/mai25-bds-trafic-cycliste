@@ -6,6 +6,8 @@ import joblib
 import pprint
 import pandas as pd
 import numpy as np
+import torch
+import netron
 from typing import Tuple, Dict, Any
 from tsfm_public.toolkit.time_series_preprocessor import (
     TimeSeriesPreprocessor,
@@ -312,3 +314,21 @@ def load_model_from_checkpoint(model_class, checkpoint_dir: str, device="cpu"):
     model.load_state_dict(state_dict)
 
     return model
+
+
+def summarize_module_structure(model, use_netron=False):
+    """
+    Print model structure and optionally launch Netron if available.
+
+    Args:
+        model (nn.Module): Your PyTorch model (e.g. TinyTimeMixer).
+    """
+    if use_netron:  # type:ignore
+        model_name = model.__class__.__name__
+        outdir = os.path.join("./ttm_torchsave.model", model_name)
+        os.makedirs(outdir, exist_ok=True)
+        path = os.path.join(outdir, "model.pt")
+        torch.save(model.state_dict(), path)
+        netron.start(path)  # type:ignore
+    else:
+        print(model)

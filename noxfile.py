@@ -118,6 +118,7 @@ def deep_learning_torch(session):
         "transformers[torch]",
         "datasets",
         "evaluate",
+        "netron",
         silent=False,
     )
 
