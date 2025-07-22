@@ -7,15 +7,22 @@ import pprint
 import pandas as pd
 import numpy as np
 import torch
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import OneCycleLR
 import netron
 from typing import Tuple, Dict, Any
 from tsfm_public.toolkit.time_series_preprocessor import (
     TimeSeriesPreprocessor,
     TYPE_TO_STRING,
 )
+from tsfm_public import (
+    TinyTimeMixerForPrediction,
+    TrackingCallback,
+    count_parameters,
+)
 from sklearn.preprocessing import OrdinalEncoder
 from transformers import (
-    Trainer  # type: ignore
+    EarlyStoppingCallback, Trainer, TrainingArguments  # type: ignore
 )
 from safetensors.torch import load_file
 
@@ -332,3 +339,105 @@ def summarize_module_structure(model, use_netron=False):
         netron.start(path)  # type:ignore
     else:
         print(model)
+
+
+def fine_tune_model(
+    output_dir,
+    logging_dir,
+    context_length,
+    prediction_length,
+    fcm_context_length,
+    column_specifiers,
+    learning_rate,
+    num_epochs,
+    batch_size,
+    steps_per_epoch,
+    patience,
+    device,
+):
+    # Define preprocessor
+    finetune_tsp = SafeTimeSeriesPreprocessorOrdinal(
+        **column_specifiers,
+        context_length=context_length,
+        prediction_length=prediction_length,
+        scaling=True,
+        freq="h",
+        encode_categorical=True,
+        scale_categorical_columns=True,
+        scaler_type="standard",  # type: ignore
+    )
+
+    # Define model from Hugging Face
+    finetune_forecast_model = TinyTimeMixerForPrediction.from_pretrained(
+        "ibm-granite/granite-timeseries-ttm-r2",  # Name of the model on HuggingFace.
+        num_input_channels=finetune_tsp.num_input_channels,
+        prediction_channel_indices=finetune_tsp.prediction_channel_indices,
+        exogenous_channel_indices=finetune_tsp.exogenous_channel_indices,
+        fcm_use_mixer=True,
+        fcm_context_length=fcm_context_length,
+        enable_forecast_channel_mixing=True,
+        decoder_mode="mix_channel",
+    )
+    logging.info(f"Bascule du modèle sur {device}")
+    finetune_forecast_model.to(device)  # type: ignore
+    summarize_module_structure(finetune_forecast_model)
+
+    # Freeze the backbone of the model
+    logging.info(f"Number of params before freezing backbone {
+        count_parameters(finetune_forecast_model)
+    }")
+    for param in finetune_forecast_model.backbone.parameters():
+        param.requires_grad = False
+    logging.info(f"Number of params after freezing the backbone {
+        count_parameters(finetune_forecast_model)
+    }")
+
+    # Set the training arguments
+    logging.info(f"Learning Rate = {learning_rate} | {num_epochs} epoch(s) |"
+                 f" utilisation du {'GPU' if (device == 'cuda') else 'CPU'}")
+    finetune_forecast_args = TrainingArguments(
+        output_dir=output_dir,
+        overwrite_output_dir=True,
+        learning_rate=learning_rate,
+        num_train_epochs=num_epochs,
+        do_eval=True,
+        eval_strategy="epoch",
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=batch_size,
+        dataloader_pin_memory=True,
+        report_to=None,
+        save_strategy="epoch",
+        logging_strategy="epoch",
+        save_total_limit=1,
+        logging_dir=logging_dir,  # Make sure to specify a logging directory
+        load_best_model_at_end=True,  # Load the best model when training ends
+        metric_for_best_model="eval_loss",  # Metric to monitor for early stopping
+        greater_is_better=False,  # For loss
+        use_cpu=device != "cuda",
+    )
+
+    # Create the early stopping callback
+    early_stopping_callback = EarlyStoppingCallback(
+        # Number of epochs with no improvement after which to stop
+        early_stopping_patience=patience,
+        # Minimum improvement required to consider as improvement
+        early_stopping_threshold=0.00001,
+    )
+    tracking_callback = TrackingCallback()
+
+    # Define an optimizer and scheduler
+    finetune_optimizer = AdamW(finetune_forecast_model.parameters(), lr=learning_rate)
+    finetune_scheduler = OneCycleLR(
+        finetune_optimizer,
+        learning_rate,
+        epochs=num_epochs,
+        steps_per_epoch=steps_per_epoch,
+    )
+    return (
+        finetune_tsp,
+        finetune_forecast_model,
+        finetune_forecast_args,
+        finetune_optimizer, finetune_scheduler,
+        early_stopping_callback,
+        tracking_callback
+    )
