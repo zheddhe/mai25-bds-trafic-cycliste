@@ -119,7 +119,7 @@ def compute_residuals_plot(
     ax2.plot(df["date"], df["residuals"], label="Residuals", alpha=0.4)
     ax2.plot(df["date"], df["trend"], label="Linear Trend", color="red")
     ax2.axhline(0, color="black", linestyle="--", linewidth=1)
-    ax2.set_title("Linear trend in residuals")
+    ax2.set_title(f"Linear trend in residuals – Counter {compteur}")
     ax2.set_xlabel("Date")
     ax2.set_ylabel("Residual")
     if periode_limite:

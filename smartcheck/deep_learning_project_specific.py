@@ -23,7 +23,7 @@ from safetensors.torch import load_file
 logger = logging.getLogger(__name__)
 
 
-def df_train_test_split_time_aware(
+def df_split_time_aware(
     df: pd.DataFrame,
     timestamp_column: str,
     test_size: float = 0.2,
@@ -267,7 +267,7 @@ def train_or_resume(
     logging.info("\n" + pprint.pformat(exp_params))
     if "best_checkpoint" in exp_params:
         best_checkpoint = exp_params['best_checkpoint']
-        checkpoint_dir = os.path.join(out_dir, f"output_{name}", best_checkpoint)
+        checkpoint_dir = os.path.join(out_dir, f"{name}_output", best_checkpoint)
     else:
         checkpoint_dir = ""
     logging.info(f"Checkpoint_dir identified : [{checkpoint_dir}]")
