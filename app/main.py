@@ -13,6 +13,7 @@ st.set_page_config(page_title=APP_NAME, layout="wide")
 st.sidebar.title("🗂️ Navigation")
 pages = {
     "🏠 Introduction au projet": "home",
+    "⚙️ Démarche projet et résultats": "project_presentation",
     "🔍 Exploration des données": "data_exploration",
     "📈 Visualisation et Statistiques": "data_visualization",
     "🧪 Évaluation des modèles": "modeling"
