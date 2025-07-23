@@ -140,6 +140,7 @@ streamlit run app/main.py
 You can navigate between pages from the sidebar:
 
 - 🏠 Introduction au projet
+- ⚙️ Démarche projet et résultats
 - 🔍 Exploration des données
 - 📈 Visualisation et Statistiques
 - 🧪 Évaluation des modèles

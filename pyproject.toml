@@ -72,7 +72,6 @@ py312 = [
     "streamlit==1.46.1",
     "nltk==3.9.1",
     "wordcloud==1.9.4",
-    "granite-tsfm==0.2.27",
 ]
 
 test = [
@@ -91,6 +90,17 @@ dev = [
     "sqlalchemy>=2.0",
     "sqlparse",
     "prettytable>=3.12.0",
+]
+
+dl = [
+    "granite-tsfm==0.2.27",
+    "netron==8.4.5",
+    "tensorboard==2.20.0",
+    "torchsummary==1.5.1",
+    "captum==0.8.0",
+    "transformers==4.53.2",
+    "datasets==4.0.0",
+    "evaluate==0.4.5",
 ]
 
 [project.readme]

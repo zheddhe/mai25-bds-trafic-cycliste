@@ -110,19 +110,7 @@ def deep_learning_torch(session):
         "-f", "https://download.pytorch.org/whl/torchaudio/"
     )
 
-    # Additional libraries that needs to be installed knowing where to find PyTorch
-    session.install(
-        "tensorboard",
-        "torchsummary",
-        "captum",
-        "transformers[torch]",
-        "datasets",
-        "evaluate",
-        "netron",
-        silent=False,
-    )
-
-    session.install("-e", ".[py312, test, dev]", silent=False)
+    session.install("-e", ".[py312, test, dev, dl]", silent=False)
 
     session.run("python", "-c", "import torch; "
                 "print('Torch CUDA:', torch.cuda.is_available())")
