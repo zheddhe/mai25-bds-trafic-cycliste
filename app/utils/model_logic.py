@@ -148,6 +148,7 @@ def display_train_parameters(
     with st.expander("🧾 Résumé des paramètres d'entrainement courants",
                      expanded=False):
         col1, col2 = st.columns([1, 1])
+        portion = train_config['range'][1] - train_config['range'][0]
         with col1:
             st.markdown(f"""
             - **Modèle utilisé** : `{train_config['model']}`
@@ -156,9 +157,9 @@ def display_train_parameters(
             - **Nb de Moyenne mobile** : `{train_config['mm_nb']}`
             - **Taille de la fenêtre (heures)** : `{train_config['mm_season']}`
             - **Prédiction dynamique des AR/MM** : `{train_config['use_forecast']}`
-            - **Plage du dataset d'origine entre** :
-            `{train_config['range'][0]}%` et
-            `{train_config['range'][1]}%`
+            - **Portion du dataset d'origine** : `{portion}%`
+            (entre `{train_config['range'][0]}%` et
+            `{train_config['range'][1]}%`)
             - **Répartition Train/Test** :
             `{int(train_config['split'] * 100)}%` /
             `{int((1 - train_config['split']) * 100)}%`

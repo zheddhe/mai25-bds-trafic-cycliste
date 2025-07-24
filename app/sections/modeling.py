@@ -123,9 +123,7 @@ AVAILABLE_MODELS = [
     "KNN",
     "RandomForest",
     "XGBoost",
-    "Lasso",
-    "Ridge",
-    "ElasticNet (avec recherche Bayesienne)",
+    "ElasticNet (*)",
 ]
 
 st.title("🧪 Évaluation des modèles")
@@ -175,8 +173,9 @@ with st.sidebar:
     mm_season = st.number_input("Taille de la fenêtre mobile (1 lag = 1 heure)",
                                 min_value=2, max_value=24*7,
                                 value=24, key="mm_season_inp")
-    use_forecast = st.checkbox("Calculer les prédiction en forecast",
-                               value=False, key="use_forecast_cb")
+    use_forecast = st.checkbox("Prédiction dynamique des AR/MM (**)",
+                               value=False,
+                               key="use_forecast_cb")
 
     # --- Sélection du scaler ---
     scaler = st.radio("Mise à l'échelle",
@@ -184,11 +183,18 @@ with st.sidebar:
                       key="scaler_rad")
 
     # --- Echantillonnage du dataset + répartition train/test ---
-    range = st.slider("Plage du dataset d'origine", 0.0, 100.0, (0.0, 100.0), 0.1,
-                      format="%.1f %%", key="range_sld")
+    range = st.slider("Prendre une portion du dataset d'origine", 0.0, 100.0,
+                      (0.0, 100.0), 0.1, format="%.1f %%", key="range_sld")
     split = st.slider("Répartition Train/Test", 0.1, 0.9, 0.75, 0.05,
                       key="split_sld")
 
+    # --- Explications
+    st.markdown("""
+> (*) Entrainement **_couteux_** avec recherche Bayesienne d'hyperparamètres
+>
+> (**) Prédiction récursive **_couteux_** avec ré-infusion des AR/MM recalculés sur la
+base des données prédites plutôt que réelles
+""")
     # --- Sélection des variables explicatives ---
     with st.expander("❌ **Variables explicatives à exclure**"):
         df_checkbox = pd.DataFrame({

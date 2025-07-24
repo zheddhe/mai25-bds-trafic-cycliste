@@ -297,7 +297,7 @@ def train_timeseries_model(
         model = Lasso(max_iter=10000, random_state=1)
     elif model_type == "Ridge":
         model = Ridge(max_iter=10000, random_state=1)
-    elif model_type == "ElasticNet (avec recherche Bayesienne)":
+    elif model_type == "ElasticNet (*)":
         tscv = TimeSeriesSplit(n_splits=5)
         search_space = {
             'alpha': (1e-3, 100.0, 'log-uniform'),

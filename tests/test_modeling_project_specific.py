@@ -384,7 +384,7 @@ class TestTrainTimeseriesModel:
         ):
             result = train_timeseries_model(
                 df_compteur=simple_df,
-                model_type="ElasticNet (avec recherche Bayesienne)",
+                model_type="ElasticNet (*)",
                 temp_feats=[0, 0, 1]
             )
 
