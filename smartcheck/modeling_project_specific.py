@@ -324,7 +324,7 @@ def train_timeseries_model(
 
     pipe_model.fit(X_train, y_train)
 
-    if model_type == "ElasticNet (avec recherche Bayesienne)":
+    if model_type == "ElasticNet (*)":
         fitted_model = pipe_model.named_steps['reg']
         best_model = fitted_model.best_estimator_
         logger.info(f"Meilleur alpha : {best_model.alpha}")
