@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import nox  # type: ignore
 import shutil
+import re
+import subprocess
 from pathlib import Path
 
 PYTHON_VERSION = "3.12"
-PYTHON_VERSION_DL = "3.12"
 PYTHON_VERSION_DL_TF = "3.9"
 
 
@@ -23,6 +24,19 @@ def remove_paths(session, paths):
         cover.unlink()
     for cache in Path(".").rglob("__pycache__"):
         shutil.rmtree(cache)
+
+
+def get_cuda_toolkit_version():
+    """Detect CUDA runtime version via nvidia-smi."""
+    try:
+        output = subprocess.check_output(["nvidia-smi"], encoding="utf-8")
+        match = re.search(r"CUDA Version\s*:\s*([\d.]+)", output)
+        if match:
+            version_str = match.group(1)
+            major_minor = version_str.split(".")[:2]
+            return float(".".join(major_minor))
+    except Exception:
+        return None
 
 
 @nox.session(python=PYTHON_VERSION)
@@ -51,19 +65,32 @@ def build(session):
     """Run code linting and full test suite with coverage and HTML report."""
     session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
     session.install("-e", ".[py312, test, dev, dl]", silent=False)
+    cuda_version = get_cuda_toolkit_version()
+    session.log(f"Detected CUDA runtime version: {cuda_version}")
+    if cuda_version is None:
+        session.info("❌ Unable to detect CUDA version (nvidia-smi missing?)")
+
+    if cuda_version and cuda_version >= 12.8:
+        cu_tag = "+cu128"
+    elif cuda_version and (11.8 <= cuda_version < 12.0):
+        cu_tag = "+cu118"
+    else:
+        cu_tag = ""
+        session.info(f"❌ Unsupported CUDA version: {cuda_version},"
+                     " falling back to CPU builds for pytorch packages")
     # Torch GPU via wheels cu118
     session.install(
-        "torch==2.7.1+cu118",
+        f"torch==2.7.1{cu_tag}",
         "-f", "https://download.pytorch.org/whl/torch/"
     )
     # TorchVision GPU via wheels cu118
     session.install(
-        "torchvision==0.22.1+cu118",
+        f"torchvision==0.22.1{cu_tag}",
         "-f", "https://download.pytorch.org/whl/torchvision/"
     )
     # TorchAudio GPU via wheels cu118
     session.install(
-        "torchaudio==2.7.1+cu118",
+        f"torchaudio==2.7.1{cu_tag}",
         "-f", "https://download.pytorch.org/whl/torchaudio/"
     )
     session.run("flake8")
@@ -98,29 +125,3 @@ def deep_learning_tf(session):
         "print('TF GPUs:', tf.config.list_physical_devices('GPU'))"
     )
     session.log("TensorFlow GPU environment ready.")
-
-
-@nox.session(python=PYTHON_VERSION_DL, venv_backend="conda",
-             name=f"dl-torch-{PYTHON_VERSION_DL}")
-def deep_learning_torch(session):
-    """DL session for PyTorch GPU with compatible Python."""
-    session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
-    # Torch GPU via wheels cu118
-    session.install(
-        "torch==2.7.1+cu118",
-        "-f", "https://download.pytorch.org/whl/torch/"
-    )
-    # TorchVision GPU via wheels cu118
-    session.install(
-        "torchvision==0.22.1+cu118",
-        "-f", "https://download.pytorch.org/whl/torchvision/"
-    )
-    # TorchAudio GPU via wheels cu118
-    session.install(
-        "torchaudio==2.7.1+cu118",
-        "-f", "https://download.pytorch.org/whl/torchaudio/"
-    )
-    session.install("-e", ".[py312, test, dev, dl]", silent=False)
-    session.run("python", "-c", "import torch; "
-                "print('Torch CUDA:', torch.cuda.is_available())")
-    session.log("PyTorch GPU environment ready.")

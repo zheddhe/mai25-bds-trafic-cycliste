@@ -86,11 +86,8 @@ pip install nox
 ### 🚀 Day-to-day Usage
 
 ```bash
-# Rebuild and complete virtual env for standard streamlit application and notebooks (+ trigger test/flake8)
+# Rebuild and complete virtual env for standard streamlit application and notebooks with pytorch (+ trigger test/flake8)
 nox -s build-3.12 --reuse-existing
-
-# Rebuild and complete virtual env for pytorch deep learning notebooks
-nox -s dl-torch-3.12 --reuse-existing
 
 # Rebuild and complete virtual env for tensorflow deep learning notebooks (restricted to python 3.9)
 nox -s dl-tensorflow-3.9 --reuse-existing
