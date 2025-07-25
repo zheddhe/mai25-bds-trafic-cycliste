@@ -256,8 +256,8 @@ def save_granite_model(experiment, model_results: dict, save_dir: str = "."):
     stop = sub_range[1] - 1 if len(sub_range) > 1 else "end"
 
     filename = (
-        f"granite_results_{best_checkpoint}"
-        f"_{name}_{ctxt}_{fcm_ctxt}_{pred}_{start}-{stop}.joblib"
+        f"granite_results_{name}"
+        f"_{best_checkpoint}_{ctxt}_{fcm_ctxt}_{pred}_{start}-{stop}.joblib"
     )
     filepath = f"{save_dir}/{filename}"
     joblib.dump(model_results, filepath)
