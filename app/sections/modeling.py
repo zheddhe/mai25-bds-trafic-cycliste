@@ -11,7 +11,7 @@ from smartcheck.modeling_project_specific import (
 from app.utils.model_logic import (
     run_evaluation_per_compteur,
     display_metrics_table,
-    get_selected_period,
+    # get_selected_period,
     display_train_parameters,
 )
 import os
@@ -55,7 +55,7 @@ def cached_train_model(df_compteur,
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_ml_ready_data"
 DEFAULT_TEST_PERIOD = ('2025-04-01', '2025-04-14')
-MAX_TEST_PERIOD = ('2025-01-02', '2025-04-14')
+MAX_TEST_PERIOD = ('2024-03-01', '2025-04-14')
 SITE_LABELS = {
     ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol_S-N",
     ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol_N-S",
@@ -192,7 +192,7 @@ with st.sidebar:
     st.markdown("""
 > (*) Entrainement **_couteux_** avec recherche Bayesienne d'hyperparamètres
 >
-> (**) Prédiction récursive **_couteux_** avec ré-infusion des AR/MM recalculés sur la
+> (**) Prédiction récursive **_couteuse_** avec ré-infusion des AR/MM recalculés sur la
 base des données prédites plutôt que réelles
 """)
     # --- Sélection des variables explicatives ---
@@ -220,14 +220,18 @@ base des données prédites plutôt que réelles
 
     # --- Option des rapports ---
     with st.expander("📊 Option des rapports") as st_report_opt:
-        selected_dates = get_selected_period(
-            default_start=DEFAULT_TEST_PERIOD[0],
-            default_end=DEFAULT_TEST_PERIOD[1],
-            min_dt_str=MAX_TEST_PERIOD[0],
-            max_dt_str=MAX_TEST_PERIOD[1],
-            label="📆 Plage d'affichage",
-            st_module=st_report_opt
-        )
+        col_date_min, col_date_max = st.columns(2)
+        with col_date_min:
+            start_date = st.date_input("Début de l'affichage",
+                                       value=DEFAULT_TEST_PERIOD[0],
+                                       min_value=MAX_TEST_PERIOD[0],
+                                       max_value=MAX_TEST_PERIOD[1])
+        with col_date_max:
+            end_date = st.date_input("Fin de l'affichage",
+                                     value=DEFAULT_TEST_PERIOD[1],
+                                     min_value=MAX_TEST_PERIOD[0],
+                                     max_value=MAX_TEST_PERIOD[1])
+        selected_dates = (start_date, end_date)
         show_metrics = st.checkbox("Afficher métriques", value=True,
                                    key="show_metrics_cb")
         show_preds = st.checkbox("Afficher prédictions", value=True,
