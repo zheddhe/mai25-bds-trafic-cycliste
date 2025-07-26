@@ -313,12 +313,14 @@ base des données prédites plutôt que réelles
             start_date = st.date_input("Début de l'affichage",
                                        value=DEFAULT_TEST_PERIOD[0],
                                        min_value=MAX_TEST_PERIOD[0],
-                                       max_value=MAX_TEST_PERIOD[1])
+                                       max_value=MAX_TEST_PERIOD[1],
+                                       key="col_date_min_di")
         with col_date_max:
             end_date = st.date_input("Fin de l'affichage",
                                      value=DEFAULT_TEST_PERIOD[1],
                                      min_value=MAX_TEST_PERIOD[0],
-                                     max_value=MAX_TEST_PERIOD[1])
+                                     max_value=MAX_TEST_PERIOD[1],
+                                     key="col_date_max_di")
         selected_dates = (start_date, end_date)
         show_metrics = st.checkbox("Afficher métriques", value=True,
                                    key="show_metrics_cb")

@@ -8,14 +8,14 @@ st.set_page_config(page_title=APP_NAME, layout="wide")
 
 st.sidebar.title("🗂️ Navigation")
 pages = {
-    "🏠 Introduction au projet": "home",
+    "🏠 Présentation de l'application": "home",
     "⚙️ Démarche projet et résultats": "project_presentation",
-    "🔍 Exploration des données": "data_exploration",
-    "📈 Visualisation et Statistiques": "data_visualization",
-    "🧪 Évaluation des modèles": "modeling"
+    "🔍 Exploration statistique des données": "data_exploration",
+    "📈 Visualisation graphique des données": "data_visualization",
+    "🧪 Laboratoire de modélisation intéractive": "modeling"
 }
 
-selection = st.sidebar.radio("Changer de page", list(pages.keys()))
+selection = st.sidebar.radio("Changer de section", list(pages.keys()))
 page_file = PAGES_DIR / f"{pages[selection]}.py"
 
 if page_file.exists():

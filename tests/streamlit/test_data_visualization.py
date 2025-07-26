@@ -16,7 +16,7 @@ def enable_test_mode():
 def test_dataset_structure_default():
     df = dv.cached_load_dataset_visualization()
     df = cast(pd.DataFrame, df)
-    assert df.shape == (1, 7)
+    assert df.shape == (1, 9)
     assert "comptage_horaire" in df.columns
 
 

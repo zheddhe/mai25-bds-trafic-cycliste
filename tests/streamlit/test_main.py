@@ -13,6 +13,7 @@ PAGES_TO_TEST = [
     "data_visualization.py",
     "modeling.py",
     "data_exploration.py",
+    "project_presentation.py",
 ]
 
 

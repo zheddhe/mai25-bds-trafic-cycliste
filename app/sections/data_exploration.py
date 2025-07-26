@@ -17,7 +17,7 @@ def cached_load_dataset_exploration():
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_refactored_data"
 
-st.title("🔍 Exploration des données")
+st.title("🔍 Exploration intéractive des données retravaillées via leur statistiques")
 
 with st.sidebar:
     if st.button("🔁 Rechargement du Dataset", key="reload_button"):
@@ -31,10 +31,15 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
     st.success(f"✅ Données [{DATASET_NAME}] chargées avec succès.")
     st.dataframe(df_raw.tail())
 
+    with st.expander("🚨 Doublons et valeurs manquantes"):
+        st.write(f"Nombre de lignes dupliquées : {df_raw.duplicated().sum()}")
+        st.write("Valeurs manquantes par colonne :")
+        st.dataframe(df_raw.isna().sum().to_frame("manquants"))
+
     with st.expander("📊 Statistiques descriptives globales"):
         st.dataframe(df_raw.describe(include='all').T)
 
-    with st.expander("🧮 Statistique par regroupement autour de "
+    with st.expander("🧮 Statistiques simples après regroupements autour de "
                      "la variable cible (comptage horaire)"):
         group_column = st.multiselect(
             "📌 Groupe d’agrégation",
@@ -75,11 +80,6 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
                 )
             )
             st.dataframe(styled_df, use_container_width=True)
-
-    with st.expander("🚨 Doublons et valeurs manquantes"):
-        st.write(f"Nombre de lignes dupliquées : {df_raw.duplicated().sum()}")
-        st.write("Valeurs manquantes par colonne :")
-        st.dataframe(df_raw.isna().sum().to_frame("manquants"))
 
 else:
     st.error("❌ Impossible de charger les données.")

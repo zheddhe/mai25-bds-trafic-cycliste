@@ -8,6 +8,12 @@ import os
 DATASET_NAME = "velo_comptage_refactored_data"
 JOURS_ORDONNES = ["Monday", "Tuesday", "Wednesday", "Thursday",
                   "Friday", "Saturday", "Sunday"]
+MOIS_ORDONNES = ["January", "February", "March", "April",
+                 "May", "June", "July", "August",
+                 "September", "October", "November", "December"]
+HEURES_ORDONNEES = ["6h", "7h", "8h", "9h", "10h", "11h", "12h", "13h", "14h", "15h",
+                    "16h", "17h", "18h", "19h", "20h", "21h", "22h", "23h", "0h", "1h",
+                    "2h", "3h", "4h", "5h"]
 
 
 @st.cache_data
@@ -19,13 +25,15 @@ def cached_load_dataset_visualization():
             "comptage_horaire": pd.Series([0], dtype="int"),
             "arrondissement": ["TEST_ARRONDISSEMENT"],
             "date_et_heure_de_comptage_hour": [1],
+            "date_et_heure_de_comptage_dayname": ["Monday"],
+            "date_et_heure_de_comptage_monthname": ["January"],
             'latitude': [48.8566],
             'longitude': [2.3522],
         })
     return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
 
 
-st.title("📈 Visualisations et Statistiques")
+st.title("📈 Visualisations graphique et intéractives des données")
 
 with st.sidebar:
     if st.button("🔁 Rechargement du Dataset", key="reload_button"):
@@ -38,14 +46,37 @@ with st.spinner("⏳ Chargement du dataset en cours..."):
 if df_raw is not None and isinstance(df_raw, pd.DataFrame):
     st.success(f"✅ Données [{DATASET_NAME}] chargées avec succès.")
 
-    st.markdown("### 📦 Répartition des comptages horaires par mois")
-    if "mois_annee_comptage" in df_raw.columns:
+    st.markdown("")
+    column_title_distrib, column_period_distrib = st.columns([2, 1])
+    column_title_distrib.markdown("### 📈 Distribution du comptage horaire")
+    period_distrib = column_period_distrib.selectbox(
+        "Périodicité",
+        ["date_et_heure_de_comptage_monthname",
+         "date_et_heure_de_comptage_dayname",
+         "date_et_heure_de_comptage_hour"]
+    )
+    df_period = df_raw.copy()
+    if period_distrib == "date_et_heure_de_comptage_dayname":
+        categories_distrib = JOURS_ORDONNES
+    elif period_distrib == "date_et_heure_de_comptage_monthname":
+        categories_distrib = MOIS_ORDONNES
+    else:
+        categories_distrib = HEURES_ORDONNEES
+        df_period[period_distrib] = df_period[period_distrib].apply(lambda x: f"{x}h")
+    df_period[period_distrib] = pd.Categorical(
+        df_period[period_distrib],
+        categories=categories_distrib,
+        ordered=True
+    )
+    if period_distrib in df_raw.columns:
         fig_box_mois = px.box(
-            df_raw,
-            x="mois_annee_comptage",
+            df_period,
+            x=period_distrib,
             y="comptage_horaire",
-            title="Répartition des comptages horaires par mois",
-            points=False  # delete individual points
+            points=False,  # delete individual points
+            category_orders={
+                period_distrib: categories_distrib
+            }
         )
         fig_box_mois.update_traces(
             hovertemplate=(
@@ -58,73 +89,102 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
         )
         st.plotly_chart(fig_box_mois, use_container_width=True)
 
-    st.markdown("### 📊 Comptage horaire moyen par jour de la semaine")
-    if "date_et_heure_de_comptage_dayname" in df_raw.columns:
-        df_jour = df_raw.groupby("date_et_heure_de_comptage_dayname")[
+    column_title_mean, column_period_mean = st.columns([2, 1])
+    column_title_mean.markdown("### 📊 Comptage horaire moyen")
+    period_mean = column_period_mean.selectbox(
+        "Périodicité",
+        ["date_et_heure_de_comptage_dayname",
+         "date_et_heure_de_comptage_monthname"]
+    )
+    if period_mean == "date_et_heure_de_comptage_dayname":
+        categories_mean = JOURS_ORDONNES
+    else:
+        categories_mean = MOIS_ORDONNES
+    if period_mean in df_raw.columns:
+        df_period = df_raw.groupby(period_mean)[
             "comptage_horaire"].mean().reset_index()
-        df_jour["date_et_heure_de_comptage_dayname"] = pd.Categorical(
-            df_jour["date_et_heure_de_comptage_dayname"],
-            categories=JOURS_ORDONNES,
+        df_period[period_mean] = pd.Categorical(
+            df_period[period_mean],
+            categories=categories_mean,
             ordered=True
         )
-        df_jour = df_jour.sort_values("date_et_heure_de_comptage_dayname")
+        df_period = df_period.sort_values(period_mean)
 
-        top2_days = df_jour.nlargest(2, "comptage_horaire")[
-            "date_et_heure_de_comptage_dayname"
-        ].tolist()
-        df_jour["couleur"] = df_jour[
-            "date_et_heure_de_comptage_dayname"].apply(
-            lambda d: "firebrick" if d in top2_days else "royalblue"
+        top2_period = df_period.nlargest(2, "comptage_horaire")[period_mean].tolist()
+        df_period["couleur"] = df_period[
+            period_mean].apply(
+            lambda d: "firebrick" if d in top2_period else "royalblue"
         )
 
         fig_jour = px.bar(
-            df_jour,
-            x="date_et_heure_de_comptage_dayname",
+            df_period,
+            x=period_mean,
             y="comptage_horaire",
             color="couleur",
             color_discrete_map="identity",
             text_auto=True,
-            title="Comptage horaire moyen par jour de la semaine",
             category_orders={
-                "date_et_heure_de_comptage_dayname": JOURS_ORDONNES
+                period_mean: categories_mean
             }
         )
         fig_jour.update_layout(showlegend=False)
         st.plotly_chart(fig_jour, use_container_width=True)
 
-    st.markdown("### ⏱️ Top 10 des heures avec le plus fort comptage total")
-    if "date_et_heure_de_comptage_hour" in df_raw.columns:
-        df_heures = df_raw.groupby("date_et_heure_de_comptage_hour")[
+    column_title_count, column_period_count = st.columns([2, 1])
+    column_title_count.markdown("### 🧮 Comptage horaire total")
+    period_count = column_period_count.selectbox(
+        "Périodicité",
+        ["date_et_heure_de_comptage_hour",
+         "date_et_heure_de_comptage_dayname",]
+    )
+    df_period = df_raw.copy()
+    if period_count == "date_et_heure_de_comptage_dayname":
+        categories_count = JOURS_ORDONNES
+    else:
+        categories_count = HEURES_ORDONNEES
+        df_period[period_count] = df_period[period_count].apply(lambda x: f"{x}h")
+    if period_count in df_raw.columns:
+        df_period = df_period.groupby(period_count)[
             "comptage_horaire"].sum().reset_index()
-        df_heures = df_heures.sort_values("comptage_horaire",
-                                          ascending=False).head(10)
+        df_period = df_period.sort_values("comptage_horaire",
+                                          ascending=False)
 
-        top4_heures = df_heures.nlargest(4, "comptage_horaire")[
-            "date_et_heure_de_comptage_hour"
+        top2_period = df_period.nlargest(2, "comptage_horaire")[
+            period_count
         ].tolist()
-        df_heures["couleur"] = df_heures[
-            "date_et_heure_de_comptage_hour"].apply(
-            lambda h: "firebrick" if h in top4_heures else "royalblue"
+        df_period["couleur"] = df_period[
+            period_count].apply(
+            lambda h: "firebrick" if h in top2_period else "royalblue"
         )
 
         fig_heure = px.bar(
-            df_heures,
-            x="date_et_heure_de_comptage_hour",
+            df_period,
+            x=period_count,
             y="comptage_horaire",
             color="couleur",
             color_discrete_map="identity",
             text_auto=True,
-            title="Top 10 des heures avec le plus fort comptage total"
+            category_orders={
+                period_count: categories_count
+            }
         )
         fig_heure.update_layout(showlegend=False)
         st.plotly_chart(fig_heure, use_container_width=True)
 
-    st.markdown("### 🚲 Top 10 des stations les plus fréquentées")
+    column_title_sites, column_top_sites = st.columns([2, 1])
+    column_title_sites.markdown("### 🚲 Sites avec le plus de passage")
+    top_sites = column_top_sites.number_input(
+        "Top à afficher",
+        min_value=1,
+        max_value=67,
+        value=10,
+        key="top_sites_inp"
+    )
     if "nom_du_site_de_comptage" in df_raw.columns:
         df_stations = df_raw.groupby("nom_du_site_de_comptage")[
             "comptage_horaire"].sum().reset_index()
         df_stations = df_stations.sort_values(
-            "comptage_horaire", ascending=False).head(10)
+            "comptage_horaire", ascending=False).head(top_sites)
         fig_stations = px.bar(
             df_stations,
             x="comptage_horaire",
@@ -132,20 +192,27 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
             orientation='h',
             text_auto=True,
             color="comptage_horaire",
-            color_continuous_scale="magma",
-            title="Top 10 des stations les plus fréquentées"
+            color_continuous_scale="viridis",
         )
         fig_stations.update_layout(yaxis={'categoryorder': 'total ascending'})
         fig_stations.update_layout(showlegend=False)
         st.plotly_chart(fig_stations, use_container_width=True)
 
-    st.markdown("## 🌞 Distribution multi-niveaux (Sunburst)")
-    with st.expander("🔧 Paramètres Sunburst"):
-        col_path_1 = st.selectbox("Niveau 1", ["arrondissement",
-                                               "nom_du_site_de_comptage",
-                                               "date_et_heure_de_comptage_dayname"])
-        col_path_2 = st.selectbox("Niveau 2", ["date_et_heure_de_comptage_hour",
-                                               "date_et_heure_de_comptage_dayname"])
+    column_title_multi, column_path_1, column_path_2 = st.columns([3, 1, 1])
+    column_title_multi.markdown("## 🗂️ Distribution multi-niveaux du comptage")
+    col_path_1 = column_path_1.selectbox(
+        "Niveau 1",
+        ["arrondissement",
+            "nom_du_site_de_comptage",
+            "date_et_heure_de_comptage_dayname"],
+        key="col_path_1_sb"
+    )
+    col_path_2 = column_path_2.selectbox(
+        "Niveau 2",
+        ["date_et_heure_de_comptage_hour",
+            "date_et_heure_de_comptage_dayname"],
+        key="col_path_2_sb"
+    )
     if col_path_1 != col_path_2:
         fig_sun = px.sunburst(
             df_raw,
