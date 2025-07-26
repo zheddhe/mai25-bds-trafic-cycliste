@@ -1,2 +1,5 @@
-# Configuration centralisée pour l'application Streamlit
-APP_NAME = "Projet Trafic Cycliste"
+from pathlib import Path
+
+# Centralized application configuration
+APP_NAME = "Application Trafic Cycliste"
+PAGES_DIR = Path(__file__).parent / "sections"

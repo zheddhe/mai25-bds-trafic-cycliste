@@ -34,5 +34,5 @@ def test_app_home_title_displayed():
     at = AppTest.from_file(str(APP_FILE))
     at.run()
     titles = [t.value for t in at.title]
-    assert "🚲 Projet Trafic Cycliste" in titles
+    assert "🚲 Application Trafic Cycliste" in titles
     del os.environ["IS_TESTING"]
