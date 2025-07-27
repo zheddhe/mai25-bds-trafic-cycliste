@@ -96,6 +96,31 @@ class TestSafeTimeSeriesPreprocessorOrdinal:
             "categorical_encoder"
         ]["type"] == "sklearn.preprocessing.OrdinalEncoder"
 
+    @patch("smartcheck.deep_learning_project_specific.TimeSeriesPreprocessor.from_dict")
+    def test_from_dict_with_valid_encoder(self, mock_super_from_dict):
+        # --- Mock du super ---
+        mock_obj = MagicMock()
+        mock_super_from_dict.return_value = mock_obj
+
+        # --- Dict simulant l'état sauvegardé ---
+        input_dict = {
+            "categorical_encoder": {
+                "type": "sklearn.preprocessing.OrdinalEncoder",
+                "categories": [["a", "b"], ["x", "y"]],
+                "handle_unknown": "use_encoded_value",
+                "unknown_value": 999,
+            }
+        }
+
+        result = SafeTimeSeriesPreprocessorOrdinal.from_dict(input_dict)
+
+        mock_super_from_dict.assert_called_once_with(input_dict)
+        enc_cat = result.categorical_encoder
+        assert isinstance(enc_cat, OrdinalEncoder)
+        assert enc_cat.handle_unknown == "use_encoded_value"  # type: ignore
+        assert enc_cat.unknown_value == 999  # type: ignore
+        assert enc_cat.categories_[0].tolist() == ["a", "b"]  # type: ignore
+
 
 class TestSavePreprocessorState:
     """Unit tests for save_preprocessor_state"""
