@@ -12,10 +12,13 @@ import plotly.graph_objects as go
 def cached_load_dataset_exploration():
     if os.environ.get("IS_TESTING") == "1":
         return pd.DataFrame({
-            "nom_du_site_de_comptage": ["TEST_SITE"],
-            "orientation_compteur": ["N-S"],
-            "comptage_horaire": pd.Series([0], dtype="int"),
-            "date_et_heure_de_comptage": ["2025-01-07T11:00:00+01:00"],
+            "nom_du_site_de_comptage": ["TEST_SITE", "TEST_SITE"],
+            "orientation_compteur": ["N-S", "N-S"],
+            "comptage_horaire": [0, 0],
+            "date_et_heure_de_comptage": [
+                "2025-01-07T11:00:00+01:00",
+                "2025-01-07T14:00:00+01:00",
+            ],
         })
     df = load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
     return df

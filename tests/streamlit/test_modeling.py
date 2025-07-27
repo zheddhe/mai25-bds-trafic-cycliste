@@ -24,7 +24,7 @@ def test_cached_load_dataset_ml_returns_empty_structure():
 
 def test_cached_train_model_returns_fixed_result():
     dummy_df = pd.DataFrame({
-        "nom_du_site_de_comptage": ["Test"],
+        "nom_du_site_de_comptage": ["Totem 73 boulevard de Sébastopol"],
         "orientation_compteur": ["S-N"],
         "comptage_horaire": [100],
     })
@@ -40,7 +40,7 @@ def test_cached_train_model_returns_fixed_result():
 def test_compute_metrics_on_test_output():
     res = am.cached_train_model(
         pd.DataFrame({
-            "nom_du_site_de_comptage": ["Test"],
+            "nom_du_site_de_comptage": ["Totem 73 boulevard de Sébastopol"],
             "orientation_compteur": ["N-S"],
             "comptage_horaire": [42],
         }),

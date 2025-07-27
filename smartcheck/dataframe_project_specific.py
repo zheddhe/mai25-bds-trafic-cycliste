@@ -608,8 +608,8 @@ def train_test_split_time_aware_sarimax(
         df, timestamp_col=timestamp_col
     )
     if isinstance(dict_missing_ranges, dict) and dict_missing_ranges:
-        logging.info("⚠️ Missing data for several range\n:"
-                     f"{pprint.pformat(dict_missing_ranges)}")
+        logger.info("⚠️ Missing data for several range\n:"
+                    f"{pprint.pformat(dict_missing_ranges)}")
         if max(r["nb_missing"] for r in dict_missing_ranges.values()) <= interpol_max:
             # on admet l'interpolation systématique pour les cas avec maximum
             # interpol_max valeur d'index sans données
@@ -724,7 +724,7 @@ def get_missing_periods(
         pd.DataFrame with columns: ['start', 'end', 'site', 'direction', 'label']
     """
     df = df[[timestamp_col]+group_cols+[value_col]].copy()
-    logging.info(f"Convert {timestamp_col} to DateTime")
+    logger.info(f"Convert {timestamp_col} to DateTime")
     df["datetime"] = pd.to_datetime(
         df[timestamp_col],
         format="%Y-%m-%dT%H:%M:%S%z",
@@ -743,8 +743,8 @@ def get_missing_periods(
         )
         dup_groups = group.index.duplicated(keep=False)
         if dup_groups.sum() > 0:
-            logging.info("Valeur dupliquées dans le groupe"
-                         f" {name}:\n{group[dup_groups]}")
+            logger.info("Valeur dupliquées dans le groupe"
+                        f" {name}:\n{group[dup_groups]}")
         group = group[~dup_groups]
         group = group.reindex(full_range)
         is_missing = group[value_col].isna().astype(int)

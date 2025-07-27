@@ -157,6 +157,7 @@ class SafeTimeSeriesPreprocessorOrdinal(TimeSeriesPreprocessor):
         obj = super().from_dict(feature_extractor_dict, **kwargs)
 
         cat_enc = feature_extractor_dict.get("categorical_encoder")
+        logger.info(cat_enc)
         if (
             isinstance(cat_enc, dict)
             and cat_enc.get("type") == "sklearn.preprocessing.OrdinalEncoder"
@@ -239,7 +240,7 @@ def load_preprocessor_state(load_dir: str) -> SafeTimeSeriesPreprocessorOrdinal:
     assert tsp.id_columns is not None
     assert tsp.target_columns is not None
 
-    logging.info(f"📥 Chargement TimeSeries Preprocessor depuis {load_dir}")
+    logger.info(f"📥 Chargement TimeSeries Preprocessor depuis {load_dir}")
 
     return tsp
 
@@ -262,7 +263,7 @@ def save_granite_model(experiment, model_results: dict, save_dir: str = "."):
     filepath = f"{save_dir}/{filename}"
     joblib.dump(model_results, filepath)
 
-    logging.info(f"{experiment} saved in {filepath}")
+    logger.info(f"{experiment} saved in {filepath}")
 
 
 def train_or_resume(
@@ -271,23 +272,23 @@ def train_or_resume(
 ) -> str:
     name = exp_params["name"]
     out_dir = exp_params["out_dir"]
-    logging.info("\n" + pprint.pformat(exp_params))
+    logger.info("\n" + pprint.pformat(exp_params))
     if "best_checkpoint" in exp_params:
         best_checkpoint = exp_params['best_checkpoint']
         checkpoint_dir = os.path.join(out_dir, f"{name}_output", best_checkpoint)
     else:
         checkpoint_dir = ""
-    logging.info(f"Checkpoint_dir identified : [{checkpoint_dir}]")
+    logger.info(f"Checkpoint_dir identified : [{checkpoint_dir}]")
     if os.path.isdir(checkpoint_dir):
         model_weights_path = os.path.join(checkpoint_dir, "model.safetensors")
-        logging.info(f"🔁 Loading weights only from {model_weights_path}")
+        logger.info(f"🔁 Loading weights only from {model_weights_path}")
         state_dict = load_file(model_weights_path)
         trainer.model.load_state_dict(state_dict)  # type: ignore
         trainer.train()  # ⚠ repart from scratch mais avec les bons poids
     else:
-        logging.info("🆕 Starting training from scratch")
+        logger.info("🆕 Starting training from scratch")
         trainer.train()
-    logging.info(f"Best checkpoint: {trainer.state.best_model_checkpoint}")
+    logger.info(f"Best checkpoint: {trainer.state.best_model_checkpoint}")
     match = re.search(r"checkpoint-\d+",
                       trainer.state.best_model_checkpoint)  # type: ignore
     if match:
@@ -313,10 +314,10 @@ def load_model_from_checkpoint(model_class, checkpoint_dir: str, device="cpu"):
     if not os.path.isfile(config_path):
         raise FileNotFoundError(f"Fichier de configuration introuvable : {config_path}")
 
-    logging.info(f"📥 Chargement config du modèle depuis {config_path}")
+    logger.info(f"📥 Chargement config du modèle depuis {config_path}")
     model = model_class.from_pretrained(checkpoint_dir, local_files_only=True)
 
-    logging.info(f"🔁 Chargement poids du modèle uniquement depuis {weights_path}")
+    logger.info(f"🔁 Chargement poids du modèle uniquement depuis {weights_path}")
     state_dict = load_file(weights_path, device=device)
     model.load_state_dict(state_dict)
 
@@ -378,23 +379,23 @@ def fine_tune_model(
         enable_forecast_channel_mixing=True,
         decoder_mode="mix_channel",
     )
-    logging.info(f"Bascule du modèle sur {device}")
+    logger.info(f"Bascule du modèle sur {device}")
     finetune_forecast_model.to(device)  # type: ignore
     summarize_module_structure(finetune_forecast_model)
 
     # Freeze the backbone of the model
-    logging.info(f"Number of params before freezing backbone {
+    logger.info(f"Number of params before freezing backbone {
         count_parameters(finetune_forecast_model)
     }")
     for param in finetune_forecast_model.backbone.parameters():
         param.requires_grad = False
-    logging.info(f"Number of params after freezing the backbone {
+    logger.info(f"Number of params after freezing the backbone {
         count_parameters(finetune_forecast_model)
     }")
 
     # Set the training arguments
-    logging.info(f"Learning Rate = {learning_rate} | {num_epochs} epoch(s) |"
-                 f" utilisation du {'GPU' if (device == 'cuda') else 'CPU'}")
+    logger.info(f"Learning Rate = {learning_rate} | {num_epochs} epoch(s) |"
+                f" utilisation du {'GPU' if (device == 'cuda') else 'CPU'}")
     finetune_forecast_args = TrainingArguments(
         output_dir=output_dir,
         overwrite_output_dir=True,

@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import os
 from unittest.mock import patch, MagicMock, mock_open
 from smartcheck.deep_learning_project_specific import (
     df_split_time_aware,
@@ -9,12 +10,16 @@ from smartcheck.deep_learning_project_specific import (
     train_or_resume,
     load_model_from_checkpoint,
     summarize_module_structure,
-    fine_tune_model
+    fine_tune_model,
+    save_granite_model,
 )
 from sklearn.preprocessing import OrdinalEncoder
 
 
 class TestDfSplitTimeAware:
+    """Unit tests for df_split_time_aware"""
+
+    # === Tests ===
     def test_split_respects_order_and_ratio(self):
         df = pd.DataFrame({
             "timestamp": pd.date_range("2024-01-01", periods=10, freq="D"),
@@ -27,6 +32,9 @@ class TestDfSplitTimeAware:
 
 
 class TestSafeTimeSeriesPreprocessorOrdinal:
+    """Unit tests for SafeTimeSeriesPreprocessorOrdinal"""
+
+    # === Tests ===
     def test_unknown_handling_and_encoding(self):
         df_train = pd.DataFrame({"id": [1, 2, 3], "cat": ["a", "b", "c"]})
         df_test = pd.DataFrame({"id": [4], "cat": ["zzz"]})
@@ -44,7 +52,7 @@ class TestSafeTimeSeriesPreprocessorOrdinal:
             prediction_length=1,
             scaling=False,
             encode_categorical=True,
-            freq="D"
+            freq="h"
         )
 
         encoder = OrdinalEncoder(
@@ -72,7 +80,7 @@ class TestSafeTimeSeriesPreprocessorOrdinal:
             prediction_length=1,
             scaling=True,
             encode_categorical=True,
-            freq="D"
+            freq="h"
         )
         tsp._train_categorical_encoder(
             tsp._replace_unknowns(df, ["cat"], force_include=True)
@@ -89,7 +97,10 @@ class TestSafeTimeSeriesPreprocessorOrdinal:
         ]["type"] == "sklearn.preprocessing.OrdinalEncoder"
 
 
-class TestPersistence:
+class TestSavePreprocessorState:
+    """Unit tests for save_preprocessor_state"""
+
+    # === Tests ===
     @patch("smartcheck.deep_learning_project_specific.yaml.safe_dump")
     @patch("smartcheck.deep_learning_project_specific.joblib.dump")
     @patch("smartcheck.deep_learning_project_specific.os.makedirs")
@@ -143,19 +154,56 @@ class TestPersistence:
         assert isinstance(tsp, SafeTimeSeriesPreprocessorOrdinal)
 
 
-class TestTrainerWrapper:
+class TestTrainOrResume:
+    """Unit tests for train_or_resume"""
+
     @patch("smartcheck.deep_learning_project_specific.load_file")
     def test_train_or_resume_no_checkpoint(self, load_file):
         trainer = MagicMock()
         trainer.state.best_model_checkpoint = "checkpoint-123"
-        exp_params = {"name": "exp1", "out_dir": "/tmp"}
+        exp_params = {"name": "exp1", "out_dir": os.path.join(os.sep, "tmp")}
+
         with patch("os.path.isdir", return_value=False):
             result = train_or_resume(trainer, exp_params)
+
         assert result == "checkpoint-123"
         trainer.train.assert_called_once()
+        load_file.assert_not_called()
+
+    @patch("smartcheck.deep_learning_project_specific.os.path.isdir")
+    @patch("smartcheck.deep_learning_project_specific.load_file")
+    def test_resume_training_from_checkpoint(
+        self, mock_load_file, mock_isdir
+    ):
+        trainer = MagicMock()
+        trainer.state.best_model_checkpoint = "checkpoint-42"
+        trainer.model.load_state_dict.return_value = None
+        mock_isdir.return_value = True
+
+        out_dir = os.path.join(os.sep, "tmp")
+        exp_params = {
+            "name": "testexp",
+            "out_dir": out_dir,
+            "best_checkpoint": "checkpoint-42"
+        }
+
+        checkpoint_dir = os.path.join(out_dir, "testexp_output", "checkpoint-42")
+        expected_weights_path = os.path.join(checkpoint_dir, "model.safetensors")
+
+        with patch("smartcheck.deep_learning_project_specific.logging.info"):
+            result = train_or_resume(trainer, exp_params)
+
+        assert result == "checkpoint-42"
+        trainer.train.assert_called_once()
+        trainer.model.load_state_dict.assert_called_once()
+        assert os.path.normpath(mock_load_file.call_args[0][0]) == \
+            os.path.normpath(expected_weights_path)
 
 
-class TestModelLoader:
+class TestLoadModelFromCheckpoint:
+    """Unit tests for load_model_from_checkpoint"""
+
+    # === Tests ===
     @patch("smartcheck.deep_learning_project_specific.load_file")
     def test_load_model_from_checkpoint(self, load_file):
         dummy_model = MagicMock()
@@ -170,6 +218,9 @@ class TestModelLoader:
 
 
 class TestSummarizeModuleStructure:
+    """Unit tests for summarize_module_structure"""
+
+    # === Tests ===
     @patch("smartcheck.deep_learning_project_specific.netron.start")
     @patch("smartcheck.deep_learning_project_specific.torch.save")
     @patch("smartcheck.deep_learning_project_specific.os.makedirs")
@@ -182,6 +233,9 @@ class TestSummarizeModuleStructure:
 
 
 class TestFineTuneModel:
+    """Unit tests for fine_tune_model"""
+
+    # === Tests ===
     @patch(
         "smartcheck.deep_learning_project_specific."
         "TinyTimeMixerForPrediction.from_pretrained"
@@ -218,3 +272,40 @@ class TestFineTuneModel:
             device="cpu"
         )
         assert len(out) == 7
+
+
+class TestSaveGraniteModel:
+    """Unit tests for save_granite_model"""
+
+    # === Tests ===
+    @patch("smartcheck.deep_learning_project_specific.joblib.dump")
+    def test_save_granite_model_generates_expected_filename(self, mock_dump):
+        model_results = {
+            "exp_params": {
+                "name": "Granite Demo",
+                "context_length": 24,
+                "fcm_context_length": 168,
+                "prediction_length": 12,
+                "sub_range": [0, 300],
+            },
+            "best_checkpoint": "checkpoint-88"
+        }
+        experiment = "Experiment01"
+
+        with patch(
+            "smartcheck.deep_learning_project_specific.logger.info"
+        ) as log_info:
+            save_granite_model(experiment, model_results, save_dir="output")
+
+        # Recompose expected path (no regex)
+        expected_filename = (
+            "granite_results_Granite-Demo_checkpoint-88_"
+            "c24_fcm168_p12_0-299.joblib"
+        )
+        expected_path = os.path.normpath(os.path.join("output", expected_filename))
+        actual_path_arg = os.path.normpath(mock_dump.call_args[0][1])
+
+        assert mock_dump.called
+        assert actual_path_arg == expected_path
+        log_info.assert_called_once()
+        assert experiment in log_info.call_args[0][0]

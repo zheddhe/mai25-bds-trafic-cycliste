@@ -2,7 +2,6 @@ import importlib.util
 import os
 import pytest
 from pathlib import Path
-from unittest.mock import patch
 from streamlit.testing.v1 import AppTest
 
 PAGES_DIR = Path(__file__).resolve().parent.parent.parent / "app" / "sections"
@@ -18,8 +17,7 @@ PAGES_TO_TEST = [
 
 
 @pytest.mark.parametrize("filename", PAGES_TO_TEST)
-@patch("smartcheck.dataframe_common.load_dataset_from_config", return_value=None)
-def test_streamlit_page_loads(mock_loader, filename):
+def test_streamlit_page_loads(filename):
     os.environ["IS_TESTING"] = "1"  # Activation du mode test
     path = PAGES_DIR / filename
     spec = importlib.util.spec_from_file_location("page_module", path)

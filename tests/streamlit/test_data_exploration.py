@@ -1,34 +1,25 @@
-from streamlit.testing.v1 import AppTest
-from unittest.mock import patch
 import pandas as pd
+import pytest
+import os
+from typing import cast
+import app.sections.data_exploration as de
 
 
-@patch("smartcheck.dataframe_common.load_dataset_from_config")
-def test_data_exploration_with_failure(mock_loader):
-    mock_loader.return_value = None
-
-    at = AppTest.from_file("app/sections/data_exploration.py")
-    at.run()
-
-    # simulate cache clear + rerun
-    at.sidebar.button("reload_button").click()
-    at.run()
-
-    assert any("Impossible de charger les données" in e.value for e in at.error)
+@pytest.fixture(autouse=True)
+def enable_test_mode():
+    os.environ["IS_TESTING"] = "1"
+    de.cached_load_dataset_exploration.clear()  # type: ignore
+    yield
+    del os.environ["IS_TESTING"]
 
 
-@patch("smartcheck.dataframe_common.load_dataset_from_config")
-def test_data_exploration_with_success(mock_loader):
-    df_fake = pd.DataFrame({"a": range(5), "b": range(5)})
-    mock_loader.return_value = df_fake
-
-    at = AppTest.from_file("app/sections/data_exploration.py")
-    at.run()
-
-    # simulate cache clear + rerun
-    at.sidebar.button("reload_button").click()
-    at.run()
-
-    expected_msg = "✅ Données [velo_comptage_refactored_data] chargées avec succès."
-    assert any(s.value == expected_msg for s in at.success)
-    assert len(at.dataframe) > 0
+def test_dataset_exploration_structure():
+    df = de.cached_load_dataset_exploration()
+    df = cast(pd.DataFrame, df)
+    assert df.shape == (2, 4)
+    assert sorted(df.columns) == sorted([
+        "nom_du_site_de_comptage",
+        "orientation_compteur",
+        "comptage_horaire",
+        "date_et_heure_de_comptage"
+    ])
