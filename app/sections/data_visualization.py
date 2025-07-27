@@ -33,7 +33,13 @@ def cached_load_dataset_visualization():
     return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
 
 
-st.title("📈 Visualisations graphique et intéractives des données")
+st.title("📈 Visualisations intéractives des données")
+st.markdown("""
+Cette page vous permet de plonger dans différentes visualisation ces données de
+comptage vélo avec des paramètres personnalisables et des graphiques interactifs.
+> - Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
+drive via le menu ⬅️
+""")
 
 with st.sidebar:
     if st.button("🔁 Rechargement du Dataset", key="reload_button"):

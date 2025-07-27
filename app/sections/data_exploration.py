@@ -1,15 +1,22 @@
 import streamlit as st
 from smartcheck.dataframe_common import load_dataset_from_config
+from smartcheck.dataframe_project_specific import get_missing_periods
 import pandas as pd
 import os
+import plotly.express as px
+import plotly.graph_objects as go
 
 
 # --- Chargement des données ---
 @st.cache_data
 def cached_load_dataset_exploration():
     if os.environ.get("IS_TESTING") == "1":
-        return pd.DataFrame(columns=["nom_du_site_de_comptage",
-                                     "orientation_compteur", "comptage_horaire"])
+        return pd.DataFrame({
+            "nom_du_site_de_comptage": ["TEST_SITE"],
+            "orientation_compteur": ["N-S"],
+            "comptage_horaire": pd.Series([0], dtype="int"),
+            "date_et_heure_de_comptage": ["2025-01-07T11:00:00+01:00"],
+        })
     df = load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
     return df
 
@@ -17,7 +24,14 @@ def cached_load_dataset_exploration():
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_refactored_data"
 
-st.title("🔍 Exploration intéractive des données retravaillées via leur statistiques")
+st.title("🔍 Exploration statistique des données")
+st.markdown("""
+Cette page vous permet de d'explorer et regrouper les données afin d'observer
+différents types de statistiques mesurant la qualité et pertinence des données de
+comptage vélo avec des paramètres de regroupement personnalisables.
+> - Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
+drive via le menu ⬅️
+""")
 
 with st.sidebar:
     if st.button("🔁 Rechargement du Dataset", key="reload_button"):
@@ -29,12 +43,36 @@ with st.spinner("⏳ Chargement du dataset en cours..."):
 
 if df_raw is not None and isinstance(df_raw, pd.DataFrame):
     st.success(f"✅ Données [{DATASET_NAME}] chargées avec succès.")
-    st.dataframe(df_raw.tail())
 
-    with st.expander("🚨 Doublons et valeurs manquantes"):
-        st.write(f"Nombre de lignes dupliquées : {df_raw.duplicated().sum()}")
-        st.write("Valeurs manquantes par colonne :")
-        st.dataframe(df_raw.isna().sum().to_frame("manquants"))
+    with st.expander("🚨 Doublons et périodes avec discontinuité du"
+                     " relevé horaire de comptage"):
+        obs_dup = df_raw.duplicated(
+            subset=["nom_du_site_de_comptage",
+                    "orientation_compteur",
+                    "date_et_heure_de_comptage"],
+            keep=False,
+        )
+        st.write("Nombre d'observations dupliquées (même compteur et même heure):")
+        st.dataframe(df_raw[obs_dup])
+        missing_df = get_missing_periods(df_raw)
+        fig = px.timeline(
+            missing_df,
+            x_start="start",
+            x_end="end",
+            y="label",
+            # color="label",
+            title="Compteurs avec périodes manquantes"
+        )
+        fig = go.Figure(fig)
+        fig.update_yaxes(autorange="reversed")
+        fig.update_yaxes(
+            showgrid=True,
+            gridwidth=1,
+            gridcolor="lightgray",
+            tickfont=dict(size=10)
+        )
+        fig.update_layout(showlegend=False, height=800)
+        st.plotly_chart(fig, use_container_width=True)
 
     with st.expander("📊 Statistiques descriptives globales"):
         st.dataframe(df_raw.describe(include='all').T)

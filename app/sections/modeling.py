@@ -214,12 +214,12 @@ AVAILABLE_MODELS = [
     "ElasticNet (*)",
 ]
 
-st.title("🧪 Évaluation des modèles")
+st.title("🧪 Laboratoire d'évaluation des modèles")
 st.markdown("""
 Cette page vous permet de tester différents modèles de régression
 sur les données de comptage vélo avec des options personnalisables.
 > - Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
-drive
+drive via le menu ⬅️
 """)
 
 # --- Chargement des données ---

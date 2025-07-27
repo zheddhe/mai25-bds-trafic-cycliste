@@ -68,7 +68,7 @@ def build(session):
     cuda_version = get_cuda_toolkit_version()
     session.log(f"Detected CUDA runtime version: {cuda_version}")
     if cuda_version is None:
-        session.info("❌ Unable to detect CUDA version (nvidia-smi missing?)")
+        session.info("Unable to detect CUDA version (nvidia-smi missing?)")
 
     if cuda_version and cuda_version >= 12.8:
         cu_tag = "+cu128"
@@ -76,7 +76,7 @@ def build(session):
         cu_tag = "+cu118"
     else:
         cu_tag = ""
-        session.info(f"❌ Unsupported CUDA version: {cuda_version},"
+        session.info(f"Unsupported CUDA version: {cuda_version},"
                      " falling back to CPU builds for pytorch packages")
     # Torch GPU via wheels cu118
     session.install(

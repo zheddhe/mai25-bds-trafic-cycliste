@@ -708,3 +708,65 @@ def interpolate_mixed_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df_interp[cat_cols] = df_interp[cat_cols].ffill().bfill()
 
     return df_interp
+
+
+def get_missing_periods(
+    df: pd.DataFrame,
+    timestamp_col: str = "date_et_heure_de_comptage",
+    group_cols: list[str] = ["nom_du_site_de_comptage", "orientation_compteur"],
+    value_col: str = "comptage_horaire",
+    tz_local: str = "Europe/Paris",
+) -> pd.DataFrame:
+    """
+    Identify continuous missing periods in hourly data grouped by site and direction.
+
+    Returns:
+        pd.DataFrame with columns: ['start', 'end', 'site', 'direction', 'label']
+    """
+    df = df[[timestamp_col]+group_cols+[value_col]].copy()
+    logging.info(f"Convert {timestamp_col} to DateTime")
+    df["datetime"] = pd.to_datetime(
+        df[timestamp_col],
+        format="%Y-%m-%dT%H:%M:%S%z",
+        utc=True,
+    )
+    df["datetime"] = df["datetime"].dt.tz_convert(pytz.timezone(tz_local))
+    df = df.set_index("datetime")
+
+    missing_periods = []
+
+    for name, group in df.groupby(group_cols):
+        full_range = pd.date_range(
+            start=group.index.min(),
+            end=group.index.max(),
+            freq="h",
+        )
+        dup_groups = group.index.duplicated(keep=False)
+        if dup_groups.sum() > 0:
+            logging.info("Valeur dupliquées dans le groupe"
+                         f" {name}:\n{group[dup_groups]}")
+        group = group[~dup_groups]
+        group = group.reindex(full_range)
+        is_missing = group[value_col].isna().astype(int)
+        block_id = (is_missing.diff() != 0).cumsum()
+        group["is_missing"] = is_missing
+        group["block_id"] = block_id
+        group_start = group.index.min()
+        group_end = group.index.max()
+        for _, block in group.groupby("block_id"):
+            if block["is_missing"].iloc[0] != 1:
+                continue
+            start = block.index.min()
+            end = block.index.max()
+            if start <= group_start or end >= group_end or start == end:
+                continue
+            if block["is_missing"].iloc[0] == 1:
+                missing_periods.append({
+                    "start": start,
+                    "end": end,
+                    "site": name[0],
+                    "direction": name[1],
+                    "label": f"{name[0]} - {name[1]}"
+                })
+
+    return pd.DataFrame(missing_periods)
