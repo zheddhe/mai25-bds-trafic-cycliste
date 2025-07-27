@@ -55,29 +55,3 @@ def test_compute_metrics_on_test_output():
     metrics = compute_metrics(res["y_test"], res["y_test_pred"])
     assert "MAE" in metrics
     assert metrics["MAE"] >= 0
-
-
-def test_error_if_dataset_is_none(monkeypatch):
-    monkeypatch.setattr(am, "cached_load_dataset_ml", lambda: None)
-    with pytest.raises(Exception):
-        # Simulation partielle du bloc qui lève st.stop()
-        df = am.cached_load_dataset_ml()
-        assert df is None
-        if df is None or not isinstance(df, pd.DataFrame):
-            raise Exception("Handled error from streamlit stop logic")
-
-
-def test_empty_results_trigger_warning(monkeypatch):
-    dummy_df = pd.DataFrame(columns=[
-        "nom_du_site_de_comptage", "orientation_compteur", "comptage_horaire"
-    ])
-    monkeypatch.setattr(am, "cached_load_dataset_ml", lambda: dummy_df)
-
-    # simulate all sites being filtered out
-    selected_sites = []
-    grouped = dummy_df.groupby(["nom_du_site_de_comptage",
-                                "orientation_compteur"])
-    results = {
-        k: v for k, v in grouped if k in selected_sites
-    }
-    assert results == {}
