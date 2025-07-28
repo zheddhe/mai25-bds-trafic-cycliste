@@ -271,7 +271,7 @@ with st.sidebar:
                       key="scaler_rad")
 
     # --- Echantillonnage du dataset + répartition train/test ---
-    range = st.slider("Prendre une portion du dataset d'origine", 0.0, 100.0,
+    range = st.slider("Portion du dataset d'origine à utiliser", 0.0, 100.0,
                       (0.0, 100.0), 0.1, format="%.1f %%", key="range_sld")
     split = st.slider("Répartition Train/Test", 0.1, 0.9, 0.75, 0.05,
                       key="split_sld")
@@ -394,9 +394,10 @@ with st.spinner("⏳ Entraînement des modèles en cours..."):
 
 # --- Synthèse globale des performances ---
 if train_config and train_config["show_metrics"] and metrics_table:
-    st.markdown("## 🧾 Synthèse des métriques de modélisation par compteur")
+    st.markdown("## 🧾 Synthèse des métriques de modélisation")
     display_metrics_table(metrics_table, st_module=st)
     # --- Affichage par compteur ---
+    st.markdown("## 🎯 Rapports par compteur")
     run_evaluation_per_compteur(
         results,
         SITE_LABELS,

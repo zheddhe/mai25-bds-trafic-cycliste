@@ -48,7 +48,7 @@ def run_evaluation_per_compteur(results, site_labels,
                     "MAE_test": test_metrics.get("MAE", None),
                 }
                 metrics_table.append(combined_row)
-                display_metrics_table(metrics_table, st_module=st)
+                display_metrics_table(metrics_table, st_module=st, show_mean=False)
 
             if show_preds:
                 st.markdown("### 🔮 Prédictions")
@@ -86,7 +86,7 @@ def run_evaluation_per_compteur(results, site_labels,
                         plt.close(fig)
 
 
-def display_metrics_table(metrics_table, st_module=None):
+def display_metrics_table(metrics_table, st_module=None, show_mean=True):
     st = st_module or __import__("streamlit")
 
     df_metrics = pd.DataFrame(metrics_table)
@@ -108,22 +108,23 @@ def display_metrics_table(metrics_table, st_module=None):
 
     st.dataframe(styled_df, use_container_width=True, hide_index=True)
 
-    # Moyenne séparée
-    num_cols = df_metrics.select_dtypes(include=np.number).columns
-    mean_row = df_metrics[num_cols].mean().to_frame().T
-    mean_row.insert(0, "Nombre de compteurs", df_metrics.shape[0])
+    if show_mean:
+        # display averages
+        num_cols = df_metrics.select_dtypes(include=np.number).columns
+        mean_row = df_metrics[num_cols].mean().to_frame().T
+        mean_row.insert(0, "Nombre de compteurs pour les métriques moyennes",
+                        df_metrics.shape[0])
 
-    styled_mean = (
-        mean_row.style
-        .format(precision=4)
-        .background_gradient(
-            subset=["R2_train", "R2_test"],
-            cmap="RdYlGn", vmin=0.0, vmax=1.0,
+        styled_mean = (
+            mean_row.style
+            .format(precision=4)
+            .background_gradient(
+                subset=["R2_train", "R2_test"],
+                cmap="RdYlGn", vmin=0.0, vmax=1.0,
+            )
         )
-    )
 
-    st.markdown("#### Moyennes des indicateurs")
-    st.dataframe(styled_mean, use_container_width=True, hide_index=True)
+        st.dataframe(styled_mean, use_container_width=True, hide_index=True)
 
 
 def display_train_parameters(
@@ -133,7 +134,7 @@ def display_train_parameters(
 ):
     st = st_module or __import__("streamlit")
 
-    with st.expander("🧾 Résumé des paramètres d'entrainement courants",
+    with st.expander("Résumé des paramètres d'entrainement courants",
                      expanded=False):
         col1, col2 = st.columns([1, 1])
         portion = train_config['range'][1] - train_config['range'][0]

@@ -1,6 +1,13 @@
 import streamlit as st
+from pathlib import Path
 
-st.title("🚲 Projet Trafic Cycliste – Démarche & Résultats")
+st.title("⚙️ Projet Trafic Cycliste – Démarche & Résultats")
+
+image_projet_mle_path = Path("app/assets/image_projet_mle.png")
+if image_projet_mle_path.exists():
+    st.image(str(image_projet_mle_path), use_container_width=True)
+else:
+    st.warning("Image not found: app/assets/image_projet_mle.png")
 
 st.markdown("**Présentation synthétique (20 minutes)**")
 with st.expander("🎙️ A - Introduction (1 min)", expanded=False):
@@ -40,8 +47,10 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
     - **Top sites** : Sébastopol, Rivoli, Magenta – corridors majeurs
     """)
 
-    st.info("➡️ Rendez-vous dans l’onglet 📈 *Visualisation et Statistiques*"
-            " pour les graphiques intéractifs")
+    st.info("""
+    ➡️ Voir les onglets 🔍 *Exploration statistique des données* et 📈 *Visualisations
+    des données* pour approfondir ces sujets de manière intéractive"
+    """)
 
 with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
     st.markdown("### 1. Objectif ML : Régression temporelle supervisée")
@@ -70,8 +79,11 @@ with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
       - améliorable par *fine-tuning* (R² ≈ 0.87 en test sur 1 semaine glissante)
     """)
 
-    st.info("➡️ Voir l’onglet 🧪 *Évaluation des modèles* pour utiliser notre"
-            " laboratoire d'entraînement intéractif")
+    st.info("""
+    ➡️ Voir l’onglet 🧪 *Laboratoire intéractif de modélisation* pour utiliser
+    notre laboratoire d'entraînement et d'observation de la performance des modèles
+    en pilotant les conditions
+    """)
 
 with st.expander("🔚 D - Conclusion & Ouverture (1 min)", expanded=False):
     st.markdown("""
