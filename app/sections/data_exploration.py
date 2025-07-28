@@ -55,7 +55,10 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
                     "date_et_heure_de_comptage"],
             keep=False,
         )
-        st.write("Nombre d'observations dupliquées (même compteur et même heure):")
+        st.markdown("""
+        **Observations dupliquées** (même compteur et même heure présents plusieurs
+        fois):
+        """)
         st.dataframe(df_raw[obs_dup])
         missing_df = get_missing_periods(df_raw)
         fig = px.timeline(
