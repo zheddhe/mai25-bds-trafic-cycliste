@@ -177,27 +177,27 @@ EXCLUDED_COLUMNS_DEFAULT = [
     "date_et_heure_de_comptage_year",
     "latitude",
     "longitude",
+    "arrondissement",
+    "elevation",
+    "date_et_heure_de_comptage_sin_week",
+    "date_et_heure_de_comptage_cos_week",
+    "date_et_heure_de_comptage_cos_day_of_year",
+    "date_et_heure_de_comptage_sin_day_of_year",
 ]
 AVAILABLE_COLUMNS_TO_EXCLUDE = [
     "weather_code_wmo_code_category",
-    "arrondissement",
     "jour_ferie",
     "vacances_scolaires",
     "temperature_2m_c",
     "rain_mm",
     "snowfall_cm",
-    "elevation",
     "date_et_heure_de_comptage_week_end",
     "date_et_heure_de_comptage_sin_hour",
     "date_et_heure_de_comptage_cos_hour",
     "date_et_heure_de_comptage_sin_day_of_week",
     "date_et_heure_de_comptage_cos_day_of_week",
-    "date_et_heure_de_comptage_sin_week",
-    "date_et_heure_de_comptage_cos_week",
     "date_et_heure_de_comptage_cos_month",
     "date_et_heure_de_comptage_sin_month",
-    "date_et_heure_de_comptage_cos_day_of_year",
-    "date_et_heure_de_comptage_sin_day_of_year",
 ]
 AVAILABLE_COLUMNS = EXCLUDED_COLUMNS_DEFAULT+AVAILABLE_COLUMNS_TO_EXCLUDE
 MANDATORY_COLUMNS = [
@@ -218,8 +218,10 @@ st.title("🧪 Laboratoire d'évaluation des modèles")
 st.markdown("""
 Cette page vous permet de tester différents modèles de régression
 sur les données de comptage vélo avec des options personnalisables.
-> - Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
-drive via le menu ⬅️
+""")
+st.info("""
+👈 Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
+drive via le menu
 """)
 
 # --- Chargement des données ---
@@ -278,10 +280,10 @@ with st.sidebar:
 
     # --- Explications
     st.markdown("""
-> (*) Entrainement **_couteux_** avec recherche Bayesienne d'hyperparamètres
+> (*) Entrainement **_couteux_** avec recherche **Bayesienne** d'hyperparamètres
 >
-> (**) Prédiction récursive **_couteuse_** avec ré-infusion des AR/MM recalculés sur la
-base des données prédites plutôt que réelles
+> (**) Prédiction récursive **_couteuse_** avec ré-infusion des AR/MM recalculées sur la
+base des valeurs prédites (et non pas réelles) de la **variable cible**
 """)
     # --- Sélection des variables explicatives ---
     with st.expander("❌ **Variables explicatives à exclure**"):

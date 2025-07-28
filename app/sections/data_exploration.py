@@ -46,8 +46,10 @@ st.markdown("""
 Cette page vous permet d'explorer les données afin d'observer
 différents types de statistiques mesurant la qualité et la pertinence des données de
 comptage vélo avec des paramètres de regroupement personnalisables.
-> - Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
-drive via le menu ⬅️
+""")
+st.info("""
+👈 Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
+drive via le menu
 """)
 
 with st.sidebar:
