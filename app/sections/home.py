@@ -9,7 +9,7 @@ st.markdown(
 )
 st.info(
     '''
-    👈 Utilisez la barre latérale pour explorer :
+    👈 Utilisez le menu de navigation latéral pour explorer :
     - La présentation de la démarche projet et nos résultats et conclusions
     - L'exploration intéractive des statistiques après la phase de préparation
       des données

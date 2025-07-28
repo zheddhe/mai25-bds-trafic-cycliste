@@ -41,7 +41,7 @@ def cached_load_dataset_exploration():
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_refactored_data"
 
-st.title("🔍 Exploration statistique des données")
+st.title("🔍 Exploration statistique intéractive des données")
 st.markdown("""
 Cette page vous permet d'explorer les données afin d'observer
 différents types de statistiques mesurant la qualité et la pertinence des données de

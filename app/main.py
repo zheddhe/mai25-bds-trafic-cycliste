@@ -10,9 +10,9 @@ st.sidebar.title("🗂️ Navigation")
 pages = {
     "🏠 Présentation de l'application": "home",
     "⚙️ Démarche projet et résultats": "project_presentation",
-    "🔍 Exploration statistique des données": "data_exploration",
-    "📈 Visualisations intéractives des données": "data_visualization",
-    "🧪 Laboratoire intéractif de modélisation": "modeling"
+    "🔍 Exploration statistique **intéractive** des données": "data_exploration",
+    "📈 Visualisations **intéractives** des données": "data_visualization",
+    "🧪 Laboratoire **intéractif** de modélisation": "modeling"
 }
 
 selection = st.sidebar.radio("Changer de section", list(pages.keys()))
