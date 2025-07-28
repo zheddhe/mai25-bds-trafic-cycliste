@@ -9,6 +9,20 @@ import plotly.graph_objects as go
 
 # --- Chargement des données ---
 @st.cache_data
+def cached_get_missing_periods(df_raw):
+    if os.environ.get("IS_TESTING") == "1":
+        return pd.DataFrame({
+            "start": "2025-01-07T11:00:00+01:00",
+            "end": "2025-01-07T14:00:00+01:00",
+            "site": "TEST_SITE",
+            "direction": "N-S",
+            "label": "TEST_SITE - N-S"
+        })
+    df = get_missing_periods(df_raw)
+    return df
+
+
+@st.cache_data
 def cached_load_dataset_exploration():
     if os.environ.get("IS_TESTING") == "1":
         return pd.DataFrame({
@@ -29,8 +43,8 @@ DATASET_NAME = "velo_comptage_refactored_data"
 
 st.title("🔍 Exploration statistique des données")
 st.markdown("""
-Cette page vous permet de d'explorer et regrouper les données afin d'observer
-différents types de statistiques mesurant la qualité et pertinence des données de
+Cette page vous permet d'explorer les données afin d'observer
+différents types de statistiques mesurant la qualité et la pertinence des données de
 comptage vélo avec des paramètres de regroupement personnalisables.
 > - Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
 drive via le menu ⬅️
@@ -47,8 +61,8 @@ with st.spinner("⏳ Chargement du dataset en cours..."):
 if df_raw is not None and isinstance(df_raw, pd.DataFrame):
     st.success(f"✅ Données [{DATASET_NAME}] chargées avec succès.")
 
-    with st.expander("🚨 Doublons et périodes avec discontinuité du"
-                     " relevé horaire de comptage"):
+    with st.expander("🚨 Identification des doublons et des discontinuités"
+                     "dans les périodes de relevé horaire"):
         obs_dup = df_raw.duplicated(
             subset=["nom_du_site_de_comptage",
                     "orientation_compteur",
@@ -60,7 +74,7 @@ if df_raw is not None and isinstance(df_raw, pd.DataFrame):
         fois):
         """)
         st.dataframe(df_raw[obs_dup])
-        missing_df = get_missing_periods(df_raw)
+        missing_df = cached_get_missing_periods(df_raw)
         fig = px.timeline(
             missing_df,
             x_start="start",
