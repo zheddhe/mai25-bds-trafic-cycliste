@@ -550,7 +550,9 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             else:
                 st.warning("Image not found: app/assets/boxplot_site_comptage.png")
 
-            boxplot_vacances_scolaires = Path("app/assets/boxplot_vacances_scolaires.png")
+            boxplot_vacances_scolaires = Path(
+                "app/assets/boxplot_vacances_scolaires.png"
+            )
             if boxplot_vacances_scolaires.exists():
                 st.image(str(boxplot_vacances_scolaires), use_container_width=True,
                          caption="Boxplot Vacances Scolaires")
