@@ -4,16 +4,13 @@ from pathlib import Path
 URL_COMPTAGE_PARIS = "https://opendata.paris.fr/explore/dataset/\
 comptage-velo-donnees-compteurs/information/?disjunctive.id_compteur&\
 disjunctive.nom_compteur&disjunctive.id&disjunctive.name"
-
 URL_COMPTEURS_PARIS = "https://parisdata.opendatasoft.com/explore/dataset/\
 comptage-velo-compteurs/information/?disjunctive.counter&disjunctive.name&\
 disjunctive.nom_compteur&disjunctive.id&disjunctive.id_compteur"
-
 URL_API_METEO_PARIS = "https://open-meteo.com/en/docs/historical-forecast-api"
-
 URL_API_JOUR_FERIES = "https://www.data.gouv.fr/fr/dataservices/jours-feries/"
-
 URL_API_VACANCES = "https://data.education.gouv.fr/api"
+URL_PAPIER_GRANITE = "https://arxiv.org/pdf/2401.03955"
 
 st.set_page_config(layout="wide")
 
@@ -55,30 +52,27 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
 
     with st.expander("Détails sur le Nettoyage", expanded=False):
         col1, col2 = st.columns([0.5, 0.5])
-        with col1:
-            img = Path("app/assets/B/repartition_absence_de_valeur.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "repartition_absence_de_valeur.png")
-        with col2:
-            img = Path("app/assets/B/repartition_absence_de_valeur_corrige.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "repartition_absence_de_valeur_corrige.png")
+        img = Path("app/assets/B/repartition_absence_de_valeur.png")
+        if img.exists():
+            col1.image(str(img), use_container_width=True)
+        else:
+            col1.warning("Image not found: app/assets/B/"
+                         "repartition_absence_de_valeur.png")
+
+        img = Path("app/assets/B/repartition_absence_de_valeur_corrige.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/B/"
+                         "repartition_absence_de_valeur_corrige.png")
 
         col1, col2 = st.columns([0.5, 0.5])
-        with col1:
-            st.markdown("""
-            #### Cartographie des données manquantes (initiale)
-            """)
-        with col2:
-            st.markdown("""
-            #### Cartographie des données manquantes (après nettoyage)
-            """)
+        col1.markdown("""
+        #### Cartographie des données manquantes (initiale)
+        """)
+        col2.markdown("""
+        #### Cartographie des données manquantes (après nettoyage)
+        """)
 
         st.markdown(f"""
         Les valeurs manquantes sont regroupées sur des **plages d'index contiguës**,
@@ -111,6 +105,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
     - **Ajout** de données **gouvernementales**
     - **Croisement** avec données **météo**
     """)
+
     with st.expander("Détails sur l'Enrichissement", expanded=False):
         st.markdown("#### Données intrinsèques / Recombinaisons")
         st.markdown("""
@@ -154,194 +149,189 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
     with st.expander("Analyses statistiques du **comptage horaire**",
                      expanded=False):
         col1, col2, col3 = st.columns([0.35, 0.35, 0.34])
-        with col1:
-            img = Path("app/assets/B/qq_plot_residus.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/qq_plot_residus.png")
-        with col2:
-            img = Path("app/assets/B/analyse_comptage_horaire.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/analyse_comptage_horaire.png")
-        with col3:
-            img = Path("app/assets/B/analyse_comptage_horaire_corrige.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "analyse_comptage_horaire_corrige.png")
+        img = Path("app/assets/B/qq_plot_residus.png")
+        if img.exists():
+            col1.image(str(img), use_container_width=True)
+        else:
+            col1.warning("Image not found: app/assets/B/qq_plot_residus.png")
+
+        img = Path("app/assets/B/analyse_comptage_horaire.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/B/analyse_comptage_horaire.png")
+
+        img = Path("app/assets/B/analyse_comptage_horaire_corrige.png")
+        if img.exists():
+            col3.image(str(img), use_container_width=True)
+        else:
+            col3.warning("Image not found: app/assets/B/"
+                         "analyse_comptage_horaire_corrige.png")
 
         col1, col2, col3 = st.columns([0.35, 0.35, 0.34])
-        with col1:
-            st.markdown("""
-            #### QQ-plot des résidus du comptage horaire
-            Les données de la variable `comptage_horaire` **ne suivent pas une
-            loi normale**, comme le montre l'écart entre les **quantiles
-            théoriques** d’une loi normale (*courbe rouge*) et les valeurs
-            observées (*en bleu*).
+        col1.markdown("""
+        #### QQ-plot des résidus du comptage horaire
+        Les données de la variable `comptage_horaire` **ne suivent pas une
+        loi normale**, comme le montre l'écart entre les **quantiles
+        théoriques** d’une loi normale (*courbe rouge*) et les valeurs
+        observées (*en bleu*).
 
-            Le **test d'Anderson** confirme cette
-            non-normalité.
-            """)
-        with col2:
-            st.markdown("""
-            #### Analyse du comptage horaire (avant correction)
-            Ces graphiques illustrent la **distribution initiale** du comptage horaire
-            (globale et par mois) avec une **concentration sur les faibles valeurs**
-            et la présence d'**une valeur aberrante**.
-            """)
-        with col3:
-            st.markdown("""
-            #### Analyse du comptage horaire (après correction)
-            Ces graphiques montrent la **distribution ajustée** du comptage horaire
-            après la **correction de la valeur aberrante**, offrant une vue
-            plus réaliste et confirmant la distribution sur les faibles valeurs.
-            """)
+        Le **test d'Anderson** confirme cette
+        non-normalité.
+        """)
+
+        col2.markdown("""
+        #### Analyse du comptage horaire (avant correction)
+        Ces graphiques illustrent la **distribution initiale** du comptage horaire
+        (globale et par mois) avec une **concentration sur les faibles valeurs**
+        et la présence d'**une valeur aberrante**.
+        """)
+
+        col3.markdown("""
+        #### Analyse du comptage horaire (après correction)
+        Ces graphiques montrent la **distribution ajustée** du comptage horaire
+        après la **correction de la valeur aberrante**, offrant une vue
+        plus réaliste et confirmant la distribution sur les faibles valeurs.
+        """)
 
     with st.expander("Visualisation du **comptage horaire**", expanded=False):
         col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
-        with col1:
-            img = Path("app/assets/B/comptage_horaire_moyen_par_jour.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "comptage_horaire_moyen_par_jour.png")
-        with col3:
-            img = Path("app/assets/B/Top_10_stations.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/Top_10_stations.png")
-        with col2:
-            img = Path("app/assets/B/top_10_heures_fort_comptage.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "top_10_heures_fort_comptage.png")
+        img = Path("app/assets/B/comptage_horaire_moyen_par_jour.png")
+        if img.exists():
+            col1.image(str(img), use_container_width=True)
+        else:
+            col1.warning("Image not found: app/assets/B/"
+                         "comptage_horaire_moyen_par_jour.png")
+
+        img = Path("app/assets/B/Top_10_stations.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/B/Top_10_stations.png")
+        img = Path("app/assets/B/top_10_heures_fort_comptage.png")
+
+        if img.exists():
+            col3.image(str(img), use_container_width=True)
+        else:
+            col3.warning("Image not found: app/assets/B/"
+                         "top_10_heures_fort_comptage.png")
 
         col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
-        with col1:
-            st.markdown("#### Comptage moyen par jour de la semaine")
-            st.markdown("""
-            Ce graphique met en lumière les différences d’intensité du trafic
-            cycliste selon les jours de la semaine, en moyenne horaire.
-            - **Jours les plus fréquentés** : Mardi (89.8) et Jeudi (89.6),
-            reflétant une forte activité cycliste en milieu de semaine.
-            Mercredi (87.9) est proche.
-            - **Déclin en fin de semaine** : Le trafic baisse légèrement le
-            Vendredi (≈81), puis significativement le Samedi (≈62) et surtout
-            Dimanche (≈55), montrant une transition vers un usage loisir ou
-            un abandon temporaire.
-            - **Lundi plus faible** : Le Lundi (≈82) est en retrait,
-            potentiellement dû à un démarrage de semaine plus progressif.
-            """)
-        with col2:
-            st.markdown("#### Heures avec le plus fort comptage total")
-            st.markdown("""
-            Ce graphique met en évidence les dix heures les plus fréquentées
-            sur l’ensemble des stations.
-            - **Heures de pointe très marquées** : La pointe du soir (**18h**)
-            est en tête (plus de 7,5 millions), suivie de 19h, 17h et 20h.
-            - **Heures de début de journée très actives** : Les créneaux 8h et
-            9h enregistrent un fort comptage (> 5.9 millions), témoignant des
-            déplacements domicile-travail.
-            - **Heures de milieu de journée plus modérées** : 12h, 13h, 15h et
-            16h affichent un comptage moindre (3.6 à 4.1 millions),
-            correspondant à des déplacements personnels/professionnels.
-            """)
-        with col3:
-            st.markdown("#### Stations les plus fréquentées")
-            st.markdown("""
-            Ce graphique met en évidence une forte concentration du trafic
-            cycliste sur quelques artères majeures de Paris.
-            - **Domination du boulevard de Sébastopol et de la rue de Rivoli** :
-            Le Totem 73 boulevard de Sébastopol (S-N) domine (plus de 3
-            millions), avec deux stations de la rue de Rivoli également
-            importantes. Ces itinéraires sont des corridors cyclables majeurs.
-            - **Importance des compteurs bidirectionnels** : La présence de deux
-            directions opposées sur plusieurs stations traduit des flux
-            équilibrés.
-            - **Diversité géographique** : D'autres stations comme Magenta,
-            Ménilmontant, Voltaire et la Tournelle suggèrent une diffusion de
-            l’usage au-delà de l’hyper-centre.
-            """)
+        col1.markdown("#### Comptage moyen par jour de la semaine")
+        col1.markdown("""
+        Ce graphique met en lumière les différences d’intensité du trafic
+        cycliste selon les jours de la semaine, en moyenne horaire.
+        - **Jours les plus fréquentés** : Mardi (89.8) et Jeudi (89.6),
+        reflétant une forte activité cycliste en milieu de semaine.
+        Mercredi (87.9) est proche.
+        - **Déclin en fin de semaine** : Le trafic baisse légèrement le
+        Vendredi (≈81), puis significativement le Samedi (≈62) et surtout
+        Dimanche (≈55), montrant une transition vers un usage loisir ou
+        un abandon temporaire.
+        - **Lundi plus faible** : Le Lundi (≈82) est en retrait,
+        potentiellement dû à un démarrage de semaine plus progressif.
+        """)
+
+        col2.markdown("#### Heures avec le plus fort comptage total")
+        col2.markdown("""
+        Ce graphique met en évidence les dix heures les plus fréquentées
+        sur l’ensemble des stations.
+        - **Heures de pointe très marquées** : La pointe du soir (**18h**)
+        est en tête (plus de 7,5 millions), suivie de 19h, 17h et 20h.
+        - **Heures de début de journée très actives** : Les créneaux 8h et
+        9h enregistrent un fort comptage (> 5.9 millions), témoignant des
+        déplacements domicile-travail.
+        - **Heures de milieu de journée plus modérées** : 12h, 13h, 15h et
+        16h affichent un comptage moindre (3.6 à 4.1 millions),
+        correspondant à des déplacements personnels/professionnels.
+        """)
+
+        col3.markdown("#### Stations les plus fréquentées")
+        col3.markdown("""
+        Ce graphique met en évidence une forte concentration du trafic
+        cycliste sur quelques artères majeures de Paris.
+        - **Domination du boulevard de Sébastopol et de la rue de Rivoli** :
+        Le Totem 73 boulevard de Sébastopol (S-N) domine (plus de 3
+        millions), avec deux stations de la rue de Rivoli également
+        importantes. Ces itinéraires sont des corridors cyclables majeurs.
+        - **Importance des compteurs bidirectionnels** : La présence de deux
+        directions opposées sur plusieurs stations traduit des flux
+        équilibrés.
+        - **Diversité géographique** : D'autres stations comme Magenta,
+        Ménilmontant, Voltaire et la Tournelle suggèrent une diffusion de
+        l’usage au-delà de l’hyper-centre.
+        """)
 
     with st.expander("Visualisation du **comptage horaire** Vs **météo** et"
                      " **vacances scolaires**",
                      expanded=False):
         col1, col2 = st.columns([0.5, 0.5])
-        with col1:
-            img = Path("app/assets/B/boxplot_vacances_scolaires.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "boxplot_vacances_scolaires.png")
-            st.markdown("""
-            #### Comptage horaire Vs Vacances Scolaires
-            Ce graphique montre que le trafic cycliste est significativement
-            plus élevé et plus variable hors vacances scolaires.
-            Pendant les périodes de vacances, l'activité diminue,
-            particulièrement pendant les vacances de Noël et de la Toussaint.
-            Cela indique que les vacances scolaires sont un facteur clé
-            influençant l'usage du vélo, principalement utilitaire.
-            """)
-        with col2:
-            img = Path("app/assets/B/boxplot_weather.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/boxplot_weather.png")
-            st.markdown("""
-            #### Comptage horaire Vs Météo
-            Le graphique démontre une forte corrélation entre la météo
-            et le trafic cycliste.
-            L'affluence est plus élevée par temps clément ou légèrement nuageux,
-            et chute drastiquement en cas de conditions sévères
-            comme les fortes pluies, la neige, le grésil, le verglas ou les orages.
-            La variabilité du trafic est également plus importante par temps favorable.
-            """)
+        img = Path("app/assets/B/boxplot_vacances_scolaires.png")
+        if img.exists():
+            col1.image(str(img), use_container_width=True)
+        else:
+            col1.warning("Image not found: app/assets/B/"
+                         "boxplot_vacances_scolaires.png")
+        col1.markdown("""
+        #### Comptage horaire Vs Vacances Scolaires
+        Ce graphique montre que le trafic cycliste est significativement
+        plus élevé et plus variable hors vacances scolaires.
+        Pendant les périodes de vacances, l'activité diminue,
+        particulièrement pendant les vacances de Noël et de la Toussaint.
+        Cela indique que les vacances scolaires sont un facteur clé
+        influençant l'usage du vélo, principalement utilitaire.
+        """)
+
+        img = Path("app/assets/B/boxplot_weather.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/B/boxplot_weather.png")
+        col2.markdown("""
+        #### Comptage horaire Vs Météo
+        Le graphique démontre une forte corrélation entre la météo
+        et le trafic cycliste.
+        L'affluence est plus élevée par temps clément ou légèrement nuageux,
+        et chute drastiquement en cas de conditions sévères
+        comme les fortes pluies, la neige, le grésil, le verglas ou les orages.
+        La variabilité du trafic est également plus importante par temps favorable.
+        """)
 
     with st.expander("Visualisation du **comptage horaire** Vs **géolocalisation**",
                      expanded=False):
+
         col1, col2 = st.columns([0.4, 0.6])
-        with col1:
-            img = Path("app/assets/B/comptage_total_site.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/comptage_total_site.png")
-        with col2:
-            boxplot_site_comptage = Path("app/assets/B/boxplot_site_comptage.png")
-            if boxplot_site_comptage.exists():
-                st.image(str(boxplot_site_comptage), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/boxplot_site_comptage.png")
+        img = Path("app/assets/B/comptage_total_site.png")
+        if img.exists():
+            col1.image(str(img), use_container_width=True)
+        else:
+            col1.warning("Image not found: app/assets/B/comptage_total_site.png")
+
+        img = Path("app/assets/B/boxplot_site_comptage.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/B/boxplot_site_comptage.png")
+
         col1, col2 = st.columns([0.4, 0.6])
-        with col1:
-            st.markdown("""
-            #### Comptage total par site
-            Une **disparité significative** du volume total de vélos
-            enregistrés par les compteurs est observée entre **le centre et la
-            périphérie** de Paris, ainsi qu'entre **le nord-est et le sud-est**.
-            Cependant, la **disparité** du maillage des compteurs ne permet pas de
-            tirer des conclusions certaines sur la seule base de la
-            géolocalisation.
-            """)
-        with col2:
-            st.markdown("""
-            #### Comptage horaire par Site de comptage
-            On peut constater que le trafic est globalement **disparate** avec présence
-            systématique d'outlier comme **schéma de répartition standard**:
-            - Une station n'a que des **relevés nuls**: `108 avenue Denfert Rochereau`
-            - Médianes **très faible** mettant d'autant plus en évidence les
-            **outliers haut** par exemple: `Totem Cours la Reine` et `132 Rue Lecourbe`
-            """)
+        col1.markdown("""
+        #### Comptage total par site
+        Une **disparité significative** du volume total de vélos
+        enregistrés par les compteurs est observée entre **le centre et la
+        périphérie** de Paris, ainsi qu'entre **le nord-est et le sud-est**.
+        Cependant, la **disparité** du maillage des compteurs ne permet pas de
+        tirer des conclusions certaines sur la seule base de la
+        géolocalisation.
+        """)
+
+        col2.markdown("""
+        #### Comptage horaire par Site de comptage
+        On peut constater que le trafic est globalement **disparate** avec présence
+        systématique d'outlier comme **schéma de répartition standard**:
+        - Une station n'a que des **relevés nuls**: `108 avenue Denfert Rochereau`
+        - Médianes **très faible** mettant d'autant plus en évidence les
+        **outliers haut** par exemple: `Totem Cours la Reine` et `132 Rue Lecourbe`
+        """)
 
 
 with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
@@ -366,6 +356,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             col1.latex(r'''
                 x_{MM_{sq}} = \frac{1}{s \times q} \sum_{i=1}^{s \times q + 1} y_{t - i}
             ''')
+
             col2.latex(r'''
                 x_{\text{sinusoïdal}(x_p)} = \sin\left(2\pi \cdot \frac{x_p}{P}\right)
             ''')
@@ -424,8 +415,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
     st.markdown("### 2. Performances sans AR/MM")
 
-    with st.expander("Details Performances sans AR/MM",
-                     expanded=False):
+    with st.expander("Details Performances sans AR/MM", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
@@ -484,8 +474,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
     st.markdown("### 3. Performances explicatives avec AR/MM (avec valeurs réelles"
                 " de la cible)")
 
-    with st.expander("Details Performances explicatives avec AR/MM",
-                     expanded=False):
+    with st.expander("Details Performances explicatives avec AR/MM", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
@@ -604,31 +593,78 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                          "lineaire_mean_metrics_forecast.png")
 
     st.markdown("### 5. Performances prédictives de modèles spécifiques avancés")
-    st.markdown("""
-    Les deux derniers modèles étudiés sont forcément sans vision des valeurs réelles
-    de la variable cible et auto-calculent leur fenêtre de contexte
-    - via la saison/AR/MA pour le modèle SARIMAX
-    - via la fenêtre de contexte mobile pour les Transformers du modèle Deep Learning
+    st.markdown(f"""
+    Les deux derniers modèles étudiés utilisent par contruction uniquement les valeurs
+    prédites calculées de la variable cible et auto-calculent leur contexte mobile
+    - via la **saisonnalité/AR/MA** pour le modèle **SARIMAX**
+    - via la **fenêtre de contexte mobile** (FCM) pour les Tiny Time Mixers (TTM)
+    pour le modèle de **Deep Learning** [Granite d'IBM]({URL_PAPIER_GRANITE})
     """)
-    with st.expander("Details sur modèle SARIMAX",
-                     expanded=False):
+    with st.expander("Details sur modèle SARIMAX", expanded=False):
         col1, col2, col3 = st.columns([1, 1, 1])
-        with col1:
-            st.markdown("""
-            - ❌ **SARIMAX** : très rapide en calcul de prédiction mais extrêmement
-            couteux en entraînement et très faible en généralisation
-            """)
+        col1.markdown("""
+        - ❌ **SARIMAX** : très rapide en calcul de prédiction mais extrêmement
+        couteux en entraînement et très faible en généralisation
+        """)
 
-    with st.expander("Details sur modèle Deep Learning",
-                     expanded=False):
+    with st.expander("Details sur modèle Deep Learning", expanded=False):
         col1, col2, col3 = st.columns([1, 1, 1])
-        with col1:
-            st.markdown("""
-            - 🧠 **Deep Learning (Granite TTM)** :
-            - excellent en *zero-shot*
-            - améliorable par *fine-tuning* (R² ≈ 0.87 en test avec un contexte d'une
-            semaine glissante: 168 lags)
-            """)
+        col1.markdown("""
+        - 🧠 **Deep Learning (Granite TTM)** :
+        - Déjà très bon et généralisable en *zero-shot* sans **aucune
+        données exogène**:
+            - R² train = `0.873` | R² test = `0.891`
+        - Améliorable en *fine-tuning* aux possibilités **très nombreuses**
+        (incluant le **transfert learning** et la **prédiction parallèle
+        (multi-tête)**):
+            - Nos meilleurs résultats: R² train = `0.855` | R² test = `0.871`
+            (obtenu avec une FCM de taille 168 (= 1 semaine soit 29M de poids
+            à régler) et entrainé sur 60% de **toutes les données de comptage
+            disponibles**
+        """)
+
+        img = Path("app/assets/C/dl/deep_learning_granite_ttm_arch.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/dl"
+                         "deep_learning_granite_ttm_arch.png")
+
+        img = Path("app/assets/C/dl/deep_learning_int_preds.png")
+        if img.exists():
+            col3.image(str(img), use_container_width=True)
+        else:
+            col3.warning("Image not found: app/assets/C/dl"
+                         "deep_learning_int_preds.png")
+
+        with st.expander("Meilleurs résultats : **zeroshot**", expanded=False):
+            col1, col2, col3 = st.columns([1, 1, 1])
+            img = Path("app/assets/C/dl/deep_learning_preds.png")
+            if img.exists():
+                col1.image(str(img), use_container_width=True)
+            else:
+                col1.warning("Image not found: app/assets/C/dl"
+                             "deep_learning_preds.png")
+
+            img = Path("app/assets/C/dl/deep_learning_wides_preds.png")
+            if img.exists():
+                col2.image(str(img), use_container_width=True)
+            else:
+                col2.warning("Image not found: app/assets/C/dl"
+                             "deep_learning_wides_preds.png")
+
+            img = Path("app/assets/C/dl/deep_learning_rot.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/dl"
+                             "deep_learning_rot.png")
+            img = Path("app/assets/C/dl/deep_learning_trend.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/dl"
+                             "deep_learning_trend.png")
 
 with st.expander("🔚 D - Conclusion & Ouverture (< 1 min)", expanded=False):
     st.markdown("""
