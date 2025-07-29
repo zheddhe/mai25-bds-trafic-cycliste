@@ -1,6 +1,14 @@
 import streamlit as st
 from pathlib import Path
 
+URL_COMPTAGE_PARIS = "https://opendata.paris.fr/explore/dataset/\
+comptage-velo-donnees-compteurs/information/?disjunctive.id_compteur&\
+disjunctive.nom_compteur&disjunctive.id&disjunctive.name"
+
+URL_COMPTEURS_PARIS = "https://parisdata.opendatasoft.com/explore/dataset/\
+comptage-velo-compteurs/information/?disjunctive.counter&disjunctive.name&\
+disjunctive.nom_compteur&disjunctive.id&disjunctive.id_compteur"
+
 st.set_page_config(layout="wide")
 
 st.title("⚙️ Projet Trafic Cycliste – Démarche & Résultats")
@@ -29,17 +37,18 @@ with st.expander("🎙️ A - Introduction (1 min)", expanded=False):
 
 with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False):
     st.markdown("### 1. Données sources & nettoyages")
-    st.markdown("""
-    - **940k+ observations** sur **13 mois glissants** – source OpenData Paris
+    st.markdown(f"""
+    - **940k+ observations** sur **13 mois glissants** – source
+    [Open Data Paris - Données Compteurs]({URL_COMPTAGE_PARIS})
     - Nettoyage des **doublons/valeurs manquantes** (clusters par nom de compteur)
-    - **Reconstruction** de noms de compteur erronés
+    - **Reconstruction** des noms de compteur erronés
     """)
 
     with st.expander("Détails sur le Nettoyage", expanded=False):
-        st.markdown("""
-        Les valeurs manquantes sont regroupées sur des plages d'index contiguës
-        ,principalement pour des colonnes liées aux photos et identifiants
-        techniques : `lien_vers_photo_du_site_de_comptage`,
+        st.markdown(f"""
+        Les valeurs manquantes sont regroupées sur des plages d'index contiguës,
+        principalement pour des **colonnes liées aux photos et identifiants
+        techniques**: `lien_vers_photo_du_site_de_comptage`,
         `identifiant_technique_compteur`, `id_photos`,
         `test_lien_vers_photos_du_site_de_comptage`, `id_photo_1`,
         `type_dimage`.
@@ -51,13 +60,13 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
 
         Seuls quelques noms de compteur concentrent l'ensemble de ces
         observations manquantes (ex: '10 avenue de la Grande Armée...',
-        '27 quai de la Tournelle...', etc.). Ces noms étaient des valeurs
-        erronées transitoires ; ils ont été inférés et recoupés avec la base
-        `Comptage vélo - Compteurs`.
+        '27 quai de la Tournelle...', etc.). Ces noms étaient des **valeurs
+        erronées transitoires**; ils sont inférés et recoupés avec la base
+         de données [Open Data Paris - Compteurs]({URL_COMPTEURS_PARIS}).
 
-        Après reconduction des données d'origine, seules les données techniques
-        spécifiques de site (URL/préfixe/suffixe/id) subsistent. Ces variables,
-        jugées peu explicatives, ont été abandonnées.
+        Après reconduction des données d'origine, seules des données **techniques
+        spécifiques de site** (URL/préfixe/suffixe/id) manquent encore. Les variables,
+        associées, jugées peu explicatives, sont complètement écartées du dataset.
         """)
 
         col1, col2 = st.columns([0.5, 0.5])
@@ -73,7 +82,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             img = Path("app/assets/B/repartition_absence_de_valeur_corrige.png")
             if img.exists():
                 st.image(str(img), use_container_width=True,
-                         caption="Répartition de l’absence de valeur (corrigée)")
+                         caption="Répartition de l’absence de valeur (après nettoyage)")
             else:
                 st.warning("Image not found: app/assets/B/"
                            "repartition_absence_de_valeur_corrige.png")
@@ -81,23 +90,19 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         col1, col2 = st.columns([0.5, 0.5])
         with col1:
             st.markdown("""
-            **Répartition de l'absence de valeur (initiale)**
             Ce graphique montre la répartition des valeurs manquantes par
-            colonne avant tout traitement. On observe des clusters d'absence
-            concentrés sur des colonnes techniques et liées aux photos.
+            colonne **avant tout traitement**. On observe des **clusters
+            d'absence** concentrés sur des colonnes techniques et liées aux photos.
             """)
         with col2:
             st.markdown("""
-            **Répartition de l'absence de valeur (corrigée)**
-            Ce graphique montre l'état des valeurs manquantes après la phase
-            de nettoyage et de correction. La majorité des informations
-            techniques non essentielles ont été traitées, laissant un
-            dataset plus propre.
+            Ce graphique montre les **variables restantes** après la phase
+            de nettoyage et de correction.
             """)
 
     st.markdown("### 2. Feature engineering & enrichissement")
     with st.expander("Détails sur l'Enrichissement", expanded=False):
-        st.markdown("#### 2.1 Données intrinsèques / Recombinaisons")
+        st.markdown("#### Données intrinsèques / Recombinaisons")
         st.markdown("""
         Des variables complémentaires ont été créées à partir des données
         existantes pour la visualisation et la modélisation :
@@ -109,7 +114,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         - **`nom_du_compteur`** : extraction de l'orientation du compteur.
         """)
 
-        st.markdown("#### 2.2 Données jours fériés")
+        st.markdown("#### Données jours fériés")
         st.markdown("""
         Une information sur les jours fériés est récupérée et jointe via une
         API gouvernementale. Ces données sont connues 5 ans à l'avance et sont
@@ -117,14 +122,14 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         cyclistes.
         """)
 
-        st.markdown("#### 2.3 Données météo")
+        st.markdown("#### Données météo")
         st.markdown("""
         Des données météorologiques (température, code météo, précipitations,
         neige, altitude) sont intégrées depuis l'API Open-Meteo.com. Elles sont
         essentielles pour la modélisation du trafic à court terme.
         """)
 
-        st.markdown("#### 2.4 Données Vélib (envisagé mais non intégré)")
+        st.markdown("#### Données Vélib (envisagé mais non intégré)")
         st.markdown("""
         Nous avions envisagé d'utiliser des données des stations Vélib proches
         (nombre de stations ouvertes, bornes disponibles/occupées) via web
@@ -134,52 +139,8 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         période.
         """)
 
-        st.markdown("#### 2.5 Bilan de l'enrichissement")
-        st.markdown("""
-        Le dataset final, "prêt à l’emploi" pour la modélisation, ne contient
-        plus de données manquantes.
-        """)
-
-    st.markdown("### 3. Visualisations clés")
-    st.markdown("""
-    - **Heures de pointe** : matin (8h–9h) et soir (17h–20h)
-    - **Jours de la semaine** : mardi et jeudi > dimanche (trafic utilitaire
-      vs loisir)
-    - **Top sites** : Sébastopol, Rivoli, Magenta – corridors majeurs
-    """)
-
-    with st.expander(
-        "Détails sur les Transformations et Réduction de Dimension",
-        expanded=False
-    ):
-        st.markdown("#### 3.1 Transformations")
-        st.markdown("""
-        Pour la régression temporelle, une **normalisation des échelles** de
-        valeurs des variables quantitatives (ex: coordonnées géographiques)
-        est nécessaire. Les variables catégorielles nécessitent un encodage
-        numérique. La stratégie dépendra du nombre de valeurs uniques et de
-        leur type (ordinale/cardinale), pouvant potentiellement générer de
-        nombreuses variables.
-        """)
-
-        st.markdown("#### 3.2 Réduction de dimension")
-        st.markdown("""
-        Bien que notre jeu de données soit relativement faible en informations
-        initiales, l'enrichissement a ajouté des variables qualitatives avec
-        de nombreuses catégories (ex: code météo).
-        Deux stratégies ont été envisagées :
-        - **Encodage de fréquence** pour les catégories à forte cardinalité.
-        - **Encodages** réduisant le nombre d'occurrences pour les informations
-          géographiques agrégées ou temporelles (sans lien avec la cible :
-          Binary ou Frequency Encoding ; avec lien : Target Encoding).
-        Une **Analyse en Composantes Principales (PCA)** a été étudiée puis
-        écartée en raison du faible nombre de variables explicatives et de la
-        nature saisonnière/tendancielle des séries temporelles, qui contient
-        déjà de l'information intrinsèque.
-        """)
-
-    st.markdown("### 4. Visualisation et Statistiques")  # Re-numérotation
-    with st.expander("📊 4.1 Analyses Univariées", expanded=False):
+    st.markdown("### 3. Visualisation et Statistiques")  # Re-numérotation
+    with st.expander("📊 Analyses Univariées", expanded=False):
         st.markdown("#### 4.1.1 Comptage horaire")  # Re-numérotation
         st.markdown("""
         La variable **`comptage_horaire`** est fortement concentrée sur les
@@ -207,22 +168,6 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
                          caption="Analyse du comptage horaire")
             else:
                 st.warning("Image not found: app/assets/B/analyse_comptage_horaire.png")
-
-        col1, col2 = st.columns([0.6, 0.4])
-        with col1:
-            st.markdown("""
-            **Visualisation de la valeur aberrante et sa correction**
-            Ce graphique met en évidence la valeur aberrante de 3070 vélos
-            sur la tranche horaire de 14h, 5 janvier 2025, sur le compteur
-            "Quai d'Orsay O-E", qui a été corrigée car manifestement erronée.
-            """)
-        with col2:
-            img = Path("app/assets/B/analyse_valeur_aberrante.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Analyse de la valeur aberrante")
-            else:
-                st.warning("Image not found: app/assets/B/analyse_valeur_aberrante.png")
 
         col1, col2 = st.columns([0.6, 0.4])
         with col1:
@@ -348,7 +293,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             l’usage au-delà de l’hyper-centre.
             """)
 
-    with st.expander("🔬 4.2 Analyses Multivariées", expanded=False):
+    with st.expander("🔬 Analyses Multivariées", expanded=False):
         st.markdown("#### 4.2.1 Corrélation entre cible et variables numériques"
                     " (Test de Pearson)")
         col1, col2 = st.columns([0.6, 0.4])
