@@ -17,43 +17,25 @@ with st.expander("🎙️ A - Introduction (1 min)", expanded=False):
     La Ville de Paris dispose de compteurs permanents pour évaluer la
     pratique cycliste. Le but du projet : **prédire l’évolution horaire du
     trafic vélo** par site, pour :
-    - Adapter les aménagements cyclables
-    - Détecter les zones à surveiller
-    - Évaluer l’impact des facteurs météo, jour férié, horaire, etc.
+    - Comprendre l'évolution du comptage par site et par heure.
+    - Adapter les aménagements cyclables.
+    - [*Bonus abandonné : évaluer l'influence du trafic Vélib*]
 
     👥 **Équipe** : Rémy Canal, Elias Djouadi, (Raphaël Parmentier)
 
-    🧠 **Méthodologie** : mise en place d'une pipeline ML(Ops) complète +
+    🎯 **Objectif** : mise en place d'une pipeline ML(Ops) complète +
     laboratoire interactif Streamlit
     """)
 
 with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False):
     st.markdown("### 1. Données sources & nettoyages")
     st.markdown("""
-    - 940k+ observations, 13 mois glissants – source OpenData Paris
-    - Nettoyage des doublons/valeurs manquantes (clusters par nom de compteur)
-    - **Reconstruction automatique** de noms de compteur erronés
+    - **940k+ observations** sur **13 mois glissants** – source OpenData Paris
+    - Nettoyage des **doublons/valeurs manquantes** (clusters par nom de compteur)
+    - **Reconstruction** de noms de compteur erronés
     """)
 
     with st.expander("Détails sur le Nettoyage", expanded=False):
-        st.markdown("#### 1.1 Traitement des données manquantes")
-        col1, col2 = st.columns([0.6, 0.4])
-        with col1:
-            st.markdown("""
-            **Répartition de l'absence de valeur (initiale)**
-            Ce graphique montre la répartition des valeurs manquantes par
-            colonne avant tout traitement. On observe des clusters d'absence
-            concentrés sur des colonnes techniques et liées aux photos.
-            """)
-        with col2:
-            img = Path("app/assets/B/repartition_absence_de_valeur.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Répartition de l’absence de valeur (initiale)")
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "repartition_absence_de_valeur.png")
-
         st.markdown("""
         Les valeurs manquantes sont regroupées sur des plages d'index contiguës
         ,principalement pour des colonnes liées aux photos et identifiants
@@ -78,16 +60,15 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         jugées peu explicatives, ont été abandonnées.
         """)
 
-        st.markdown("#### 1.2 Traitement des types")
-        col1, col2 = st.columns([0.6, 0.4])
+        col1, col2 = st.columns([0.5, 0.5])
         with col1:
-            st.markdown("""
-            **Répartition de l'absence de valeur (corrigée)**
-            Ce graphique montre l'état des valeurs manquantes après la phase
-            de nettoyage et de correction. La majorité des informations
-            techniques non essentielles ont été traitées, laissant un
-            dataset plus propre.
-            """)
+            img = Path("app/assets/B/repartition_absence_de_valeur.png")
+            if img.exists():
+                st.image(str(img), use_container_width=True,
+                         caption="Répartition de l’absence de valeur (initiale)")
+            else:
+                st.warning("Image not found: app/assets/B/"
+                           "repartition_absence_de_valeur.png")
         with col2:
             img = Path("app/assets/B/repartition_absence_de_valeur_corrige.png")
             if img.exists():
@@ -97,13 +78,22 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
                 st.warning("Image not found: app/assets/B/"
                            "repartition_absence_de_valeur_corrige.png")
 
-        st.markdown("""
-        Nous avons ajusté le type de certaines variables et extrait des
-        informations périodiques (année, mois, jour, heure, semaine) de la
-        variable `date_et_heure_de_comptage`. Des informations géographiques
-        (latitude,longitude) ont été extraites de `coordonnees_geographiques`
-        et l'orientation du compteur du `nom_du_compteur`.
-        """)
+        col1, col2 = st.columns([0.5, 0.5])
+        with col1:
+            st.markdown("""
+            **Répartition de l'absence de valeur (initiale)**
+            Ce graphique montre la répartition des valeurs manquantes par
+            colonne avant tout traitement. On observe des clusters d'absence
+            concentrés sur des colonnes techniques et liées aux photos.
+            """)
+        with col2:
+            st.markdown("""
+            **Répartition de l'absence de valeur (corrigée)**
+            Ce graphique montre l'état des valeurs manquantes après la phase
+            de nettoyage et de correction. La majorité des informations
+            techniques non essentielles ont été traitées, laissant un
+            dataset plus propre.
+            """)
 
     st.markdown("### 2. Feature engineering & enrichissement")
     with st.expander("Détails sur l'Enrichissement", expanded=False):
@@ -286,23 +276,8 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             else:
                 st.warning("Image not found: app/assets/B/qq_plot_residus.png")
 
-        st.markdown("#### 4.1.2 Comptage moyen par jour de la semaine")
-        col1, col2 = st.columns([0.6, 0.4])
+        col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
         with col1:
-            st.markdown("""
-            Ce graphique met en lumière les différences d’intensité du trafic
-            cycliste selon les jours de la semaine, en moyenne horaire.
-            🔝 **Jours les plus fréquentés** : Mardi (89.8) et Jeudi (89.6),
-            reflétant une forte activité cycliste en milieu de semaine.
-            Mercredi (87.9) est proche.
-            📉 **Déclin en fin de semaine** : Le trafic baisse légèrement le
-            Vendredi (≈81), puis significativement le Samedi (≈62) et surtout
-            Dimanche (≈55), montrant une transition vers un usage loisir ou
-            un abandon temporaire.
-            📆 **Lundi plus faible** : Le Lundi (≈82) est en retrait,
-            potentiellement dû à un démarrage de semaine plus progressif.
-            """)
-        with col2:
             img = Path("app/assets/B/comptage_horaire_moyen_par_jour.png")
             if img.exists():
                 st.image(str(img), use_container_width=True,
@@ -310,22 +285,13 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             else:
                 st.warning("Image not found: app/assets/B/"
                            "comptage_horaire_moyen_par_jour.png")
-
-        st.markdown("#### 4.1.3 Top 10 des heures avec le plus fort comptage total")
-        col1, col2 = st.columns([0.6, 0.4])
-        with col1:
-            st.markdown("""
-            Ce graphique met en évidence les dix heures les plus fréquentées
-            sur l’ensemble des stations.
-            **Heures de pointe très marquées** : La pointe du soir (**18h**)
-            est en tête (plus de 7,5 millions), suivie de 19h, 17h et 20h.
-            **Heures de début de journée très actives** : Les créneaux 8h et
-            9h enregistrent un fort comptage (> 5.9 millions), témoignant des
-            déplacements domicile-travail.
-            **Heures de milieu de journée plus modérées** : 12h, 13h, 15h et
-            16h affichent un comptage moindre (3.6 à 4.1 millions),
-            correspondant à des déplacements personnels/professionnels.
-            """)
+        with col3:
+            img = Path("app/assets/B/Top_10_stations.png")
+            if img.exists():
+                st.image(str(img), use_container_width=True,
+                         caption="Top 10 des stations les plus fréquentées")
+            else:
+                st.warning("Image not found: app/assets/B/Top_10_stations.png")
         with col2:
             img = Path("app/assets/B/top_10_heures_fort_comptage.png")
             if img.exists():
@@ -335,30 +301,52 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
                 st.warning("Image not found: app/assets/B/"
                            "top_10_heures_fort_comptage.png")
 
-        st.markdown("#### 4.1.4 Top 10 des stations les plus fréquentées")
-        col1, col2 = st.columns([0.6, 0.4])
+        col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
         with col1:
+            st.markdown("#### Comptage moyen par jour de la semaine")
+            st.markdown("""
+            Ce graphique met en lumière les différences d’intensité du trafic
+            cycliste selon les jours de la semaine, en moyenne horaire.
+            - **Jours les plus fréquentés** : Mardi (89.8) et Jeudi (89.6),
+            reflétant une forte activité cycliste en milieu de semaine.
+            Mercredi (87.9) est proche.
+            - **Déclin en fin de semaine** : Le trafic baisse légèrement le
+            Vendredi (≈81), puis significativement le Samedi (≈62) et surtout
+            Dimanche (≈55), montrant une transition vers un usage loisir ou
+            un abandon temporaire.
+            - **Lundi plus faible** : Le Lundi (≈82) est en retrait,
+            potentiellement dû à un démarrage de semaine plus progressif.
+            """)
+        with col2:
+            st.markdown("#### Top 10 des heures avec le plus fort comptage total")
+            st.markdown("""
+            Ce graphique met en évidence les dix heures les plus fréquentées
+            sur l’ensemble des stations.
+            - **Heures de pointe très marquées** : La pointe du soir (**18h**)
+            est en tête (plus de 7,5 millions), suivie de 19h, 17h et 20h.
+            - **Heures de début de journée très actives** : Les créneaux 8h et
+            9h enregistrent un fort comptage (> 5.9 millions), témoignant des
+            déplacements domicile-travail.
+            - **Heures de milieu de journée plus modérées** : 12h, 13h, 15h et
+            16h affichent un comptage moindre (3.6 à 4.1 millions),
+            correspondant à des déplacements personnels/professionnels.
+            """)
+        with col3:
+            st.markdown("#### Top 10 des stations les plus fréquentées")
             st.markdown("""
             Ce graphique met en évidence une forte concentration du trafic
             cycliste sur quelques artères majeures de Paris.
-            **Domination du boulevard de Sébastopol et de la rue de Rivoli** :
+            - **Domination du boulevard de Sébastopol et de la rue de Rivoli** :
             Le Totem 73 boulevard de Sébastopol (S-N) domine (plus de 3
             millions), avec deux stations de la rue de Rivoli également
             importantes. Ces itinéraires sont des corridors cyclables majeurs.
-            **Importance des compteurs bidirectionnels** : La présence de deux
+            - **Importance des compteurs bidirectionnels** : La présence de deux
             directions opposées sur plusieurs stations traduit des flux
             équilibrés.
-            **Diversité géographique** : D'autres stations comme Magenta,
+            - **Diversité géographique** : D'autres stations comme Magenta,
             Ménilmontant, Voltaire et la Tournelle suggèrent une diffusion de
             l’usage au-delà de l’hyper-centre.
             """)
-        with col2:
-            img = Path("app/assets/B/Top_10_stations.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Top 10 des stations les plus fréquentées")
-            else:
-                st.warning("Image not found: app/assets/B/Top_10_stations.png")
 
     with st.expander("🔬 4.2 Analyses Multivariées", expanded=False):
         st.markdown("#### 4.2.1 Corrélation entre cible et variables numériques"
@@ -672,7 +660,7 @@ with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
 
     col1, col2 = st.columns([1, 2])
     col1.markdown("""
-    - 🥇 **Random Forest** : encore très bon en test avec une perte en généralisation 
+    - 🥇 **Random Forest** : encore très bon en test avec une perte en généralisation
     (de ~8% en moyenne relativement au mode explicatif)
     """)
     img = Path("app/assets/C/random_forest_mean_metrics_forecast.png")
@@ -739,9 +727,9 @@ with st.expander("🔚 D - Conclusion & Ouverture (1 min)", expanded=False):
       - **profondeur** des données (8 ans d’archives disponible sur OpenData Paris)
       - **multiplication** des sources d'entraînement (via le transfert learning).
     - Exploiter la prédiction **multi-canal** de l'architecture Granite TTM
-      (nécessite une **adaptation de la structure des données** - X colonnes `comptage
-       horaire` pour une même heure donnée pour capter les influences
-       géographiques mutuelles)
+      (nécessite une **adaptation de la structure des données** - X colonnes
+      `comptage_horaire` pour une même heure donnée pour capter les influences
+      géographiques mutuelles)
     """)
     st.info("""
     👈 Les sections suivantes permettent d'explorer nos résultats intéractivement:
