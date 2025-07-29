@@ -490,7 +490,7 @@ with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
       - **Oscillatoires** (*de période P*) pour les composantes de l'horodatage suivant
       une période (heure -> 24, jour de la semaine -> 7, etc...)
     """)
-    with st.expander("Formalisation mathématique"):
+    with st.expander("Formalisation mathématique", expanded=True):
         col1, col2 = st.columns([1.5, 2])
         col1.latex(r'''
             x_{AR_p} = y_{t - p}
@@ -509,7 +509,7 @@ with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
     - Modèles de **régression** étudiés : `linéaire`, `ElasticNet`, `KNN`,
     `RandomForest`, `XGBoost`, `SARIMAX`, `Deep Learning`
     """)
-    with st.expander("Chronologie de l'étude des modèles"):
+    with st.expander("Chronologie de l'étude des modèles", expanded=True):
         col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
 
         img = Path("app/assets/C/lineaire.png")
@@ -672,7 +672,8 @@ with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
 
     col1, col2 = st.columns([1, 2])
     col1.markdown("""
-    - 🥇 **Random Forest** :
+    - 🥇 **Random Forest** : encore très bon en test avec une perte en généralisation 
+    (de ~8% en moyenne relativement au mode explicatif)
     """)
     img = Path("app/assets/C/random_forest_mean_metrics_forecast.png")
     if img.exists():
@@ -683,23 +684,26 @@ with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
 
     col1, col2 = st.columns([1, 2])
     col1.markdown("""
-    - 🥈 **XGBoost** :
-    """)
-    img = Path("app/assets/C/xgboost_mean_metrics_forecast.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/xgboost_mean_metrics_forecast.png")
-
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥉 **KNN** :
+    - 🥉 **KNN** : une précision moindre mais une perte en généralisation la plus faible
+    (de seulement ~6% en moyenne)
     """)
     img = Path("app/assets/C/knn_mean_metrics_forecast.png")
     if img.exists():
         col2.image(str(img), use_container_width=True)
     else:
         col2.warning("Image not found: app/assets/C/knn_mean_metrics_forecast.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥈 **XGBoost** : une nette tendance à l'overfitting intuitivement liée
+    à la nature même du modèle qui se base sur la correction itérative d'une erreur
+    résiduelle
+    """)
+    img = Path("app/assets/C/xgboost_mean_metrics_forecast.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/C/xgboost_mean_metrics_forecast.png")
 
     col1, col2 = st.columns([1, 2])
     col1.markdown("""
@@ -731,13 +735,13 @@ with st.expander("🔚 D - Conclusion & Ouverture (1 min)", expanded=False):
       **deep learning** sur ce sujet.
 
     🚀 **Prochaines étapes envisageables** :
-    - Exploiter les possibilité des réseaux de neurones:
-      - profondeur des données (8 ans d’archives disponible sur OpenData Paris)
-      - multiplication des sources (un même modèle peut être appliqué à différents
-        compteurs).
-    - Exploiter la prédiction **multi-canal** des architectures de modèles neuronaux
-      (transformation des données pour profiter de la prédiction parallèle du modèle
-      Granite TTM)
+    - Exploiter les possibilités des réseaux de neurones:
+      - **profondeur** des données (8 ans d’archives disponible sur OpenData Paris)
+      - **multiplication** des sources d'entraînement (via le transfert learning).
+    - Exploiter la prédiction **multi-canal** de l'architecture Granite TTM
+      (nécessite une **adaptation de la structure des données** - X colonnes `comptage
+       horaire` pour une même heure donnée pour capter les influences
+       géographiques mutuelles)
     """)
     st.info("""
     👈 Les sections suivantes permettent d'explorer nos résultats intéractivement:
