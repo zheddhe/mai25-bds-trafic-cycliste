@@ -3,12 +3,11 @@ from pathlib import Path
 
 st.title("⚙️ Projet Trafic Cycliste – Démarche & Résultats")
 
-image_projet_mle_path = Path("app/assets/image_projet_mle.png")
-if image_projet_mle_path.exists():
-    st.image(str(image_projet_mle_path), use_container_width=True)
+img = Path("app/assets/image_projet_mle.png")
+if img.exists():
+    st.image(str(img), use_container_width=True)
 else:
     st.warning("Image not found: app/assets/image_projet_mle.png")
-st.title("⚙️ Projet Trafic Cycliste – Démarche & Résultats")
 
 st.markdown("**Présentation synthétique (20 minutes)**")
 with st.expander("🎙️ A - Introduction (1 min)", expanded=False):
@@ -146,11 +145,6 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         l'information intrinsèque.
         """)
 
-    st.info("""
-    ➡️ Voir les onglets 🔍 *Exploration statistique des données* et 📈 *Visualisations
-    des données* pour approfondir ces sujets de manière intéractive"
-    """)
-
     # --- Nouvelle section pour la Visualisation ---
     st.markdown("## 📈 Visualisation et Statistiques")
 
@@ -230,7 +224,6 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         """)
         # st.image("boxplots_qualitatives_cible.png", caption="Distribution du comptage horaire par modalités de variables qualitatives")
 
-
         st.markdown("### 3. Comptage horaire vs Géolocalisation")
         st.markdown("""
         Une **disparité significative** du volume total de vélos enregistrés par les
@@ -242,59 +235,271 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         # st.map() ou st.pydeck_chart() avec les données de comptage
         # st.image("carte_comptage_geoloc.png", caption="Comptage total par géolocalisation")
 
-
-    st.info("➡️ Voir l’onglet 🧪 *Évaluation des modèles* pour utiliser notre"
-                " laboratoire d'entraînement intéractif")
-
-
-with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
+with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=True):
     st.markdown("### 1. Objectif ML : Régression temporelle supervisée")
+
     st.markdown("""
     - Variable cible : `comptage_horaire`
-    - Modèles testés : linéaire, ElasticNet, KNN, RandomForest, XGBoost, SARIMAX,
-      Deep Learning
-    - Enrichissement AR/MM (auto-régressions, moyennes mobiles) pour capter la
-      dynamique horaire saisonnière
+    - Extraction de variables explicatives additionnelles **spécifiques aux séries
+    temporelles**
+      - **AR** (*auto-régressives*) et **MM** (*moyennes mobiles*) depuis les valeurs
+      précédentes de la **variables cible (prédite ou réelle)**
+      - **Oscillatoires** (*de période P*) pour les composantes de l'horodatage suivant
+      une période (heure -> 24, jour de la semaine -> 7, etc...)
+    """)
+    with st.expander("Formalisation mathématique"):
+        col1, col2 = st.columns([1.5, 2])
+        col1.latex(r'''
+            x_{AR_p} = y_{t - p}
+        ''')
+        col1.latex(r'''
+            x_{MM_{sq}} = \frac{1}{s \times q} \sum_{i=1}^{s \times q + 1} y_{t - i}
+        ''')
+        col2.latex(r'''
+            x_{\text{sinusoïdal}(x_p)} = \sin\left(2\pi \cdot \frac{x_p}{P}\right)
+        ''')
+        col2.latex(r'''
+            x_{\text{cosinusoïdal}(x_p)} = \cos\left(2\pi \cdot \frac{x_p}{P}\right)
+        ''')
+
+    st.markdown("""
+    - Modèles de **régression** étudiés : `linéaire`, `ElasticNet`, `KNN`,
+    `RandomForest`, `XGBoost`, `SARIMAX`, `Deep Learning`
+    """)
+    with st.expander("Chronologie de l'étude des modèles"):
+        col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+
+        img = Path("app/assets/lineaire.png")
+        if img.exists():
+            col1.image(str(img), use_container_width=True)
+        else:
+            col1.warning("Image not found: app/assets/lineaire.png")
+
+        img = Path("app/assets/elasticnet.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/elasticnet.png")
+        img = Path("app/assets/knn.png")
+
+        if img.exists():
+            col3.image(str(img), use_container_width=True)
+        else:
+            col3.warning("Image not found: app/assets/knn.png")
+
+        img = Path("app/assets/random_forest.png")
+        if img.exists():
+            col4.image(str(img), use_container_width=True)
+        else:
+            col4.warning("Image not found: app/assets/random_forest.png")
+
+        img = Path("app/assets/xgboost.png")
+        if img.exists():
+            col5.image(str(img), use_container_width=True)
+        else:
+            col5.warning("Image not found: app/assets/xgboost.png")
+
+        img = Path("app/assets/sarimax.png")
+        if img.exists():
+            col6.image(str(img), use_container_width=True)
+        else:
+            col6.warning("Image not found: app/assets/sarimax.png")
+
+        img = Path("app/assets/deep_learning.png")
+        if img.exists():
+            col7.image(str(img), use_container_width=True)
+        else:
+            col7.warning("Image not found: app/assets/deep_learning.png")
+
+    st.markdown("### 2. Performances sans AR/MM")
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥇 **XGBoost** : meilleur compromis généralisation / précision
+    """)
+    img = Path("app/assets/xgboost_mean_metrics.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/xgboost_mean_metrics.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥈 **Random Forest** : excellent en entraînement mais problème de généralisation
+    """)
+    img = Path("app/assets/random_forest_mean_metrics.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/random_forest_mean_metrics.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
+    """)
+    img = Path("app/assets/knn_mean_metrics.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/knn_mean_metrics.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - ❌ **Régression linéaire** : mauvais en précision (stable en généralisation)
+    """)
+    img = Path("app/assets/lineaire_mean_metrics.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/lineaire_mean_metrics.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - ❌ **ElasticNet** : amélioration quasi inexistante de la régression linéaire
+    malgré une grille de recherche des meilleurs hyperparamètres
+    """)
+    img = Path("app/assets/elasticnet_mean_metrics.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/elasticnet_mean_metrics.png")
+
+    st.markdown("### 3. Performances explicatives avec AR/MM (avec valeurs réelles"
+                " de la cible)")
+    
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥇 **Random Forest** : parfait en entraînement et peu de problème de généralisation
+    """)
+    img = Path("app/assets/random_forest_mean_metrics_armm.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/random_forest_mean_metrics_armm.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥈 **XGBoost** : excellent en entraînement et hyper stable en généralisation
+    """)
+    img = Path("app/assets/xgboost_mean_metrics_armm.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/xgboost_mean_metrics_armm.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
+    """)
+    img = Path("app/assets/knn_mean_metrics_armm.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/knn_mean_metrics_armm.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🍫 **Régression linéaire** : honnête en précision (et stable en généralisation)
+    """)
+    img = Path("app/assets/lineaire_mean_metrics_armm.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/lineaire_mean_metrics_armm.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - ❌ **ElasticNet** : amélioration inexistante de la régression linéaire
+    malgré une grille de recherche des meilleurs hyperparamètres
+    """)
+    img = Path("app/assets/elasticnet_mean_metrics_armm.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/elasticnet_mean_metrics_armm.png")
+
+    st.markdown("### 3. Performance prédictive avec AR/MM en conditions réelles"
+                " **step-by-step**")
+    st.markdown("""
+    Ce mode de prédiction sous entend qu'il n'y a **aucune utilisation des valeurs
+    réelles** de la variable cible pour calculer les variables autorégressives ou
+    moyennes mobiles, **seules les valeurs prédites** de la variable cible sont
+    réutilisées récursivement pour ce calcul (*qui est du coup **bien plus couteux***)
     """)
 
-    st.markdown("### 2. Résultats comparés (mode explicatif)")
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥇 **Random Forest** :
+    """)
+    img = Path("app/assets/random_forest_mean_metrics_forecast.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/random_forest_mean_metrics_forecast.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥈 **XGBoost** :
+    """)
+    img = Path("app/assets/xgboost_mean_metrics_forecast.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/xgboost_mean_metrics_forecast.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - 🥉 **KNN** :
+    """)
+    img = Path("app/assets/knn_mean_metrics_forecast.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/knn_mean_metrics_forecast.png")
+
+    col1, col2 = st.columns([1, 2])
+    col1.markdown("""
+    - ❌ **Régression linéaire** : médiocre en généralisation
+    """)
+    img = Path("app/assets/lineaire_mean_metrics_forecast.png")
+    if img.exists():
+        col2.image(str(img), use_container_width=True)
+    else:
+        col2.warning("Image not found: app/assets/lineaire_mean_metrics_forecast.png")
+
     st.markdown("""
-    - 🥇 **XGBoost** : meilleur compromis généralisation / précision (R² jusqu’à 0.95)
-    - 🥈 **Random Forest** : très bon mais parfois instable
-    - ➕ **KNN** : bon en moyenne, sensible au bruit
-    - ➕ **ElasticNet** : bonne sélection des variables explicatives
+    - ❌ **SARIMAX** : très rapide en calcul de prédiction mais extrêmement couteux
+      en entraînement et très faible en généralisation
     """)
 
-    st.markdown("### 3. Résultats (mode prédictif réel – step-by-step)")
     st.markdown("""
-    - ❌ Modèles ML classiques très dégradés en prédiction aveugle
-    - ✅ **SARIMAX** : rapide mais peu généralisable
     - 🧠 **Deep Learning (Granite TTM)** :
       - excellent en *zero-shot*
-      - améliorable par *fine-tuning* (R² ≈ 0.87 en test sur 1 semaine glissante)
-    """)
-
-    st.info("""
-    ➡️ Voir l’onglet 🧪 *Laboratoire intéractif de modélisation* pour utiliser
-    notre laboratoire d'entraînement et d'observation de la performance des modèles
-    en pilotant les conditions
+      - améliorable par *fine-tuning* (R² ≈ 0.87 en test avec un contexte d'une
+      semaine glissante: 168 lags)
     """)
 
 with st.expander("🔚 D - Conclusion & Ouverture (1 min)", expanded=False):
     st.markdown("""
-    ✅ Une approche complète mêlant statistique, modélisation ML, séries temporelles
-        et deep learning.
+    ✅ Notre approche complète a exploré la **préparation** et l'**analyse statistique**
+      des données de **séries temporelles**, leur **visualisation** et
+      **modélisation ML** pour terminer sur un survol de l'état de l'art en
+      **deep learning** sur ce sujet.
 
-    🚀 Prochaine étape : entraînement multi-compteurs sur 8 ans d’archives ParisData.
-
-    🔍 Exploiter les séries longues pour **entraîner de meilleurs modèles neuronaux**.
-
-    👉 Continuez avec les pages suivantes pour explorer plus intéractivement
-        nos résultats :
-    - "🔍 Exploration des données"
-    - "📈 Visualisation et Statistiques"
-    - "🧪 Évaluation des modèles"
+    🚀 **Prochaines étapes envisageables** :
+    - Exploiter les possibilité des réseaux de neurones:
+      - profondeur des données (8 ans d’archives disponible sur OpenData Paris)
+      - multiplication des sources (un même modèle peut être appliqué à différents
+        compteurs).
+    - Exploiter la prédiction **multi-canal** des architectures de modèles neuronaux
+      (transformation des données pour profiter de la prédiction parallèle du modèle
+      Granite TTM)
+    """)
+    st.info("""
+    👈 Les sections suivantes permettent d'explorer nos résultats intéractivement:
+    - 🔍 Exploration statistique intéractive des données
+    - 📈 Visualisation intéractive des données
+    - 🧪 Laboratoire intéractif de modélisation
     """)
 
 st.caption("Projet réalisé dans le cadre de la formation Machine Learning Engineering"
-             " - DataScientest avril 2025")
+           " - DataScientest avril 2025")
