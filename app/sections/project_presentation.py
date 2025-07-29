@@ -9,6 +9,12 @@ URL_COMPTEURS_PARIS = "https://parisdata.opendatasoft.com/explore/dataset/\
 comptage-velo-compteurs/information/?disjunctive.counter&disjunctive.name&\
 disjunctive.nom_compteur&disjunctive.id&disjunctive.id_compteur"
 
+URL_API_METEO_PARIS = "https://open-meteo.com/en/docs/historical-forecast-api"
+
+URL_API_JOUR_FERIES = "https://www.data.gouv.fr/fr/dataservices/jours-feries/"
+
+URL_API_VACANCES = "https://data.education.gouv.fr/api"
+
 st.set_page_config(layout="wide")
 
 st.title("⚙️ Projet Trafic Cycliste – Démarche & Résultats")
@@ -20,33 +26,62 @@ else:
     st.warning("Image not found: app/assets/image_projet_mle.png")
 
 st.markdown("**Présentation synthétique (20 minutes)**")
-with st.expander("🎙️ A - Introduction (1 min)", expanded=False):
+with st.expander("🎙️ A - Introduction (< 1 min)", expanded=False):
     st.markdown("""
     La Ville de Paris dispose de compteurs permanents pour évaluer la
-    pratique cycliste. Le but du projet : **prédire l’évolution horaire du
-    trafic vélo** par site, pour :
-    - Comprendre l'évolution du comptage par site et par heure.
-    - Adapter les aménagements cyclables.
-    - [*Bonus abandonné : évaluer l'influence du trafic Vélib*]
+    pratique cycliste.
+
+    🎯 Le but du projet : **modéliser l’évolution horaire du trafic vélo** par site
+    pour :
+    - **Identifier les facteurs** qui influencent son évolution
+    - Assister l'adaptation des aménagements cyclables en fonction des **prédictions
+    de trafic**.
+
+    🛠️ **Méthodologie**:
+    - Mise en place d'un processus complet de modélisation basé sur l'apprentissage
+    - Proposer un laboratoire d'expérimentation (modèles/données)
 
     👥 **Équipe** : Rémy Canal, Elias Djouadi, (Raphaël Parmentier)
-
-    🎯 **Objectif** : mise en place d'une pipeline ML(Ops) complète +
-    laboratoire interactif Streamlit
     """)
 
-with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False):
+with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=False):
     st.markdown("### 1. Données sources & nettoyages")
     st.markdown(f"""
     - **940k+ observations** sur **13 mois glissants** – source
     [Open Data Paris - Données Compteurs]({URL_COMPTAGE_PARIS})
     - Nettoyage des **doublons/valeurs manquantes** (clusters par nom de compteur)
-    - **Reconstruction** des noms de compteur erronés
+    - **Reconstruction** des informations pour les noms de compteur erronés
     """)
 
     with st.expander("Détails sur le Nettoyage", expanded=False):
+        col1, col2 = st.columns([0.5, 0.5])
+        with col1:
+            img = Path("app/assets/B/repartition_absence_de_valeur.png")
+            if img.exists():
+                st.image(str(img), use_container_width=True)
+            else:
+                st.warning("Image not found: app/assets/B/"
+                           "repartition_absence_de_valeur.png")
+        with col2:
+            img = Path("app/assets/B/repartition_absence_de_valeur_corrige.png")
+            if img.exists():
+                st.image(str(img), use_container_width=True)
+            else:
+                st.warning("Image not found: app/assets/B/"
+                           "repartition_absence_de_valeur_corrige.png")
+
+        col1, col2 = st.columns([0.5, 0.5])
+        with col1:
+            st.markdown("""
+            #### Cartographie de l’absence de valeur (initiale)
+            """)
+        with col2:
+            st.markdown("""
+            #### Cartographie de l’absence de valeur (après nettoyage)
+            """)
+
         st.markdown(f"""
-        Les valeurs manquantes sont regroupées sur des plages d'index contiguës,
+        Les valeurs manquantes sont regroupées sur des **plages d'index contiguës**,
         principalement pour des **colonnes liées aux photos et identifiants
         techniques**: `lien_vers_photo_du_site_de_comptage`,
         `identifiant_technique_compteur`, `id_photos`,
@@ -59,48 +94,23 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         `coordonnees_geographiques`, `url_sites`.
 
         Seuls quelques noms de compteur concentrent l'ensemble de ces
-        observations manquantes (ex: '10 avenue de la Grande Armée...',
-        '27 quai de la Tournelle...', etc.). Ces noms étaient des **valeurs
-        erronées transitoires**; ils sont inférés et recoupés avec la base
-         de données [Open Data Paris - Compteurs]({URL_COMPTEURS_PARIS}).
+        observations manquantes. Après analyse, il s'agit de noms avec des **valeurs
+        erronées transitoires**; ils sont rectifiés et les données manquantes
+        associées sont récupérées depuis la base de données
+        [Open Data Paris - Compteurs]({URL_COMPTEURS_PARIS}).
 
-        Après reconduction des données d'origine, seules des données **techniques
-        spécifiques de site** (URL/préfixe/suffixe/id) manquent encore. Les variables,
-        associées, jugées peu explicatives, sont complètement écartées du dataset.
+        Au final, seules certaines des données **techniques spécifiques de site**
+        (URL/préfixe/suffixe/id) manquent encore. Les variables, associées, jugées
+        peu explicatives, sont complètement écartées du dataset.
         """)
 
-        col1, col2 = st.columns([0.5, 0.5])
-        with col1:
-            img = Path("app/assets/B/repartition_absence_de_valeur.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Répartition de l’absence de valeur (initiale)")
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "repartition_absence_de_valeur.png")
-        with col2:
-            img = Path("app/assets/B/repartition_absence_de_valeur_corrige.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Répartition de l’absence de valeur (après nettoyage)")
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "repartition_absence_de_valeur_corrige.png")
-
-        col1, col2 = st.columns([0.5, 0.5])
-        with col1:
-            st.markdown("""
-            Ce graphique montre la répartition des valeurs manquantes par
-            colonne **avant tout traitement**. On observe des **clusters
-            d'absence** concentrés sur des colonnes techniques et liées aux photos.
-            """)
-        with col2:
-            st.markdown("""
-            Ce graphique montre les **variables restantes** après la phase
-            de nettoyage et de correction.
-            """)
-
-    st.markdown("### 2. Feature engineering & enrichissement")
+    st.markdown("### 2. Ingénierie sur les variables explicatives"
+                " (Feature Engineering)")
+    st.markdown("""
+    - **Extraction** de données **intrinsèques** et **recombinaisons**
+    - **Ajout** de données **gouvernementales**
+    - **Croisement** avec données **météo**
+    """)
     with st.expander("Détails sur l'Enrichissement", expanded=False):
         st.markdown("#### Données intrinsèques / Recombinaisons")
         st.markdown("""
@@ -114,111 +124,102 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         - **`nom_du_compteur`** : extraction de l'orientation du compteur.
         """)
 
-        st.markdown("#### Données jours fériés")
-        st.markdown("""
-        Une information sur les jours fériés est récupérée et jointe via une
-        API gouvernementale. Ces données sont connues 5 ans à l'avance et sont
-        cruciales pour capter leur interaction avec le comportement des
-        cyclistes.
+        st.markdown("#### Données jours fériés et vacances scolaires")
+        st.markdown(f"""
+        Les informations sur les jours fériés et vacances scolaires sont récupérées
+        et jointe via les API gouvernementales [Jours Fériés]({URL_API_JOUR_FERIES})
+        et [Vacances Scolaires]({URL_API_VACANCES}). Ces données sont connues plusieurs
+        années à l'avance et sont intuitivement importantes pour expliquer l'évolution
+        du trafic cycliste.
         """)
 
         st.markdown("#### Données météo")
-        st.markdown("""
-        Des données météorologiques (température, code météo, précipitations,
-        neige, altitude) sont intégrées depuis l'API Open-Meteo.com. Elles sont
-        essentielles pour la modélisation du trafic à court terme.
+        st.markdown(f"""
+        Des données météorologiques (température, code météo, précipitations, neige,
+        altitude) sont intégrées depuis l'API [Open-Meteo]({URL_API_METEO_PARIS}).
+        Elles sont également pertinentes pour la modélisation du trafic à court terme.
         """)
 
-        st.markdown("#### Données Vélib (envisagé mais non intégré)")
         st.markdown("""
-        Nous avions envisagé d'utiliser des données des stations Vélib proches
+        >#### Données Vélib *(envisagées mais non intégrées au final)*
+        >Nous avions envisagé d'utiliser des données des stations Vélib proches
         (nombre de stations ouvertes, bornes disponibles/occupées) via web
         scraping de l'API Vélib' Métropole pour des fins **explicatives
         uniquement**. Cette démarche n'a pas pu être intégrée en raison des
-        contraintes de temps et de la nécessité d'un scraping sur une longue
-        période.
+        contraintes de temps (nécessité d'un scraping sur une **longue
+        période**).
         """)
 
-    st.markdown("### 3. Visualisation et Statistiques")
-    with st.expander("Analyse statistique univariée du comptage horaire",
+    st.markdown("### 3. Visualisation et Statistiques sur nos données")
+    with st.expander("Analyses statistiques du **comptage horaire**",
                      expanded=False):
         col1, col2, col3 = st.columns([0.35, 0.35, 0.34])
         with col1:
             img = Path("app/assets/B/qq_plot_residus.png")
             if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="QQ-plot des résidus du comptage horaire")
+                st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/qq_plot_residus.png")
         with col2:
             img = Path("app/assets/B/analyse_comptage_horaire.png")
             if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Analyse du comptage horaire (avant correction)")
+                st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/analyse_comptage_horaire.png")
         with col3:
-            img = Path("app/assets/B/nouvelle_distribution_comptage_horaire.png")
+            img = Path("app/assets/B/analyse_comptage_horaire_corrige.png")
             if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Analyse du comptage horaire global"
-                         " (après correction)")
+                st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/"
-                           "nouvelle_distribution_comptage_horaire.png")
-            img = Path("app/assets/B/nouvelle_repartition_comptage_horaire.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Analyse du comptage horaire par mois"
-                         " (après correction)")
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "nouvelle_repartition_comptage_horaire")
+                           "analyse_comptage_horaire_corrige.png")
 
         col1, col2, col3 = st.columns([0.35, 0.35, 0.34])
         with col1:
             st.markdown("""
+            ##### QQ-plot des résidus du comptage horaire
             Les données de la variable `comptage_horaire` **ne suivent pas une
             loi normale**, comme le montre l'écart entre les **quantiles
             théoriques** d’une loi normale (*courbe rouge*) et les valeurs
-            observées (**en bleu**). Le **test d'Anderson** confirme cette
+            observées (*en bleu*).
+
+            Le **test d'Anderson** confirme cette
             non-normalité.
             """)
         with col2:
             st.markdown("""
+            ##### Analyse du comptage horaire (avant correction)
             Ces graphiques illustrent la **distribution initiale** du comptage horaire
             (globale et par mois) avec une **concentration sur les faibles valeurs**
             et la présence d'**une valeur aberrante**.
             """)
         with col3:
             st.markdown("""
-            Ce graphique montre la **distribution ajustée** du comptage horaire
+            ##### Analyse du comptage horaire (après correction)
+            Ces graphiques montrent la **distribution ajustée** du comptage horaire
             après la **correction de la valeur aberrante**, offrant une vue
             plus réaliste et confirmant la distribution sur les faibles valeurs.
             """)
 
-    with st.expander("Data Visualisation du comptage horaire", expanded=False):
+    with st.expander("Visualisation du **comptage horaire**", expanded=False):
         col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
         with col1:
             img = Path("app/assets/B/comptage_horaire_moyen_par_jour.png")
             if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Comptage moyen par jour de la semaine")
+                st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/"
                            "comptage_horaire_moyen_par_jour.png")
         with col3:
             img = Path("app/assets/B/Top_10_stations.png")
             if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Top 10 des stations les plus fréquentées")
+                st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/Top_10_stations.png")
         with col2:
             img = Path("app/assets/B/top_10_heures_fort_comptage.png")
             if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Top 10 des heures avec le plus fort comptage total")
+                st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/"
                            "top_10_heures_fort_comptage.png")
@@ -240,7 +241,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             potentiellement dû à un démarrage de semaine plus progressif.
             """)
         with col2:
-            st.markdown("#### Top 10 des heures avec le plus fort comptage total")
+            st.markdown("#### Heures avec le plus fort comptage total")
             st.markdown("""
             Ce graphique met en évidence les dix heures les plus fréquentées
             sur l’ensemble des stations.
@@ -254,7 +255,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             correspondant à des déplacements personnels/professionnels.
             """)
         with col3:
-            st.markdown("#### Top 10 des stations les plus fréquentées")
+            st.markdown("#### Stations les plus fréquentées")
             st.markdown("""
             Ce graphique met en évidence une forte concentration du trafic
             cycliste sur quelques artères majeures de Paris.
@@ -270,7 +271,8 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             l’usage au-delà de l’hyper-centre.
             """)
 
-    with st.expander("Data Visualisation Comptage Vs météo et Vacances scolaires",
+    with st.expander("Visualisation du **comptage horaire** Vs **météo** et"
+                     " **vacances scolaires**",
                      expanded=False):
         col1, col2 = st.columns([0.5, 0.5])
         with col1:
@@ -297,14 +299,13 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             TO COMPLETE
             """)
 
-    with st.expander("Data Visualisation Comptage Vs Géolocalisation",
+    with st.expander("Visualisation du **comptage horaire** Vs **géolocalisation**",
                      expanded=False):
-        col1, col2 = st.columns([0.5, 0.5])
+        col1, col2 = st.columns([0.4, 0.6])
         with col1:
             img = Path("app/assets/B/comptage_total_site.png")
             if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Comptage total par site (géolocalisation)")
+                st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/comptage_total_site.png")
             st.markdown("""
@@ -318,8 +319,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         with col2:
             boxplot_site_comptage = Path("app/assets/B/boxplot_site_comptage.png")
             if boxplot_site_comptage.exists():
-                st.image(str(boxplot_site_comptage), use_container_width=True,
-                         caption="Boxplot Site Comptage")
+                st.image(str(boxplot_site_comptage), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/boxplot_site_comptage.png")
             st.markdown("""
@@ -328,7 +328,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             """)
 
 
-with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
+with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
     st.markdown("### 1. Objectif ML : Régression temporelle supervisée")
 
     with st.expander("Details Objectifs et Régression temporelle supervisée",
@@ -609,7 +609,7 @@ with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
             semaine glissante: 168 lags)
             """)
 
-with st.expander("🔚 D - Conclusion & Ouverture (1 min)", expanded=False):
+with st.expander("🔚 D - Conclusion & Ouverture (< 1 min)", expanded=False):
     st.markdown("""
     ✅ Notre approche complète a exploré la **préparation** et l'**analyse statistique**
       des données de **séries temporelles**, leur **visualisation** et
