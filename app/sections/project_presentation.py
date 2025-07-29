@@ -283,7 +283,12 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
                            "boxplot_vacances_scolaires.png")
             st.markdown("""
             #### Comptage horaire Vs Vacances Scolaires
-            TO COMPLETE
+            Ce graphique montre que le trafic cycliste est significativement
+            plus élevé et plus variable hors vacances scolaires.
+            Pendant les périodes de vacances, l'activité diminue,
+            particulièrement pendant les vacances de Noël et de la Toussaint.
+            Cela indique que les vacances scolaires sont un facteur clé
+            influençant l'usage du vélo, principalement utilitaire.
             """)
         with col2:
             img = Path("app/assets/B/boxplot_weather.png")
@@ -294,7 +299,12 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
                 st.warning("Image not found: app/assets/B/boxplot_weather.png")
             st.markdown("""
             #### Comptage horaire Vs Météo
-            TO COMPLETE
+            Le graphique démontre une forte corrélation entre la météo
+            et le trafic cycliste.
+            L'affluence est plus élevée par temps clément ou légèrement nuageux,
+            et chute drastiquement en cas de conditions sévères
+            comme les fortes pluies, la neige, le grésil, le verglas ou les orages.
+            La variabilité du trafic est également plus importante par temps favorable.
             """)
 
     with st.expander("Data Visualisation Comptage Vs Géolocalisation",
