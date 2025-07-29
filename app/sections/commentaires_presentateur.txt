@@ -3,15 +3,18 @@ A -> Rémy [1 min max]
 [ B = 1min/1min30 max par section ?? ] 
 
 B.1.Détails sur le Nettoyage -> Elias
-Initialement, des plages d'index contiguës montraient des absences de valeurs, 
-principalement dans les colonnes liées aux photos et identifiants techniques, 
-mais aussi dans des informations comme le nom et les coordonnées du site. 
-Après analyse, il a été constaté que certains noms de compteurs étaient transitoirement erronés ;
-ces données ont été rectifiées et les informations manquantes récupérées via la base Open Data Paris - Compteurs. 
-Au final, seules des données techniques spécifiques (URL/préfixe/suffixe/id), jugées peu explicatives, 
- ont été complètement écartées, résultant en un jeu de données sans valeurs manquantes.
+        Initialement, des plages d'index contiguës montraient des absences de valeurs, 
+        principalement dans les colonnes liées aux photos et identifiants techniques, 
+        mais aussi dans des informations comme le nom et les coordonnées du site. 
+        Après analyse, il a été constaté que certains noms de compteurs étaient transitoirement erronés ;
+        ces données ont été rectifiées et les informations manquantes récupérées via la base Open Data Paris - Compteurs. 
+        Au final, seules des données techniques spécifiques (URL/préfixe/suffixe/id), jugées peu explicatives, 
+        ont été complètement écartées, résultant en un jeu de données sans valeurs manquantes.
 
 B.2.Détails sur l'Enrichissement -> Rémy
+        Rappeler que les enrichissements corrections ne se sont pas arrêtées
+        ici, les différentes étapes de l'étude ont amené leur lots d'ajustements
+        corrections
 
 B.3.Analyse statistique univariée du comptage horaire -> Rémy
         La variable **`comptage_horaire`** est fortement concentrée sur les
@@ -29,58 +32,58 @@ B.3.Analyse statistique univariée du comptage horaire -> Rémy
         restantes (météo / vacances scolaires) variance suffisante
 
 B.3.Data Visualisation du comptage horaire -> Elias
-Voici des visualisations clés du trafic cycliste : elles révèlent que le comptage moyen est le plus élevé les mardis et jeudis,
- déclinant significativement le week-end. 
- Les heures de pointe sont très marquées en soirée (18h, 19h) et le matin (8h, 9h), 
- correspondant aux trajets domicile-travail.
-  Enfin, le boulevard de Sébastopol et la rue de Rivoli se distinguent comme les stations les plus fréquentées, 
-  soulignant leur rôle de corridors majeurs, avec une présence notable de compteurs bidirectionnels 
-  et une certaine diversité géographique des points de trafic intense.
+        Voici des visualisations clés du trafic cycliste : elles révèlent que le comptage moyen est le plus élevé les mardis et jeudis,
+        déclinant significativement le week-end. 
+        Les heures de pointe sont très marquées en soirée (18h, 19h) et le matin (8h, 9h), 
+        correspondant aux trajets domicile-travail.
+        Enfin, le boulevard de Sébastopol et la rue de Rivoli se distinguent comme les stations les plus fréquentées, 
+        soulignant leur rôle de corridors majeurs, avec une présence notable de compteurs bidirectionnels 
+        et une certaine diversité géographique des points de trafic intense.
         
 
 B.3.Data Visualisation Comptage Vs météo et Vacances scolaires -> Elias
-Ces deux visualisations montrent que le trafic significativement plus élevé et variable hors périodes de vacances scolaires, 
-avec une baisse notable durant ces congés, 
-particulièrement à Noël et la Toussaint. Parallèlement, le graphique révèle une forte corrélation avec la météo 
-: le trafic est plus intense par temps clément ou légèrement nuageux, 
-et diminue drastiquement en cas de conditions sévères comme les fortes pluies, la neige ou les orages. 
-Ces deux facteurs sont donc des déterminants majeurs du volume de trafic vélo.
+        Ces deux visualisations montrent que le trafic significativement plus élevé et variable hors périodes de vacances scolaires, 
+        avec une baisse notable durant ces congés, 
+        particulièrement à Noël et la Toussaint. Parallèlement, le graphique révèle une forte corrélation avec la météo 
+        : le trafic est plus intense par temps clément ou légèrement nuageux, 
+        et diminue drastiquement en cas de conditions sévères comme les fortes pluies, la neige ou les orages. 
+        Ces deux facteurs sont donc des déterminants majeurs du volume de trafic vélo.
 
 B.3.Data Visualisation Comptage Vs Géolocalisation -> Rémy
 
 [ C = 1min30/2min max par section ?? ] 
 
 C.1.Details Objectifs et Régression temporelle supervisée -> Elias
-La méthodologie inclut l'extraction de variables explicatives spécifiques aux séries temporelles, 
-telles que les composantes auto-régressives (AR), les moyennes mobiles (MM), et les oscillatoires (périodes quotidiennes ou hebdomadaires). 
-Le projet a exploré un éventail de modèles de régression, allant des modèles linéaires (Linéaire, ElasticNet, KNN) 
-aux ensembles (RandomForest, XGBoost), en passant par les modèles de séries temporelles (SARIMAX) et le Deep Learning.
+        La méthodologie inclut l'extraction de variables explicatives spécifiques aux séries temporelles, 
+        telles que les composantes auto-régressives (AR), les moyennes mobiles (MM), et les oscillatoires (périodes quotidiennes ou hebdomadaires). 
+        Le projet a exploré un éventail de modèles de régression, allant des modèles linéaires (Linéaire, ElasticNet, KNN) 
+        aux ensembles (RandomForest, XGBoost), en passant par les modèles de séries temporelles (SARIMAX) et le Deep Learning.
 
 C.2.Details Performances sans AR/MM -> Rémy
 
 C.3.Details Performances explicatives avec AR/MM -> Elias
-Avec l'enrichissement AR/MM (auto-régressions et moyennes mobiles). µ
-Le Random Forest et XGBoost affichent les meilleures performances, 
-avec un R² en test d'environ 0.956 et 0.943 respectivement, 
-démontrant une excellente généralisation. 
-Le KNN est bon à l'entraînement mais montre un problème de généralisation (R² test ~0.814).
- La régression linéaire est jugée honnête et stable (R² test ~0.789), 
- tandis qu'ElasticNet n'apporte pas d'amélioration significative par rapport à la régression linéaire.
+        Avec l'enrichissement AR/MM (auto-régressions et moyennes mobiles). µ
+        Le Random Forest et XGBoost affichent les meilleures performances, 
+        avec un R² en test d'environ 0.956 et 0.943 respectivement, 
+        démontrant une excellente généralisation. 
+        Le KNN est bon à l'entraînement mais montre un problème de généralisation (R² test ~0.814).
+        La régression linéaire est jugée honnête et stable (R² test ~0.789), 
+        tandis qu'ElasticNet n'apporte pas d'amélioration significative par rapport à la régression linéaire.
 
 C.4.Details sur modèles standards -> Rémy
 
 C.5.Details sur modèle SARIMAX -> Elias
-Très rapide en calcul de prédiction mais extrêmement couteux en entraînement et très faible en généralisation
+        Très rapide en calcul de prédiction mais extrêmement couteux en entraînement et très faible en généralisation
 
 C.5.Details sur modèle Deep Learning -> Elias
-excellent en zero-shot
-améliorable par fine-tuning (R² ≈ 0.87 en test avec un contexte d'une semaine glissante: 168 lags)
+        excellent en zero-shot
+        améliorable par fine-tuning (R² ≈ 0.87 en test avec un contexte d'une semaine glissante: 168 lags)
 
 D.Conclusion -> Elias
-L'approche du projet a couvert l'ensemble du processus, 
-incluant la préparation et l'analyse statistique des données de séries temporelles, 
-leur visualisation, la modélisation en apprentissage automatique, et une exploration du deep learning. 
-Pour les prochaines étapes, il est envisagé d'approfondir l'exploitation des réseaux de neurones en utilisant 
-8 ans d'archives disponibles sur OpenData Paris et en multipliant les sources d'entraînement via le transfer learning. 
-Une autre direction est l'exploitation de la prédiction multi-canal de l'architecture Granite TTM, 
-ce qui nécessitera une adaptation de la structure des données pour mieux capter les influences géographiques mutuelles.
+        L'approche du projet a couvert l'ensemble du processus, 
+        incluant la préparation et l'analyse statistique des données de séries temporelles, 
+        leur visualisation, la modélisation en apprentissage automatique, et une exploration du deep learning. 
+        Pour les prochaines étapes, il est envisagé d'approfondir l'exploitation des réseaux de neurones en utilisant 
+        8 ans d'archives disponibles sur OpenData Paris et en multipliant les sources d'entraînement via le transfer learning. 
+        Une autre direction est l'exploitation de la prédiction multi-canal de l'architecture Granite TTM, 
+        ce qui nécessitera une adaptation de la structure des données pour mieux capter les influences géographiques mutuelles.
