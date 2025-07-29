@@ -73,11 +73,11 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         col1, col2 = st.columns([0.5, 0.5])
         with col1:
             st.markdown("""
-            #### Cartographie de l’absence de valeur (initiale)
+            #### Cartographie des données manquantes (initiale)
             """)
         with col2:
             st.markdown("""
-            #### Cartographie de l’absence de valeur (après nettoyage)
+            #### Cartographie des données manquantes (après nettoyage)
             """)
 
         st.markdown(f"""
@@ -177,7 +177,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         col1, col2, col3 = st.columns([0.35, 0.35, 0.34])
         with col1:
             st.markdown("""
-            ##### QQ-plot des résidus du comptage horaire
+            #### QQ-plot des résidus du comptage horaire
             Les données de la variable `comptage_horaire` **ne suivent pas une
             loi normale**, comme le montre l'écart entre les **quantiles
             théoriques** d’une loi normale (*courbe rouge*) et les valeurs
@@ -188,14 +188,14 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
             """)
         with col2:
             st.markdown("""
-            ##### Analyse du comptage horaire (avant correction)
+            #### Analyse du comptage horaire (avant correction)
             Ces graphiques illustrent la **distribution initiale** du comptage horaire
             (globale et par mois) avec une **concentration sur les faibles valeurs**
             et la présence d'**une valeur aberrante**.
             """)
         with col3:
             st.markdown("""
-            ##### Analyse du comptage horaire (après correction)
+            #### Analyse du comptage horaire (après correction)
             Ces graphiques montrent la **distribution ajustée** du comptage horaire
             après la **correction de la valeur aberrante**, offrant une vue
             plus réaliste et confirmant la distribution sur les faibles valeurs.
@@ -278,8 +278,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         with col1:
             img = Path("app/assets/B/boxplot_vacances_scolaires.png")
             if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Boxplot Vacances Scolaires")
+                st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/"
                            "boxplot_vacances_scolaires.png")
@@ -295,8 +294,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         with col2:
             img = Path("app/assets/B/boxplot_weather.png")
             if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Boxplot Weather")
+                st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/boxplot_weather.png")
             st.markdown("""
