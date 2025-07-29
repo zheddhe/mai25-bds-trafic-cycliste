@@ -318,7 +318,16 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
                 st.image(str(img), use_container_width=True)
             else:
                 st.warning("Image not found: app/assets/B/comptage_total_site.png")
+        with col2:
+            boxplot_site_comptage = Path("app/assets/B/boxplot_site_comptage.png")
+            if boxplot_site_comptage.exists():
+                st.image(str(boxplot_site_comptage), use_container_width=True)
+            else:
+                st.warning("Image not found: app/assets/B/boxplot_site_comptage.png")
+        col1, col2 = st.columns([0.4, 0.6])
+        with col1:
             st.markdown("""
+            #### Comptage total par site
             Une **disparité significative** du volume total de vélos
             enregistrés par les compteurs est observée entre le centre et la
             périphérie de Paris, ainsi qu'entre le nord-est et le sud-est.
@@ -327,11 +336,6 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
             géolocalisation.
             """)
         with col2:
-            boxplot_site_comptage = Path("app/assets/B/boxplot_site_comptage.png")
-            if boxplot_site_comptage.exists():
-                st.image(str(boxplot_site_comptage), use_container_width=True)
-            else:
-                st.warning("Image not found: app/assets/B/boxplot_site_comptage.png")
             st.markdown("""
             #### Comptage horaire par Site de comptage
             TO COMPLETE
