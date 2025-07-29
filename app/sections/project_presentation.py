@@ -380,47 +380,47 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
         with st.expander("Chronologie de l'étude des modèles", expanded=True):
             col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
 
-            img = Path("app/assets/C/lineaire.png")
+            img = Path("app/assets/C/lin/lineaire.png")
             if img.exists():
                 col1.image(str(img), use_container_width=True)
             else:
-                col1.warning("Image not found: app/assets/C/lineaire.png")
+                col1.warning("Image not found: app/assets/C/lin/lineaire.png")
 
-            img = Path("app/assets/C/elasticnet.png")
+            img = Path("app/assets/C/elnet/elasticnet.png")
             if img.exists():
                 col2.image(str(img), use_container_width=True)
             else:
-                col2.warning("Image not found: app/assets/C/elasticnet.png")
-            img = Path("app/assets/C/knn.png")
+                col2.warning("Image not found: app/assets/C/elnet/elasticnet.png")
+            img = Path("app/assets/C/knn/knn.png")
 
             if img.exists():
                 col3.image(str(img), use_container_width=True)
             else:
-                col3.warning("Image not found: app/assets/C/knn.png")
+                col3.warning("Image not found: app/assets/C/knn/knn.png")
 
-            img = Path("app/assets/C/random_forest.png")
+            img = Path("app/assets/C/rf/random_forest.png")
             if img.exists():
                 col4.image(str(img), use_container_width=True)
             else:
-                col4.warning("Image not found: app/assets/C/random_forest.png")
+                col4.warning("Image not found: app/assets/C/rf/random_forest.png")
 
-            img = Path("app/assets/C/xgboost.png")
+            img = Path("app/assets/C/xgb/xgboost.png")
             if img.exists():
                 col5.image(str(img), use_container_width=True)
             else:
-                col5.warning("Image not found: app/assets/C/xgboost.png")
+                col5.warning("Image not found: app/assets/C/xgb/xgboost.png")
 
-            img = Path("app/assets/C/sarimax.png")
+            img = Path("app/assets/C/sarx/sarimax.png")
             if img.exists():
                 col6.image(str(img), use_container_width=True)
             else:
-                col6.warning("Image not found: app/assets/C/sarimax.png")
+                col6.warning("Image not found: app/assets/C/sarx/sarimax.png")
 
-            img = Path("app/assets/C/deep_learning.png")
+            img = Path("app/assets/C/dl/deep_learning.png")
             if img.exists():
                 col7.image(str(img), use_container_width=True)
             else:
-                col7.warning("Image not found: app/assets/C/deep_learning.png")
+                col7.warning("Image not found: app/assets/C/dl/deep_learning.png")
 
     st.markdown("### 2. Performances sans AR/MM")
 
@@ -431,53 +431,55 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
         col1.markdown("""
         - 🥇 **XGBoost** : meilleur compromis généralisation / précision
         """)
-        img = Path("app/assets/C/xgboost_mean_metrics.png")
+        img = Path("app/assets/C/xgb/xgboost_mean_metrics.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/xgboost_mean_metrics.png")
+            col2.warning("Image not found: app/assets/C/xgb/xgboost_mean_metrics.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
         - 🥈 **Random Forest** : excellent en entraînement mais problème de
         généralisation
         """)
-        img = Path("app/assets/C/random_forest_mean_metrics.png")
+        img = Path("app/assets/C/rf/random_forest_mean_metrics.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/random_forest_mean_metrics.png")
+            col2.warning("Image not found: app/assets/C/rf/"
+                         "random_forest_mean_metrics.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
         - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
         """)
-        img = Path("app/assets/C/knn_mean_metrics.png")
+        img = Path("app/assets/C/knn/knn_mean_metrics.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/knn_mean_metrics.png")
+            col2.warning("Image not found: app/assets/C/knn/knn_mean_metrics.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
         - ❌ **Régression linéaire** : mauvais en précision (stable en généralisation)
         """)
-        img = Path("app/assets/C/lineaire_mean_metrics.png")
+        img = Path("app/assets/C/lin/lineaire_mean_metrics.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/lineaire_mean_metrics.png")
+            col2.warning("Image not found: app/assets/C/lin/lineaire_mean_metrics.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
         - ❌ **ElasticNet** : amélioration quasi inexistante de la régression linéaire
         malgré une grille de recherche des meilleurs hyperparamètres
         """)
-        img = Path("app/assets/C/elasticnet_mean_metrics.png")
+        img = Path("app/assets/C/elnet/elasticnet_mean_metrics.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/elasticnet_mean_metrics.png")
+            col2.warning("Image not found: app/assets/C/elnet/"
+                         "elasticnet_mean_metrics.png")
 
     st.markdown("### 3. Performances explicatives avec AR/MM (avec valeurs réelles"
                 " de la cible)")
@@ -490,53 +492,55 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
         - 🥇 **Random Forest** : parfait en entraînement et peu de problème de
         généralisation
         """)
-        img = Path("app/assets/C/random_forest_mean_metrics_armm.png")
+        img = Path("app/assets/C/rf/random_forest_mean_metrics_armm.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/"
+            col2.warning("Image not found: app/assets/C/rf/"
                          "random_forest_mean_metrics_armm.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
         - 🥈 **XGBoost** : excellent en entraînement et hyper stable en généralisation
         """)
-        img = Path("app/assets/C/xgboost_mean_metrics_armm.png")
+        img = Path("app/assets/C/xgb/xgboost_mean_metrics_armm.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/xgboost_mean_metrics_armm.png")
+            col2.warning("Image not found: app/assets/C/xgb/"
+                         "xgboost_mean_metrics_armm.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
         - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
         """)
-        img = Path("app/assets/C/knn_mean_metrics_armm.png")
+        img = Path("app/assets/C/knn/knn_mean_metrics_armm.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/knn_mean_metrics_armm.png")
+            col2.warning("Image not found: app/assets/C/knn/knn_mean_metrics_armm.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
         - 🍫 **Régression linéaire** : honnête en précision (et stable en généralisation)
         """)
-        img = Path("app/assets/C/lineaire_mean_metrics_armm.png")
+        img = Path("app/assets/C/lin/lineaire_mean_metrics_armm.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/lineaire_mean_metrics_armm.png")
+            col2.warning("Image not found: app/assets/C/lin/"
+                         "lineaire_mean_metrics_armm.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
         - ❌ **ElasticNet** : amélioration inexistante de la régression linéaire
         malgré une grille de recherche des meilleurs hyperparamètres
         """)
-        img = Path("app/assets/C/elasticnet_mean_metrics_armm.png")
+        img = Path("app/assets/C/elnet/elasticnet_mean_metrics_armm.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/"
+            col2.warning("Image not found: app/assets/C/elnet"
                          "elasticnet_mean_metrics_armm.png")
 
     st.markdown("### 4. Performances prédictives avec AR/MM en conditions réelles"
@@ -556,11 +560,11 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
         - 🥇 **Random Forest** : encore très bon en test avec une perte en généralisation
         (de ~8% en moyenne relativement au mode explicatif)
         """)
-        img = Path("app/assets/C/random_forest_mean_metrics_forecast.png")
+        img = Path("app/assets/C/rf/random_forest_mean_metrics_forecast.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/"
+            col2.warning("Image not found: app/assets/C/rf/"
                          "random_forest_mean_metrics_forecast.png")
 
         col1, col2 = st.columns([1, 2])
@@ -568,11 +572,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
         - 🥉 **KNN** : une précision moindre mais une perte en généralisation
         la plus faible (de seulement ~6% en moyenne)
         """)
-        img = Path("app/assets/C/knn_mean_metrics_forecast.png")
+        img = Path("app/assets/C/knn/knn_mean_metrics_forecast.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/knn_mean_metrics_forecast.png")
+            col2.warning("Image not found: app/assets/C/knn/"
+                         "knn_mean_metrics_forecast.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
@@ -580,22 +585,22 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
         à la nature même du modèle qui se base sur la correction itérative d'une erreur
         résiduelle
         """)
-        img = Path("app/assets/C/xgboost_mean_metrics_forecast.png")
+        img = Path("app/assets/C/xgb/xgboost_mean_metrics_forecast.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/"
+            col2.warning("Image not found: app/assets/C/xgb/"
                          "xgboost_mean_metrics_forecast.png")
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
         - ❌ **Régression linéaire** : médiocre en généralisation
         """)
-        img = Path("app/assets/C/lineaire_mean_metrics_forecast.png")
+        img = Path("app/assets/C/lin/lineaire_mean_metrics_forecast.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/"
+            col2.warning("Image not found: app/assets/C/lin"
                          "lineaire_mean_metrics_forecast.png")
 
     st.markdown("### 5. Performances prédictives de modèles spécifiques avancés")
