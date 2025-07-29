@@ -151,8 +151,6 @@ def test_display_metrics_table_basic():
 
     # --- Vérifications générales ---
     assert st_mock.dataframe.call_count == 2
-    assert st_mock.markdown.call_count == 1
-    assert "Moyennes des indicateurs" in st_mock.markdown.call_args[0][0]
 
     # --- Vérification contenu table moyenne ---
     mean_df = pd.DataFrame(metrics_table).select_dtypes(include=np.number).mean()

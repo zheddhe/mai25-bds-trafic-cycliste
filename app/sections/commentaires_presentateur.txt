@@ -5,6 +5,9 @@ A -> Rémy [1 min max]
 B.1.Détails sur le Nettoyage -> Elias
 
 B.2.Détails sur l'Enrichissement -> Rémy
+        Rappeler que les enrichissements corrections ne se sont pas arrêtées
+        ici, les différentes étapes de l'étude ont amené leur lots d'ajustements
+        corrections
 
 B.3.Analyse statistique univariée du comptage horaire -> Rémy
         La variable **`comptage_horaire`** est fortement concentrée sur les

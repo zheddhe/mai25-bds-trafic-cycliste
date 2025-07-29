@@ -12,11 +12,11 @@ import plotly.graph_objects as go
 def cached_get_missing_periods(df_raw):
     if os.environ.get("IS_TESTING") == "1":
         return pd.DataFrame({
-            "start": "2025-01-07T11:00:00+01:00",
-            "end": "2025-01-07T14:00:00+01:00",
-            "site": "TEST_SITE",
-            "direction": "N-S",
-            "label": "TEST_SITE - N-S"
+            "start": [pd.to_datetime("2025-01-07T11:00:00+01:00")],
+            "end": [pd.to_datetime("2025-01-07T14:00:00+01:00")],
+            "site": ["TEST_SITE"],
+            "direction": ["N-S"],
+            "label": ["TEST_SITE - N-S"],
         })
     df = get_missing_periods(df_raw)
     return df
