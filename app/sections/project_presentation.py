@@ -139,88 +139,65 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
         période.
         """)
 
-    st.markdown("### 3. Visualisation et Statistiques")  # Re-numérotation
-    with st.expander("📊 Analyses Univariées", expanded=False):
-        st.markdown("#### 4.1.1 Comptage horaire")  # Re-numérotation
-        st.markdown("""
-        La variable **`comptage_horaire`** est fortement concentrée sur les
-        faibles valeurs, avec des valeurs extrêmes homogènement distribuées.
-        Une valeur aberrante majeure (3070 vélos à 14h le 5 janvier 2025 sur
-        "Quai d'Orsay O-E") a été identifiée comme 10 fois supérieure à la
-        normale et corrigée.
-
-        Le **test d'Anderson** confirme la **non-normalité** de la
-        distribution de `comptage_horaire` pour tous les degrés de tolérance
-        (statistique de test = 80094.4).
-        """)
-        col1, col2 = st.columns([0.6, 0.4])
+    st.markdown("### 3. Visualisation et Statistiques")
+    with st.expander("Analyse statistique univariée du comptage horaire",
+                     expanded=False):
+        col1, col2, col3 = st.columns([0.35, 0.35, 0.34])
         with col1:
-            st.markdown("""
-            **Analyse du comptage horaire (avant correction)**
-            Ce graphique illustre la distribution initiale du comptage horaire
-            avec une concentration sur les faibles valeurs et la présence
-            d'une valeur aberrante.
-            """)
+            img = Path("app/assets/B/qq_plot_residus.png")
+            if img.exists():
+                st.image(str(img), use_container_width=True,
+                         caption="QQ-plot des résidus du comptage horaire")
+            else:
+                st.warning("Image not found: app/assets/B/qq_plot_residus.png")
         with col2:
             img = Path("app/assets/B/analyse_comptage_horaire.png")
             if img.exists():
                 st.image(str(img), use_container_width=True,
-                         caption="Analyse du comptage horaire")
+                         caption="Analyse du comptage horaire (avant correction)")
             else:
                 st.warning("Image not found: app/assets/B/analyse_comptage_horaire.png")
-
-        col1, col2 = st.columns([0.6, 0.4])
-        with col1:
-            st.markdown("""
-            **Nouvelle distribution du comptage horaire après correction**
-            Ce graphique montre la distribution ajustée du comptage horaire
-            après la correction de la valeur aberrante, offrant une vue
-            plus réaliste.
-            """)
-        with col2:
+        with col3:
             img = Path("app/assets/B/nouvelle_distribution_comptage_horaire.png")
             if img.exists():
                 st.image(str(img), use_container_width=True,
-                         caption="Nouvelle distribution du comptage horaire")
+                         caption="Analyse du comptage horaire global"
+                         " (après correction)")
             else:
                 st.warning("Image not found: app/assets/B/"
                            "nouvelle_distribution_comptage_horaire.png")
-
-        col1, col2 = st.columns([0.6, 0.4])
-        with col1:
-            st.markdown("""
-            **Nouvelle répartition du comptage horaire (détail)**
-            Une vue plus détaillée de la répartition des valeurs après
-            correction, confirmant une distribution fortement concentrée sur
-            les faibles valeurs.
-            """)
-        with col2:
             img = Path("app/assets/B/nouvelle_repartition_comptage_horaire.png")
             if img.exists():
                 st.image(str(img), use_container_width=True,
-                         caption="Nouvelle répartition du comptage horaire")
+                         caption="Analyse du comptage horaire par mois"
+                         " (après correction)")
             else:
                 st.warning("Image not found: app/assets/B/"
                            "nouvelle_repartition_comptage_horaire")
 
-        col1, col2 = st.columns([0.6, 0.4])
+        col1, col2, col3 = st.columns([0.35, 0.35, 0.34])
         with col1:
             st.markdown("""
-            **QQ-plot des résidus du comptage horaire**
-            Les données de la variable `comptage_horaire` ne suivent pas une
-            loi normale, comme le montre cet écart entre les quantiles
-            théoriques d’une loi normale (courbe rouge) et les valeurs
-            observées (en bleu). Le test d'Anderson confirme cette
+            Les données de la variable `comptage_horaire` **ne suivent pas une
+            loi normale**, comme le montre l'écart entre les **quantiles
+            théoriques** d’une loi normale (*courbe rouge*) et les valeurs
+            observées (**en bleu**). Le **test d'Anderson** confirme cette
             non-normalité.
             """)
         with col2:
-            img = Path("app/assets/B/qq_plot_residus.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="QQ-plot des résidus")
-            else:
-                st.warning("Image not found: app/assets/B/qq_plot_residus.png")
+            st.markdown("""
+            Ces graphiques illustrent la **distribution initiale** du comptage horaire
+            (globale et par mois) avec une **concentration sur les faibles valeurs**
+            et la présence d'**une valeur aberrante**.
+            """)
+        with col3:
+            st.markdown("""
+            Ce graphique montre la **distribution ajustée** du comptage horaire
+            après la **correction de la valeur aberrante**, offrant une vue
+            plus réaliste et confirmant la distribution sur les faibles valeurs.
+            """)
 
+    with st.expander("Data Visualisation du comptage horaire", expanded=False):
         col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
         with col1:
             img = Path("app/assets/B/comptage_horaire_moyen_par_jour.png")
@@ -293,90 +270,10 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             l’usage au-delà de l’hyper-centre.
             """)
 
-    with st.expander("🔬 Analyses Multivariées", expanded=False):
-        st.markdown("#### 4.2.1 Corrélation entre cible et variables numériques"
-                    " (Test de Pearson)")
-        col1, col2 = st.columns([0.6, 0.4])
+    with st.expander("Data Visualisation Comptage Vs météo et Vacances scolaires",
+                     expanded=False):
+        col1, col2 = st.columns([0.5, 0.5])
         with col1:
-            st.markdown("""
-            Des corrélations (même faibles) sont observées :
-            - La **latitude** du site (c = 0.18) est plus corrélée que la
-              longitude (0.02).
-            - Les données **météo**, notamment la température (c = 0.16),
-              montrent une légère corrélation.
-            - Parmi les variables périodiques, l'**heure** (c = 0.28) et le
-              **jour de la semaine** (c = -0.10) sont à investiguer pour
-              l'analyse de séries temporelles.
-            Une attention particulière sera portée à la **multicolinéarité
-            potentielle** lors de la modélisation.
-            """)
-        with col2:
-            img = Path("app/assets/B/matrice_de_correlation.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Matrice de corrélation (Pearson)")
-            else:
-                st.warning("Image not found: app/assets/B/matrice_de_correlation.png")
-
-        st.markdown(
-            "#### 4.2.2 Corrélation entre cible et variables qualitatives"
-            " (Tests ANOVA / Kruskal-Wallis)"
-        )
-        col1, col2 = st.columns([0.6, 0.4])
-        with col1:
-            st.markdown("""
-            Le **test ANOVA** a indiqué un effet significatif des variables
-            qualitatives (`arrondissement`, `orientation_compteur`,
-            `nom_du_site_de_comptage`, `vacances_scolaires`,
-            `weather_code_wmo_code_category`) sur `comptage_horaire`.
-            Cependant, les conditions de validité du test (distribution normale
-            des résidus, homogénéité des variances via test de Levene) n'étant
-            pas respectées, le résultat n'est pas directement utilisable comme
-            preuve.
-
-            Nous nous sommes donc rabattus sur le **test non paramétrique de
-            Kruskal-Wallis**. Ce test valide qu'il existe des **différences
-            significatives** dans la distribution de `comptage_horaire` selon
-            les modalités de ces 5 variables, ce qui est également observable
-            graphiquement.
-            """)
-        with col2:
-            img = Path("app/assets/B/residu_modele_anova.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Résidus du modèle ANOVA")
-            else:
-                st.warning("Image not found: app/assets/B/residu_modele_anova.png")
-
-            img = Path("app/assets/B/qq_plot_residus_quantiles.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="QQ-plot des résidus (quantiles)")
-            else:
-                st.warning("Image not found: app/assets/B/"
-                           "qq_plot_residus_quantiles.png")
-
-            img = Path("app/assets/B/test_kruskal_wallis.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Test de Kruskal-Wallis")
-            else:
-                st.warning("Image not found: app/assets/B/test_kruskal_wallis.png")
-
-            img = Path("app/assets/B/boxplot_comptage_horaire.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Boxplot Comptage Horaire")
-            else:
-                st.warning("Image not found: app/assets/B/boxplot_comptage_horaire.png")
-
-            boxplot_site_comptage = Path("app/assets/B/boxplot_site_comptage.png")
-            if boxplot_site_comptage.exists():
-                st.image(str(boxplot_site_comptage), use_container_width=True,
-                         caption="Boxplot Site Comptage")
-            else:
-                st.warning("Image not found: app/assets/B/boxplot_site_comptage.png")
-
             img = Path("app/assets/B/boxplot_vacances_scolaires.png")
             if img.exists():
                 st.image(str(img), use_container_width=True,
@@ -384,17 +281,32 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             else:
                 st.warning("Image not found: app/assets/B/"
                            "boxplot_vacances_scolaires.png")
-
+            st.markdown("""
+            #### Comptage horaire Vs Vacances Scolaires
+            TO COMPLETE
+            """)
+        with col2:
             img = Path("app/assets/B/boxplot_weather.png")
             if img.exists():
                 st.image(str(img), use_container_width=True,
                          caption="Boxplot Weather")
             else:
                 st.warning("Image not found: app/assets/B/boxplot_weather.png")
+            st.markdown("""
+            #### Comptage horaire Vs Météo
+            TO COMPLETE
+            """)
 
-        st.markdown("#### 4.2.3 Comptage horaire vs Géolocalisation")
-        col1, col2 = st.columns([0.6, 0.4])
+    with st.expander("Data Visualisation Comptage Vs Géolocalisation",
+                     expanded=False):
+        col1, col2 = st.columns([0.5, 0.5])
         with col1:
+            img = Path("app/assets/B/comptage_total_site.png")
+            if img.exists():
+                st.image(str(img), use_container_width=True,
+                         caption="Comptage total par site (géolocalisation)")
+            else:
+                st.warning("Image not found: app/assets/B/comptage_total_site.png")
             st.markdown("""
             Une **disparité significative** du volume total de vélos
             enregistrés par les compteurs est observée entre le centre et la
@@ -404,197 +316,214 @@ with st.expander("🔍 B - Exploration & Visualisation (8 min)", expanded=False)
             géolocalisation.
             """)
         with col2:
-            img = Path("app/assets/B/comptage_total_site.png")
-            if img.exists():
-                st.image(str(img), use_container_width=True,
-                         caption="Comptage total par site (géolocalisation)")
+            boxplot_site_comptage = Path("app/assets/B/boxplot_site_comptage.png")
+            if boxplot_site_comptage.exists():
+                st.image(str(boxplot_site_comptage), use_container_width=True,
+                         caption="Boxplot Site Comptage")
             else:
-                st.warning("Image not found: app/assets/B/comptage_total_site.png")
+                st.warning("Image not found: app/assets/B/boxplot_site_comptage.png")
+            st.markdown("""
+            #### Comptage horaire par Site de comptage
+            TO COMPLETE
+            """)
+
 
 with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
     st.markdown("### 1. Objectif ML : Régression temporelle supervisée")
 
-    st.markdown("""
-    - Variable cible : `comptage_horaire`
-    - Extraction de variables explicatives additionnelles **spécifiques aux séries
-    temporelles**
-      - **AR** (*auto-régressives*) et **MM** (*moyennes mobiles*) depuis les valeurs
-      précédentes de la **variables cible (prédite ou réelle)**
-      - **Oscillatoires** (*de période P*) pour les composantes de l'horodatage suivant
-      une période (heure -> 24, jour de la semaine -> 7, etc...)
-    """)
-    with st.expander("Formalisation mathématique", expanded=True):
-        col1, col2 = st.columns([1.5, 2])
-        col1.latex(r'''
-            x_{AR_p} = y_{t - p}
-        ''')
-        col1.latex(r'''
-            x_{MM_{sq}} = \frac{1}{s \times q} \sum_{i=1}^{s \times q + 1} y_{t - i}
-        ''')
-        col2.latex(r'''
-            x_{\text{sinusoïdal}(x_p)} = \sin\left(2\pi \cdot \frac{x_p}{P}\right)
-        ''')
-        col2.latex(r'''
-            x_{\text{cosinusoïdal}(x_p)} = \cos\left(2\pi \cdot \frac{x_p}{P}\right)
-        ''')
+    with st.expander("Details Objectifs et Régression temporelle supervisée",
+                     expanded=False):
+        st.markdown("""
+        - Variable cible : `comptage_horaire`
+        - Extraction de variables explicatives additionnelles **spécifiques aux séries
+        temporelles**
+        - **AR** (*auto-régressives*) et **MM** (*moyennes mobiles*) depuis les valeurs
+        précédentes de la **variables cible (prédite ou réelle)**
+        - **Oscillatoires** (*de période P*) pour les composantes de l'horodatage
+        suivant une période (heure -> 24, jour de la semaine -> 7, etc...)
+        """)
+        with st.expander("Formalisation mathématique", expanded=True):
+            col1, col2 = st.columns([1.5, 2])
+            col1.latex(r'''
+                x_{AR_p} = y_{t - p}
+            ''')
+            col1.latex(r'''
+                x_{MM_{sq}} = \frac{1}{s \times q} \sum_{i=1}^{s \times q + 1} y_{t - i}
+            ''')
+            col2.latex(r'''
+                x_{\text{sinusoïdal}(x_p)} = \sin\left(2\pi \cdot \frac{x_p}{P}\right)
+            ''')
+            col2.latex(r'''
+                x_{\text{cosinusoïdal}(x_p)} = \cos\left(2\pi \cdot \frac{x_p}{P}\right)
+            ''')
 
-    st.markdown("""
-    - Modèles de **régression** étudiés : `linéaire`, `ElasticNet`, `KNN`,
-    `RandomForest`, `XGBoost`, `SARIMAX`, `Deep Learning`
-    """)
-    with st.expander("Chronologie de l'étude des modèles", expanded=True):
-        col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+        st.markdown("""
+        - Modèles de **régression** étudiés : `linéaire`, `ElasticNet`, `KNN`,
+        `RandomForest`, `XGBoost`, `SARIMAX`, `Deep Learning`
+        """)
+        with st.expander("Chronologie de l'étude des modèles", expanded=True):
+            col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
 
-        img = Path("app/assets/C/lineaire.png")
-        if img.exists():
-            col1.image(str(img), use_container_width=True)
-        else:
-            col1.warning("Image not found: app/assets/C/lineaire.png")
+            img = Path("app/assets/C/lineaire.png")
+            if img.exists():
+                col1.image(str(img), use_container_width=True)
+            else:
+                col1.warning("Image not found: app/assets/C/lineaire.png")
 
-        img = Path("app/assets/C/elasticnet.png")
+            img = Path("app/assets/C/elasticnet.png")
+            if img.exists():
+                col2.image(str(img), use_container_width=True)
+            else:
+                col2.warning("Image not found: app/assets/C/elasticnet.png")
+            img = Path("app/assets/C/knn.png")
+
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/knn.png")
+
+            img = Path("app/assets/C/random_forest.png")
+            if img.exists():
+                col4.image(str(img), use_container_width=True)
+            else:
+                col4.warning("Image not found: app/assets/C/random_forest.png")
+
+            img = Path("app/assets/C/xgboost.png")
+            if img.exists():
+                col5.image(str(img), use_container_width=True)
+            else:
+                col5.warning("Image not found: app/assets/C/xgboost.png")
+
+            img = Path("app/assets/C/sarimax.png")
+            if img.exists():
+                col6.image(str(img), use_container_width=True)
+            else:
+                col6.warning("Image not found: app/assets/C/sarimax.png")
+
+            img = Path("app/assets/C/deep_learning.png")
+            if img.exists():
+                col7.image(str(img), use_container_width=True)
+            else:
+                col7.warning("Image not found: app/assets/C/deep_learning.png")
+
+    st.markdown("### 2. Performances sans AR/MM")
+
+    with st.expander("Details Performances sans AR/MM",
+                     expanded=False):
+
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🥇 **XGBoost** : meilleur compromis généralisation / précision
+        """)
+        img = Path("app/assets/C/xgboost_mean_metrics.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/elasticnet.png")
-        img = Path("app/assets/C/knn.png")
+            col2.warning("Image not found: app/assets/C/xgboost_mean_metrics.png")
 
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🥈 **Random Forest** : excellent en entraînement mais problème de
+        généralisation
+        """)
+        img = Path("app/assets/C/random_forest_mean_metrics.png")
         if img.exists():
-            col3.image(str(img), use_container_width=True)
+            col2.image(str(img), use_container_width=True)
         else:
-            col3.warning("Image not found: app/assets/C/knn.png")
+            col2.warning("Image not found: app/assets/C/random_forest_mean_metrics.png")
 
-        img = Path("app/assets/C/random_forest.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
+        """)
+        img = Path("app/assets/C/knn_mean_metrics.png")
         if img.exists():
-            col4.image(str(img), use_container_width=True)
+            col2.image(str(img), use_container_width=True)
         else:
-            col4.warning("Image not found: app/assets/C/random_forest.png")
+            col2.warning("Image not found: app/assets/C/knn_mean_metrics.png")
 
-        img = Path("app/assets/C/xgboost.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - ❌ **Régression linéaire** : mauvais en précision (stable en généralisation)
+        """)
+        img = Path("app/assets/C/lineaire_mean_metrics.png")
         if img.exists():
-            col5.image(str(img), use_container_width=True)
+            col2.image(str(img), use_container_width=True)
         else:
-            col5.warning("Image not found: app/assets/C/xgboost.png")
+            col2.warning("Image not found: app/assets/C/lineaire_mean_metrics.png")
 
-        img = Path("app/assets/C/sarimax.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - ❌ **ElasticNet** : amélioration quasi inexistante de la régression linéaire
+        malgré une grille de recherche des meilleurs hyperparamètres
+        """)
+        img = Path("app/assets/C/elasticnet_mean_metrics.png")
         if img.exists():
-            col6.image(str(img), use_container_width=True)
+            col2.image(str(img), use_container_width=True)
         else:
-            col6.warning("Image not found: app/assets/C/sarimax.png")
-
-        img = Path("app/assets/C/deep_learning.png")
-        if img.exists():
-            col7.image(str(img), use_container_width=True)
-        else:
-            col7.warning("Image not found: app/assets/C/deep_learning.png")
-
-    st.markdown("### 2. Performances sans AR/MM")
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥇 **XGBoost** : meilleur compromis généralisation / précision
-    """)
-    img = Path("app/assets/C/xgboost_mean_metrics.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/xgboost_mean_metrics.png")
-
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥈 **Random Forest** : excellent en entraînement mais problème de généralisation
-    """)
-    img = Path("app/assets/C/random_forest_mean_metrics.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/random_forest_mean_metrics.png")
-
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
-    """)
-    img = Path("app/assets/C/knn_mean_metrics.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/knn_mean_metrics.png")
-
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - ❌ **Régression linéaire** : mauvais en précision (stable en généralisation)
-    """)
-    img = Path("app/assets/C/lineaire_mean_metrics.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/lineaire_mean_metrics.png")
-
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - ❌ **ElasticNet** : amélioration quasi inexistante de la régression linéaire
-    malgré une grille de recherche des meilleurs hyperparamètres
-    """)
-    img = Path("app/assets/C/elasticnet_mean_metrics.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/elasticnet_mean_metrics.png")
+            col2.warning("Image not found: app/assets/C/elasticnet_mean_metrics.png")
 
     st.markdown("### 3. Performances explicatives avec AR/MM (avec valeurs réelles"
                 " de la cible)")
 
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥇 **Random Forest** : parfait en entraînement et peu de problème de généralisation
-    """)
-    img = Path("app/assets/C/random_forest_mean_metrics_armm.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/"
-                     "random_forest_mean_metrics_armm.png")
+    with st.expander("Details Performances explicatives avec AR/MM",
+                     expanded=False):
 
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥈 **XGBoost** : excellent en entraînement et hyper stable en généralisation
-    """)
-    img = Path("app/assets/C/xgboost_mean_metrics_armm.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/xgboost_mean_metrics_armm.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🥇 **Random Forest** : parfait en entraînement et peu de problème de
+        généralisation
+        """)
+        img = Path("app/assets/C/random_forest_mean_metrics_armm.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/"
+                         "random_forest_mean_metrics_armm.png")
 
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
-    """)
-    img = Path("app/assets/C/knn_mean_metrics_armm.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/knn_mean_metrics_armm.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🥈 **XGBoost** : excellent en entraînement et hyper stable en généralisation
+        """)
+        img = Path("app/assets/C/xgboost_mean_metrics_armm.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/xgboost_mean_metrics_armm.png")
 
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🍫 **Régression linéaire** : honnête en précision (et stable en généralisation)
-    """)
-    img = Path("app/assets/C/lineaire_mean_metrics_armm.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/lineaire_mean_metrics_armm.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
+        """)
+        img = Path("app/assets/C/knn_mean_metrics_armm.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/knn_mean_metrics_armm.png")
 
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - ❌ **ElasticNet** : amélioration inexistante de la régression linéaire
-    malgré une grille de recherche des meilleurs hyperparamètres
-    """)
-    img = Path("app/assets/C/elasticnet_mean_metrics_armm.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/elasticnet_mean_metrics_armm.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🍫 **Régression linéaire** : honnête en précision (et stable en généralisation)
+        """)
+        img = Path("app/assets/C/lineaire_mean_metrics_armm.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/lineaire_mean_metrics_armm.png")
 
-    st.markdown("### 3. Performance prédictive avec AR/MM en conditions réelles"
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - ❌ **ElasticNet** : amélioration inexistante de la régression linéaire
+        malgré une grille de recherche des meilleurs hyperparamètres
+        """)
+        img = Path("app/assets/C/elasticnet_mean_metrics_armm.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/"
+                         "elasticnet_mean_metrics_armm.png")
+
+    st.markdown("### 4. Performances prédictives avec AR/MM en conditions réelles"
                 " **step-by-step**")
     st.markdown("""
     Ce mode de prédiction sous entend qu'il n'y a **aucune utilisation des valeurs
@@ -603,62 +532,82 @@ with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
     réutilisées récursivement pour ce calcul (*qui est du coup **bien plus couteux***)
     """)
 
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥇 **Random Forest** : encore très bon en test avec une perte en généralisation
-    (de ~8% en moyenne relativement au mode explicatif)
-    """)
-    img = Path("app/assets/C/random_forest_mean_metrics_forecast.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/"
-                     "random_forest_mean_metrics_forecast.png")
+    with st.expander("Details sur modèles standards",
+                     expanded=False):
 
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥉 **KNN** : une précision moindre mais une perte en généralisation la plus faible
-    (de seulement ~6% en moyenne)
-    """)
-    img = Path("app/assets/C/knn_mean_metrics_forecast.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/knn_mean_metrics_forecast.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🥇 **Random Forest** : encore très bon en test avec une perte en généralisation
+        (de ~8% en moyenne relativement au mode explicatif)
+        """)
+        img = Path("app/assets/C/random_forest_mean_metrics_forecast.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/"
+                         "random_forest_mean_metrics_forecast.png")
 
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - 🥈 **XGBoost** : une nette tendance à l'overfitting intuitivement liée
-    à la nature même du modèle qui se base sur la correction itérative d'une erreur
-    résiduelle
-    """)
-    img = Path("app/assets/C/xgboost_mean_metrics_forecast.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/xgboost_mean_metrics_forecast.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🥉 **KNN** : une précision moindre mais une perte en généralisation
+        la plus faible (de seulement ~6% en moyenne)
+        """)
+        img = Path("app/assets/C/knn_mean_metrics_forecast.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/knn_mean_metrics_forecast.png")
 
-    col1, col2 = st.columns([1, 2])
-    col1.markdown("""
-    - ❌ **Régression linéaire** : médiocre en généralisation
-    """)
-    img = Path("app/assets/C/lineaire_mean_metrics_forecast.png")
-    if img.exists():
-        col2.image(str(img), use_container_width=True)
-    else:
-        col2.warning("Image not found: app/assets/C/lineaire_mean_metrics_forecast.png")
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - 🥈 **XGBoost** : une nette tendance à l'overfitting intuitivement liée
+        à la nature même du modèle qui se base sur la correction itérative d'une erreur
+        résiduelle
+        """)
+        img = Path("app/assets/C/xgboost_mean_metrics_forecast.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/"
+                         "xgboost_mean_metrics_forecast.png")
 
+        col1, col2 = st.columns([1, 2])
+        col1.markdown("""
+        - ❌ **Régression linéaire** : médiocre en généralisation
+        """)
+        img = Path("app/assets/C/lineaire_mean_metrics_forecast.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/"
+                         "lineaire_mean_metrics_forecast.png")
+
+    st.markdown("### 5. Performances prédictives de modèles spécifiques avancés")
     st.markdown("""
-    - ❌ **SARIMAX** : très rapide en calcul de prédiction mais extrêmement couteux
-      en entraînement et très faible en généralisation
+    Les deux derniers modèles étudiés sont forcément sans vision des valeurs réelles
+    de la variable cible et auto-calculent leur fenêtre de contexte
+    - via la saison/AR/MA pour le modèle SARIMAX
+    - via la fenêtre de contexte mobile pour les Transformers du modèle Deep Learning
     """)
+    with st.expander("Details sur modèle SARIMAX",
+                     expanded=False):
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col1:
+            st.markdown("""
+            - ❌ **SARIMAX** : très rapide en calcul de prédiction mais extrêmement
+            couteux en entraînement et très faible en généralisation
+            """)
 
-    st.markdown("""
-    - 🧠 **Deep Learning (Granite TTM)** :
-      - excellent en *zero-shot*
-      - améliorable par *fine-tuning* (R² ≈ 0.87 en test avec un contexte d'une
-      semaine glissante: 168 lags)
-    """)
+    with st.expander("Details sur modèle Deep Learning",
+                     expanded=False):
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col1:
+            st.markdown("""
+            - 🧠 **Deep Learning (Granite TTM)** :
+            - excellent en *zero-shot*
+            - améliorable par *fine-tuning* (R² ≈ 0.87 en test avec un contexte d'une
+            semaine glissante: 168 lags)
+            """)
 
 with st.expander("🔚 D - Conclusion & Ouverture (1 min)", expanded=False):
     st.markdown("""

@@ -1,0 +1,45 @@
+A -> Rémy [1 min max]
+
+[ B = 1min/1min30 max par section ?? ] 
+
+B.1.Détails sur le Nettoyage -> Elias
+
+B.2.Détails sur l'Enrichissement -> Rémy
+
+B.3.Analyse statistique univariée du comptage horaire -> Rémy
+        La variable **`comptage_horaire`** est fortement concentrée sur les
+        faibles valeurs, avec des valeurs extrêmes homogènement distribuées.
+        Une valeur aberrante majeure (3070 vélos à 14h le 5 janvier 2025 sur
+        "Quai d'Orsay O-E") a été identifiée comme 10 fois supérieure à la
+        normale et corrigée.
+
+        Le **test d'Anderson** confirme la **non-normalité** de la
+        distribution de `comptage_horaire` pour tous les degrés de tolérance
+        (statistique de test = 80094.4).
+
+        NB : la non normalité implique que le test ANOVA n'est pas pertinent
+        et Kruskal-Wallis permet de conclure que les variables catégorielles
+        restantes (météo / vacances scolaires) variance suffisante
+
+B.3.Data Visualisation du comptage horaire -> Elias
+
+B.3.Data Visualisation Comptage Vs météo et Vacances scolaires -> Elias
+
+B.3.Data Visualisation Comptage Vs Géolocalisation -> Rémy
+
+[ C = 1min30/2min max par section ?? ] 
+
+C.1.Details Objectifs et Régression temporelle supervisée -> Elias
+
+C.2.Details Performances sans AR/MM -> Rémy
+
+C.3.Details Performances explicatives avec AR/MM -> Elias
+
+C.4.Details sur modèles standards -> Rémy
+
+C.5.Details sur modèle SARIMAX -> Elias
+
+C.5.Details sur modèle Deep Learning -> Elias
+
+D.Conclusion -> Elias
+
