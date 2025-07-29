@@ -10,7 +10,7 @@ st.markdown(
 st.info(
     '''
     👈 Utilisez le menu de navigation latéral pour explorer :
-    - La présentation de la démarche projet et nos résultats et conclusions
+    - La présentation de la démarche projet ainsi que nos résultats et conclusions
     - L'exploration intéractive des statistiques après la phase de préparation
       des données
     - La visualisation graphique et intéractive des données préparées pour la
