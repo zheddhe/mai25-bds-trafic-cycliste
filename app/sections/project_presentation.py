@@ -518,7 +518,7 @@ with st.expander("🧪 C - Modélisation (10 à 12 min)", expanded=False):
         else:
             col1.warning("Image not found: app/assets/C/lineaire.png")
 
-        img = Path("app/assets/elasticnet.png")
+        img = Path("app/assets/C/elasticnet.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
