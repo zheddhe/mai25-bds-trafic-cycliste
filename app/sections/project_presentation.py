@@ -28,8 +28,8 @@ with st.expander("🎙️ A - Introduction (< 1 min)", expanded=False):
     La Ville de Paris dispose de compteurs permanents pour évaluer la
     pratique cycliste.
 
-    🎯 Le but du projet : **modéliser l’évolution horaire du trafic vélo** par site
-    pour :
+    🎯 Le but du projet: **modéliser l’évolution horaire du trafic vélo** par site
+    pour:
     - **Identifier les facteurs** qui influencent son évolution
     - Assister l'adaptation des aménagements cyclables en fonction des **prédictions
     de trafic**.
@@ -38,11 +38,11 @@ with st.expander("🎙️ A - Introduction (< 1 min)", expanded=False):
     - Mise en place d'un processus complet de modélisation basé sur l'apprentissage
     - Proposer un laboratoire d'expérimentation (modèles/données)
 
-    👥 **Équipe** : Rémy Canal, Elias Djouadi, (Raphaël Parmentier)
+    👥 **Équipe**: Rémy Canal, Elias Djouadi, (Raphaël Parmentier)
     """)
 
 with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=False):
-    st.markdown("### 1. Données sources & nettoyages")
+    st.markdown("### B.1. Données sources & nettoyages")
     st.markdown(f"""
     - **940k+ observations** sur **13 mois glissants** – source
     [Open Data Paris - Données Compteurs]({URL_COMPTAGE_PARIS})
@@ -82,7 +82,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         `test_lien_vers_photos_du_site_de_comptage`, `id_photo_1`,
         `type_dimage`.
 
-        D'autres clusters d'absence touchent aussi :
+        D'autres clusters d'absence touchent aussi:
         `identifiant_du_compteur`, `identifiant_du_site_de_comptage`,
         `nom_du_site_de_comptage`, `date_d_installation_du_site_de_comptage`,
         `coordonnees_geographiques`, `url_sites`.
@@ -98,7 +98,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         peu explicatives, sont complètement écartées du dataset.
         """)
 
-    st.markdown("### 2. Ingénierie sur les variables explicatives"
+    st.markdown("### B.2. Ingénierie sur les variables explicatives"
                 " (Feature Engineering)")
     st.markdown("""
     - **Extraction** de données **intrinsèques** et **recombinaisons**
@@ -110,13 +110,13 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         st.markdown("#### Données intrinsèques / Recombinaisons")
         st.markdown("""
         Des variables complémentaires ont été créées à partir des données
-        existantes pour la visualisation et la modélisation :
-        - **`date_et_heure_de_comptage`** : extraction de l'année, mois
+        existantes pour la visualisation et la modélisation:
+        - **`date_et_heure_de_comptage`**: extraction de l'année, mois
           (num/texte), jour (mois/année/semaine - num/texte), heure, semaine
           ISO-8601.
-        - **`coordonnees_geographiques`** : extraction de la latitude et
+        - **`coordonnees_geographiques`**: extraction de la latitude et
           longitude.
-        - **`nom_du_compteur`** : extraction de l'orientation du compteur.
+        - **`nom_du_compteur`**: extraction de l'orientation du compteur.
         """)
 
         st.markdown("#### Données jours fériés et vacances scolaires")
@@ -145,7 +145,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         période**).
         """)
 
-    st.markdown("### 3. Visualisation et Statistiques sur nos données")
+    st.markdown("### B.3. Visualisation et Statistiques sur nos données")
     with st.expander("Analyses statistiques du **comptage horaire**",
                      expanded=False):
         col1, col2, col3 = st.columns([0.35, 0.35, 0.34])
@@ -170,7 +170,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
 
         col1, col2, col3 = st.columns([0.35, 0.35, 0.34])
         col1.markdown("""
-        #### QQ-plot des résidus du comptage horaire
+        #### QQ-plot des données de comptage horaire
         Les données de la variable `comptage_horaire` **ne suivent pas une
         loi normale**, comme le montre l'écart entre les **quantiles
         théoriques** d’une loi normale (*courbe rouge*) et les valeurs
@@ -182,14 +182,14 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
 
         col2.markdown("""
         #### Analyse du comptage horaire (avant correction)
-        Ces graphiques illustrent la **distribution initiale** du comptage horaire
+        Ces graphiques illustrent la **distribution initiale** du `comptage_horaire`
         (globale et par mois) avec une **concentration sur les faibles valeurs**
         et la présence d'**une valeur aberrante**.
         """)
 
         col3.markdown("""
         #### Analyse du comptage horaire (après correction)
-        Ces graphiques montrent la **distribution ajustée** du comptage horaire
+        Ces graphiques montrent la **distribution ajustée** du `comptage_horaire`
         après la **correction de la valeur aberrante**, offrant une vue
         plus réaliste et confirmant la distribution sur les faibles valeurs.
         """)
@@ -221,14 +221,14 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         col1.markdown("""
         Ce graphique met en lumière les différences d’intensité du trafic
         cycliste selon les jours de la semaine, en moyenne horaire.
-        - **Jours les plus fréquentés** : Mardi (89.8) et Jeudi (89.6),
+        - **Jours les plus fréquentés**: Mardi (89.8) et Jeudi (89.6),
         reflétant une forte activité cycliste en milieu de semaine.
         Mercredi (87.9) est proche.
-        - **Déclin en fin de semaine** : Le trafic baisse légèrement le
+        - **Déclin en fin de semaine**: Le trafic baisse légèrement le
         Vendredi (≈81), puis significativement le Samedi (≈62) et surtout
         Dimanche (≈55), montrant une transition vers un usage loisir ou
         un abandon temporaire.
-        - **Lundi plus faible** : Le Lundi (≈82) est en retrait,
+        - **Lundi plus faible**: Le Lundi (≈82) est en retrait,
         potentiellement dû à un démarrage de semaine plus progressif.
         """)
 
@@ -236,12 +236,12 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         col2.markdown("""
         Ce graphique met en évidence les dix heures les plus fréquentées
         sur l’ensemble des stations.
-        - **Heures de pointe très marquées** : La pointe du soir (**18h**)
+        - **Heures de pointe très marquées**: La pointe du soir (**18h**)
         est en tête (plus de 7,5 millions), suivie de 19h, 17h et 20h.
-        - **Heures de début de journée très actives** : Les créneaux 8h et
+        - **Heures de début de journée très actives**: Les créneaux 8h et
         9h enregistrent un fort comptage (> 5.9 millions), témoignant des
         déplacements domicile-travail.
-        - **Heures de milieu de journée plus modérées** : 12h, 13h, 15h et
+        - **Heures de milieu de journée plus modérées**: 12h, 13h, 15h et
         16h affichent un comptage moindre (3.6 à 4.1 millions),
         correspondant à des déplacements personnels/professionnels.
         """)
@@ -250,14 +250,14 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         col3.markdown("""
         Ce graphique met en évidence une forte concentration du trafic
         cycliste sur quelques artères majeures de Paris.
-        - **Domination du boulevard de Sébastopol et de la rue de Rivoli** :
+        - **Domination du boulevard de Sébastopol et de la rue de Rivoli**:
         Le compteur Totem 73 boulevard de Sébastopol (S-N) domine (plus de 3
         millions), avec deux compteurs Rue de Rivoli également
         importants. Ces itinéraires sont des corridors cyclables majeurs.
-        - **Importance des compteurs bidirectionnels** : La présence de deux
+        - **Importance des compteurs bidirectionnels**: La présence de deux
         directions opposées sur plusieurs stations traduit des flux
         équilibrés.
-        - **Diversité géographique** : D'autres stations comme Magenta,
+        - **Diversité géographique**: D'autres stations comme Magenta,
         Ménilmontant, Voltaire et la Tournelle suggèrent une diffusion de
         l’usage au-delà de l’hyper-centre.
         """)
@@ -275,11 +275,13 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         col1.markdown("""
         #### Comptage horaire Vs Vacances Scolaires
         Ce graphique montre que le trafic cycliste est significativement
-        plus élevé et plus variable hors vacances scolaires.
+        plus **élevé** et plus **variable hors vacances scolaires**.
+
         Pendant les périodes de vacances, l'activité diminue,
-        particulièrement pendant les vacances de Noël et de la Toussaint.
+        particulièrement pendant les **vacances de Noël** et de la **Toussaint**.
+
         Cela indique que les vacances scolaires sont un facteur clé
-        influençant l'usage du vélo, principalement utilitaire.
+        influençant l'usage du vélo.
         """)
 
         img = Path("app/assets/B/boxplot_weather.png")
@@ -289,12 +291,15 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
             col2.warning("Image not found: app/assets/B/boxplot_weather.png")
         col2.markdown("""
         #### Comptage horaire Vs Météo
-        Le graphique démontre une forte corrélation entre la météo
+        Le graphique démontre une **forte corrélation** entre la météo
         et le trafic cycliste.
-        L'affluence est plus élevée par temps clément ou légèrement nuageux,
-        et chute drastiquement en cas de conditions sévères
-        comme les fortes pluies, la neige, le grésil, le verglas ou les orages.
-        La variabilité du trafic est également plus importante par temps favorable.
+
+        L'affluence est plus **élevée** par **temps clément** ou **légèrement nuageux**,
+        et **chute drastiquement** en cas de conditions sévères comme les **fortes
+        pluies**, la **neige**, le **grésil**, le **verglas** ou les **orages**.
+
+        La **variabilité** du trafic est également plus importante par
+        **temps favorable**.
         """)
 
     with st.expander("Visualisation du **comptage horaire** Vs **géolocalisation**",
@@ -319,6 +324,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         Une **disparité significative** du volume total de vélos
         enregistrés par les compteurs est observée entre **le centre et la
         périphérie** de Paris, ainsi qu'entre **le nord-est et le sud-est**.
+
         Cependant, la **disparité** du maillage des compteurs ne permet pas de
         tirer des conclusions certaines sur la seule base de la
         géolocalisation.
@@ -335,7 +341,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
 
 
 with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
-    st.markdown("### 1. Objectif ML : Régression temporelle supervisée")
+    st.markdown("### C1. Objectif ML: Régression temporelle supervisée")
 
     with st.expander("Details Objectifs et Régression temporelle supervisée",
                      expanded=False):
@@ -366,7 +372,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             ''')
 
         st.markdown("""
-        - Modèles de **régression** étudiés : `linéaire`, `ElasticNet`, `KNN`,
+        - Modèles de **régression** étudiés: `linéaire`, `ElasticNet`, `KNN`,
         `RandomForest`, `XGBoost`, `SARIMAX`, `Deep Learning`
         """)
         with st.expander("Chronologie de l'étude des modèles", expanded=True):
@@ -414,13 +420,13 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             else:
                 col7.warning("Image not found: app/assets/C/dl/deep_learning.png")
 
-    st.markdown("### 2. Performances explicatives sans AR/MM")
+    st.markdown("### C.2. Performances explicatives sans AR/MM")
 
     with st.expander("Details Performances explivatives sans AR/MM", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🥇 **XGBoost** : meilleur compromis généralisation / précision
+        - 🥇 **XGBoost**: meilleur compromis généralisation / précision
         """)
         img = Path("app/assets/C/xgb/xgboost_mean_metrics.png")
         if img.exists():
@@ -430,7 +436,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🥈 **Random Forest** : excellent en entraînement mais problème de
+        - 🥈 **Random Forest**: excellent en entraînement mais problème de
         généralisation
         """)
         img = Path("app/assets/C/rf/random_forest_mean_metrics.png")
@@ -442,7 +448,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
+        - 🥉 **KNN**: très bon en entraînement, mais problème de généralisation
         """)
         img = Path("app/assets/C/knn/knn_mean_metrics.png")
         if img.exists():
@@ -452,7 +458,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - ❌ **Régression linéaire** : mauvais en précision (stable en généralisation)
+        - ❌ **Régression linéaire**: mauvais en précision (stable en généralisation)
         """)
         img = Path("app/assets/C/lin/lineaire_mean_metrics.png")
         if img.exists():
@@ -462,7 +468,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - ❌ **ElasticNet** : amélioration quasi inexistante de la régression linéaire
+        - ❌ **ElasticNet**: amélioration quasi inexistante de la régression linéaire
         malgré une grille de recherche des meilleurs hyperparamètres
         """)
         img = Path("app/assets/C/elnet/elasticnet_mean_metrics.png")
@@ -502,14 +508,14 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             #     col3.warning("Image not found: app/assets/C/xgb/"
             #                  "xgboost_seb_sn_trend.png")
 
-    st.markdown("### 3. Performances explicatives avec AR/MM (avec valeurs réelles"
+    st.markdown("### C.3. Performances explicatives avec AR/MM (avec valeurs réelles"
                 " de la cible)")
 
     with st.expander("Details Performances explicatives avec AR/MM", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🥇 **Random Forest** : parfait en entraînement et peu de problème de
+        - 🥇 **Random Forest**: parfait en entraînement et peu de problème de
         généralisation
         """)
         img = Path("app/assets/C/rf/random_forest_mean_metrics_armm.png")
@@ -521,7 +527,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🥈 **XGBoost** : excellent en entraînement et hyper stable en généralisation
+        - 🥈 **XGBoost**: excellent en entraînement et hyper stable en généralisation
         """)
         img = Path("app/assets/C/xgb/xgboost_mean_metrics_armm.png")
         if img.exists():
@@ -532,7 +538,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🥉 **KNN** : très bon en entraînement, mais problème de généralisation
+        - 🥉 **KNN**: très bon en entraînement, mais problème de généralisation
         """)
         img = Path("app/assets/C/knn/knn_mean_metrics_armm.png")
         if img.exists():
@@ -542,7 +548,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🍫 **Régression linéaire** : honnête en précision (et stable en généralisation)
+        - 🍫 **Régression linéaire**: honnête en précision (et stable en généralisation)
         """)
         img = Path("app/assets/C/lin/lineaire_mean_metrics_armm.png")
         if img.exists():
@@ -553,7 +559,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - ❌ **ElasticNet** : amélioration inexistante de la régression linéaire
+        - ❌ **ElasticNet**: amélioration inexistante de la régression linéaire
         malgré une grille de recherche des meilleurs hyperparamètres
         """)
         img = Path("app/assets/C/elnet/elasticnet_mean_metrics_armm.png")
@@ -593,7 +599,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             #     col3.warning("Image not found: app/assets/C/rf/"
             #                  "random_forest_seb_sn_trend_armm.png")
 
-    st.markdown("### 4. Performances prédictives avec AR/MM en conditions réelles"
+    st.markdown("### C.4. Performances prédictives avec AR/MM en conditions réelles"
                 " **step-by-step**")
     st.markdown("""
     Ce mode de prédiction sous entend qu'il n'y a **aucune utilisation des valeurs
@@ -607,7 +613,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🥇 **Random Forest** : encore très bon en test avec une perte en généralisation
+        - 🥇 **Random Forest**: encore très bon en test avec une perte en généralisation
         (de ~8% en moyenne relativement au mode explicatif)
         """)
         img = Path("app/assets/C/rf/random_forest_mean_metrics_forecast.png")
@@ -619,7 +625,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🥉 **KNN** : une précision moindre mais une perte en généralisation
+        - 🥈 **KNN**: une précision moindre mais une perte en généralisation
         la plus faible (de seulement ~6% en moyenne)
         """)
         img = Path("app/assets/C/knn/knn_mean_metrics_forecast.png")
@@ -631,7 +637,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - 🥈 **XGBoost** : une nette tendance à l'overfitting intuitivement liée
+        - 🥉 **XGBoost**: une nette tendance à l'overfitting intuitivement liée
         à la nature même du modèle qui se base sur la correction itérative d'une erreur
         résiduelle
         """)
@@ -644,7 +650,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
-        - ❌ **Régression linéaire** : médiocre en généralisation
+        - ❌ **Régression linéaire**: médiocre en généralisation
         """)
         img = Path("app/assets/C/lin/lineaire_mean_metrics_forecast.png")
         if img.exists():
@@ -683,7 +689,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             #     col3.warning("Image not found: app/assets/C/rf/"
             #                  "random_forest_seb_sn_trend_forecast.png")
 
-    st.markdown("### 5. Performances prédictives de modèles spécifiques avancés")
+    st.markdown("### C.5. Performances prédictives de modèles spécifiques avancés")
     st.markdown(f"""
     Les deux derniers modèles étudiés utilisent par contruction uniquement les valeurs
     prédites calculées de la variable cible et auto-calculent leur contexte mobile
@@ -695,7 +701,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                      expanded=False):
         col1, col2, col3 = st.columns([1, 1, 1])
         col1.markdown("""
-        - ❌ **SARIMAX** :
+        - ❌ **SARIMAX**:
           - **Avantage:**
             - Très rapide en calcul de prédiction (le plus rapide
             de tous nos modèles)
@@ -722,7 +728,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             col3.warning("Image not found: app/assets/C/sarx/"
                          "sarimax_seb_sn_acf_pacf.png")
 
-        with st.expander("Meilleurs résultats : **(p,d,q)=(3,1,3)"
+        with st.expander("Meilleurs résultats: **(p,d,q)=(3,1,3)"
                          " (P,D,Q,S)=(3,1,3,24)**",
                          expanded=False):
             col1, col3 = st.columns([1, 1])
@@ -758,8 +764,8 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                      expanded=False):
         col1, col2, col3 = st.columns([1, 1, 1])
         col1.markdown("""
-        - 🧠 **Deep Learning (Granite TTM)** :
-          - Déjà très bon et généralisable en *zero-shot* :
+        - 🧠 **Deep Learning (Granite TTM)**:
+          - Déjà très bon et généralisable en *zero-shot*:
             - R² train = `0.873` | R² test = `0.891` obtenu sans **aucune
             données exogène**
           - Améliorable en *fine-tuning* aux possibilités **très nombreuses**
@@ -785,7 +791,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             col3.warning("Image not found: app/assets/C/dl/"
                          "deep_learning_int_preds.png")
 
-        with st.expander("Meilleurs résultats : **zeroshot**", expanded=False):
+        with st.expander("Meilleurs résultats: **zeroshot**", expanded=False):
             col1, col3 = st.columns([1, 1])
             img = Path("app/assets/C/dl/deep_learning_preds.png")
             if img.exists():
@@ -821,7 +827,7 @@ with st.expander("🔚 D - Conclusion & Ouverture (< 1 min)", expanded=False):
       **modélisation ML** pour terminer sur un survol de l'état de l'art en
       **deep learning** sur ce sujet.
 
-    🚀 **Prochaines étapes envisageables** :
+    🚀 **Prochaines étapes envisageables**:
     - Exploiter les possibilités des réseaux de neurones:
       - **profondeur** des données (8 ans d’archives disponible sur OpenData Paris)
       - **multiplication** des sources d'entraînement (via le transfert learning).

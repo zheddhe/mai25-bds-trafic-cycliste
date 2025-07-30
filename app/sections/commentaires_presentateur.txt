@@ -1,4 +1,17 @@
 A -> Rémy [1 min max]
+        Bonjour et bienvenue à tous pour cette présentation de 20 min du projet trafic cycliste réalisé dans le cadre
+        de notre formation data scientist de mai 2025, nous aborderons vos questions à la fin de la présentation 
+        Nous prendrons le temps d'explorer et visualiser les données avant d'aborder 
+        la modélisation et ses résultats et conclurons sur les ouvertures possibles de notre projet.
+
+        Je vais commencer par introduire notre modeste équipe composée d'Elias et moi même, et nous saluons 
+        remercions Raphaël qui a participé au tout début avant d'être contraint de rejoindre une autre session
+        Donc notre projet vise à identifier les facteurs qui influencent le trafic horaire par site sur Paris
+        qui est équipé d'un certain nombre de compteurs permanents
+        Nous avons mis en place une démarche de modélisation exploratoire et réalisé un laboratoire d'expérimentation
+        avec la présente application.
+
+        Sans plus Attendre Elias je laisse la parole à Elias pour aborder l'exploration des données
 
 [ B = 1min/1min30 max par section ?? ] 
 
@@ -12,24 +25,26 @@ B.1.Détails sur le Nettoyage -> Elias
         ont été complètement écartées, résultant en un jeu de données sans valeurs manquantes.
 
 B.2.Détails sur l'Enrichissement -> Rémy
-        Rappeler que les enrichissements corrections ne se sont pas arrêtées
-        ici, les différentes étapes de l'étude ont amené leur lots d'ajustements
-        corrections
+        Donc nous avons procédé à une ingénierie pour affiner nos variables explicatives brutes
+        [...]
+        Il est important de noter qu'au cours de notre processus d'analyse et de modélisation
+        nous avons naturellement identifié d'autre ajustements et potentiellement écarté certaines
+        des variables explicatives, nous le verrons au fil de la présentation.
 
 B.3.Analyse statistique univariée du comptage horaire -> Rémy
-        La variable **`comptage_horaire`** est fortement concentrée sur les
-        faibles valeurs, avec des valeurs extrêmes homogènement distribuées.
-        Une valeur aberrante majeure (3070 vélos à 14h le 5 janvier 2025 sur
-        "Quai d'Orsay O-E") a été identifiée comme 10 fois supérieure à la
-        normale et corrigée.
+        Une fois cet enrichissement opéré nous avons plongé dans l'étude statistique
+        et la représentation visuelle de nos données en se focalisant sur le comptage horaire
 
-        Le **test d'Anderson** confirme la **non-normalité** de la
-        distribution de `comptage_horaire` pour tous les degrés de tolérance
-        (statistique de test = 80094.4).
-
-        NB : la non normalité implique que le test ANOVA n'est pas pertinent
-        et Kruskal-Wallis a permis néamoins de conclure que les variables catégorielles
-        restantes (météo / vacances scolaires) ont une variance suffisante
+        Le premier graphique représente l'écart entre les quantiles théorique d'une distribution normale
+        (en rouge) et les données de comptage (en vert celles qui pourraient s'en rapprocher)
+        On note déjà un net outlier
+        
+        Le graphique suivant confirme cet outlier inexplicable par la distribution mensuelle
+        et également que notre variable comptage_horaire est fortement concentrée sur les
+        faibles valeurs, avec souvent des valeurs extrêmes homogènement assez homogènement réparties.
+        
+        La aberrante majeure est identifiée comme 10 fois supérieure à la
+        normale de son compteuur et donc divisée en conséquence.
 
 B.3.Data Visualisation du comptage horaire -> Elias
         Voici des visualisations clés du trafic cycliste : elles révèlent que le comptage moyen 
@@ -38,8 +53,7 @@ B.3.Data Visualisation du comptage horaire -> Elias
         correspondant aux trajets domicile-travail.
         Enfin, le boulevard de Sébastopol et la rue de Rivoli se distinguent comme les stations les plus fréquentées, 
         soulignant leur rôle de corridors majeurs, avec une présence notable de compteurs bidirectionnels 
-        et une certaine diversité géographique des points de trafic intense.
-        
+        et une certaine diversité géographique des points de trafic intense.   
 
 B.3.Data Visualisation Comptage Vs météo et Vacances scolaires -> Elias
         Ces deux visualisations montrent que le trafic significativement plus élevé et 
@@ -50,6 +64,15 @@ B.3.Data Visualisation Comptage Vs météo et Vacances scolaires -> Elias
         Ces deux facteurs sont donc des déterminants majeurs du volume de trafic vélo.
 
 B.3.Data Visualisation Comptage Vs Géolocalisation -> Rémy
+        Nous avons enfin étudié l'impact de la localisation par rapport au trafic et en premier lieu
+        la distribution géographique des compteurs avec des disparités significative entre centre et périphérie
+        et entre nord-est et sud-est
+        Néanmoins on constate aussi une grande disparité du maillage actuel des compteurs qui empeche de tirer 
+        des concusions certaines
+
+        Concernant la distribution par site, elle est disparate et les outliers (c'est à dire un trafic
+        exceptionnel) sont la "norme" avec une mediane systématiquement faible
+        un compteur est HS sur toute la période (108 avenue Denfert Rochereau)
 
 [ C = 1min30/2min max par section ?? ] 
 
@@ -61,6 +84,11 @@ C.1.Details Objectifs et Régression temporelle supervisée -> Elias
         aux ensembles (RandomForest, XGBoost), en passant par les modèles de séries temporelles (SARIMAX) et le Deep Learning.
 
 C.2.Details Performances explicatives sans AR/MM -> Rémy
+        Nous commencons donc notre analyse des résultats en comparant systématiquement en analysant les performances
+        sur un même set de 9 compteurs dans différentes conditions.
+        La première est l'utilisation de nos données sans ajout des composantes AR ou MM
+        [Analyser/résumer les résultats]
+        [zoom sur sébastopol]
 
 C.3.Details Performances explicatives avec AR/MM -> Elias
         Avec l'enrichissement AR/MM (auto-régressions et moyennes mobiles). µ
@@ -72,13 +100,21 @@ C.3.Details Performances explicatives avec AR/MM -> Elias
         tandis qu'ElasticNet n'apporte pas d'amélioration significative par rapport à la régression linéaire.
 
 C.4.Details Performance en conditions réelles sur modèles standards -> Rémy
+        Jusqu'à présent nous avions été cléments avec nos modèles en leur permettant d'avoir une vue indirecte
+        sur les données exactes de la variable cible c'est pourquoi nous avons parlé jusqu'à présent de performances
+        explicatives
+        Nous avons donc également mis en place un mode de prédiction en condition réelles qui calcule itérativement
+        la variable cible et n'utilise que cette prédiction pour calculer les variables autorégressive et moyennes mobiles
+        [Analyser/résumer les résultats]
+        [zoom sur sébastopol]
 
 C.5.Details Performance en conditions réelles sur modèle SARIMAX -> Elias
         Très rapide en calcul de prédiction mais extrêmement couteux en entraînement et très faible en généralisation
 
 C.5.Details Performance en conditions réelles sur modèle Deep Learning -> Rémy
         excellent en zero-shot
-        améliorable par fine-tuning (R² ≈ 0.87 en test avec un contexte d'une semaine glissante: 168 lags)
+        améliorable par fine-tuning
+        [Résumer le schéma du modèle et illustrer l'horizon de prédiction de 96 max (4j avec un lag de 1h)]
 
 D.Conclusion -> Elias [1 min max]
         L'approche du projet a couvert l'ensemble du processus, 
