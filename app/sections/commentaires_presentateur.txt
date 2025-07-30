@@ -96,7 +96,7 @@ C.2.Details Performances explicatives sans AR/MM -> Rémy
 
 
 C.3.Details Performances explicatives avec AR/MM -> Elias
-        Avec l'enrichissement AR/MM (auto-régressions et moyennes mobiles).
+        Avec l'enrichissement AR/MM (auto-régressions et moyennes mobiles). 
         Le Random Forest et XGBoost affichent les meilleures performances, 
         avec un R² en test d'environ 0.956 et 0.943 respectivement, 
         démontrant une excellente généralisation. 
@@ -116,7 +116,13 @@ C.4.Details Performance en conditions réelles sur modèles standards -> Rémy
 
 
 C.5.Details Performance en conditions réelles sur modèle SARIMAX -> Elias
-        Très rapide en calcul de prédiction mais extrêmement couteux en entraînement et très faible en généralisation
+        
+        Le modèle SARIMAX, bien que très rapide en calcul de prédiction, présente des inconvénients majeurs. 
+        Il est extrêmement coûteux en temps d'entraînement, ne peut pas gérer des saisonnalités 
+        trop profondes non détectées par les analyses ACF/PACF (comme une saison de plus de 24 heures),
+        et s'avère faible en généralisation face aux évolutions atypiques. 
+        L'image illustre également la décomposition saisonnière additive du comptage horaire, 
+        séparant les composantes observées, la tendance, la saisonnalité et les résidus.
 
 
 C.5.Details Performance en conditions réelles sur modèle Deep Learning -> Rémy
