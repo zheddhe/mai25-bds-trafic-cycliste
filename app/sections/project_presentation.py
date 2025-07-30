@@ -196,25 +196,25 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
 
     with st.expander("Visualisation du **comptage horaire**", expanded=False):
         col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
-        img = Path("app/assets/B/comptage_horaire_moyen_par_jour.png")
+        img = Path("app/assets/B/comptage_horaire_moyen_par_jour_old.png")
         if img.exists():
             col1.image(str(img), use_container_width=True)
         else:
             col1.warning("Image not found: app/assets/B/"
-                         "comptage_horaire_moyen_par_jour.png")
+                         "comptage_horaire_moyen_par_jour_old.png")
 
-        img = Path("app/assets/B/Top_10_stations.png")
+        img = Path("app/assets/B/top_10_heures_fort_comptage_old.png")
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/B/Top_10_stations.png")
-        img = Path("app/assets/B/top_10_heures_fort_comptage.png")
+            col2.warning("Image not found: app/assets/B/"
+                         "top_10_heures_fort_comptage_old.png")
 
+        img = Path("app/assets/B/Top_10_stations_old.png")
         if img.exists():
             col3.image(str(img), use_container_width=True)
         else:
-            col3.warning("Image not found: app/assets/B/"
-                         "top_10_heures_fort_comptage.png")
+            col3.warning("Image not found: app/assets/B/Top_10_stations_old.png")
 
         col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
         col1.markdown("#### Comptage moyen par jour de la semaine")
@@ -251,9 +251,9 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         Ce graphique met en évidence une forte concentration du trafic
         cycliste sur quelques artères majeures de Paris.
         - **Domination du boulevard de Sébastopol et de la rue de Rivoli** :
-        Le Totem 73 boulevard de Sébastopol (S-N) domine (plus de 3
-        millions), avec deux stations de la rue de Rivoli également
-        importantes. Ces itinéraires sont des corridors cyclables majeurs.
+        Le compteur Totem 73 boulevard de Sébastopol (S-N) domine (plus de 3
+        millions), avec deux compteurs Rue de Rivoli également
+        importants. Ces itinéraires sont des corridors cyclables majeurs.
         - **Importance des compteurs bidirectionnels** : La présence de deux
         directions opposées sur plusieurs stations traduit des flux
         équilibrés.
@@ -340,12 +340,13 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
     with st.expander("Details Objectifs et Régression temporelle supervisée",
                      expanded=False):
         st.markdown("""
-        - Variable cible : `comptage_horaire`
+        - Variable cible: `comptage_horaire`
+        - Métrique utilisées: `R²`, `RMSE`, `MAE` + Pente de la dérive des résidus
         - Extraction de variables explicatives additionnelles **spécifiques aux séries
         temporelles**
-        - **AR** (*auto-régressives*) et **MM** (*moyennes mobiles*) depuis les valeurs
-        précédentes de la **variables cible (prédite ou réelle)**
-        - **Oscillatoires** (*de période P*) pour les composantes de l'horodatage
+          - **AR** (*auto-régressives*) et **MM** (*moyennes mobiles*) depuis les
+        valeurs précédentes de la **variables cible (prédite ou réelle)**
+          - **Oscillatoires** (*de période P*) pour les composantes de l'horodatage
         suivant une période (heure -> 24, jour de la semaine -> 7, etc...)
         """)
         with st.expander("Formalisation mathématique", expanded=True):
@@ -471,6 +472,36 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             col2.warning("Image not found: app/assets/C/elnet/"
                          "elasticnet_mean_metrics.png")
 
+        with st.expander("Meilleurs résultats:",
+                         expanded=False):
+            col1, col2, col3 = st.columns([1, 1, 1])
+            img = Path("app/assets/C/xgb/xgboost_seb_sn_preds.png")
+            if img.exists():
+                col1.image(str(img), use_container_width=True)
+            else:
+                col1.warning("Image not found: app/assets/C/xgb/"
+                             "xgboost_seb_sn_preds.png")
+
+            img = Path("app/assets/C/xgb/xgboost_seb_sn_wide_preds.png")
+            if img.exists():
+                col2.image(str(img), use_container_width=True)
+            else:
+                col2.warning("Image not found: app/assets/C/xgb/"
+                             "xgboost_seb_sn_wide_preds.png")
+
+            img = Path("app/assets/C/xgb/xgboost_seb_sn_rot.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/xgb/"
+                             "xgboost_seb_sn_rot.png")
+            img = Path("app/assets/C/xgb/xgboost_seb_sn_trend.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/xgb/"
+                             "xgboost_seb_sn_trend.png")
+
     st.markdown("### 3. Performances explicatives avec AR/MM (avec valeurs réelles"
                 " de la cible)")
 
@@ -532,6 +563,36 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             col2.warning("Image not found: app/assets/C/elnet"
                          "elasticnet_mean_metrics_armm.png")
 
+        with st.expander("Meilleurs résultats:",
+                         expanded=False):
+            col1, col2, col3 = st.columns([1, 1, 1])
+            img = Path("app/assets/C/rf/random_forest_seb_sn_preds_armm.png")
+            if img.exists():
+                col1.image(str(img), use_container_width=True)
+            else:
+                col1.warning("Image not found: app/assets/C/rf/"
+                             "random_forest_seb_sn_preds_armm.png")
+
+            img = Path("app/assets/C/rf/random_forest_seb_sn_wide_preds_armm.png")
+            if img.exists():
+                col2.image(str(img), use_container_width=True)
+            else:
+                col2.warning("Image not found: app/assets/C/rf/"
+                             "random_forest_seb_sn_wide_preds_armm.png")
+
+            img = Path("app/assets/C/rf/random_forest_seb_sn_rot_armm.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/rf/"
+                             "random_forest_seb_sn_rot_armm.png")
+            img = Path("app/assets/C/rf/random_forest_seb_sn_trend_armm.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/rf/"
+                             "random_forest_seb_sn_trend_armm.png")
+
     st.markdown("### 4. Performances prédictives avec AR/MM en conditions réelles"
                 " **step-by-step**")
     st.markdown("""
@@ -592,6 +653,36 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             col2.warning("Image not found: app/assets/C/lin"
                          "lineaire_mean_metrics_forecast.png")
 
+        with st.expander("Meilleurs résultats:",
+                         expanded=False):
+            col1, col2, col3 = st.columns([1, 1, 1])
+            img = Path("app/assets/C/rf/random_forest_seb_sn_preds_forecast.png")
+            if img.exists():
+                col1.image(str(img), use_container_width=True)
+            else:
+                col1.warning("Image not found: app/assets/C/rf/"
+                             "random_forest_seb_sn_preds_forecast.png")
+
+            img = Path("app/assets/C/rf/random_forest_seb_sn_wide_preds_forecast.png")
+            if img.exists():
+                col2.image(str(img), use_container_width=True)
+            else:
+                col2.warning("Image not found: app/assets/C/rf/"
+                             "random_forest_seb_sn_wide_preds_forecast.png")
+
+            img = Path("app/assets/C/rf/random_forest_seb_sn_rot_forecast.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/rf/"
+                             "random_forest_seb_sn_rot_forecast.png")
+            img = Path("app/assets/C/rf/random_forest_seb_sn_trend_forecast.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/rf/"
+                             "random_forest_seb_sn_trend_forecast.png")
+
     st.markdown("### 5. Performances prédictives de modèles spécifiques avancés")
     st.markdown(f"""
     Les deux derniers modèles étudiés utilisent par contruction uniquement les valeurs
@@ -603,23 +694,77 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
     with st.expander("Details sur modèle SARIMAX", expanded=False):
         col1, col2, col3 = st.columns([1, 1, 1])
         col1.markdown("""
-        - ❌ **SARIMAX** : très rapide en calcul de prédiction mais extrêmement
-        couteux en entraînement et très faible en généralisation
+        - ❌ **SARIMAX** :
+          - **Avantage:**
+            - Très rapide en calcul de prédiction (le plus rapide
+            de tous nos modèles)
+          - **Inconvénients**:
+            - **Extrêmement couteux** en temps de calcul en entraînement
+            - **impossible** à calculer sur une saisonnalité trop profonde ou d'ordre
+            trop élevé notamment ceux détectés par les analyses ACF (corrélation
+            complète) et PACF (corrélation partielle) sur saison pourtant courte
+            de 24 heures
+            - **Faible en généralisation** notamment sur les évolutions atypiques
         """)
+
+        img = Path("app/assets/C/sarx/sarimax_seasonal_decompose.png")
+        if img.exists():
+            col2.image(str(img), use_container_width=True)
+        else:
+            col2.warning("Image not found: app/assets/C/sarx/"
+                         "sarimax_seasonal_decompose.png")
+
+        img = Path("app/assets/C/sarx/sarimax_seb_sn_acf_pacf.png")
+        if img.exists():
+            col3.image(str(img), use_container_width=True)
+        else:
+            col3.warning("Image not found: app/assets/C/sarx/"
+                         "sarimax_seb_sn_acf_pacf.png")
+
+        with st.expander("Meilleurs résultats : **(p,d,q)=(3,1,3)"
+                         " (P,D,Q,S)=(3,1,3,24)**",
+                         expanded=False):
+            col1, col2, col3 = st.columns([1, 1, 1])
+            img = Path("app/assets/C/sarx/sarimax_seb_sn_preds_313-313-24.png")
+            if img.exists():
+                col1.image(str(img), use_container_width=True)
+            else:
+                col1.warning("Image not found: app/assets/C/sarx/"
+                             "sarimax_seb_sn_preds_313-313-24.png")
+
+            img = Path("app/assets/C/sarx/sarimax_seb_sn_wide_preds_313-313-24.png")
+            if img.exists():
+                col2.image(str(img), use_container_width=True)
+            else:
+                col2.warning("Image not found: app/assets/C/sarx/"
+                             "sarimax_seb_sn_wide_preds_313-313-24.png")
+
+            img = Path("app/assets/C/sarx/sarimax_seb_sn_rot_313-313-24.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/sarx/"
+                             "sarimax_seb_sn_rot_313-313-24.png")
+            img = Path("app/assets/C/sarx/sarimax_seb_sn_trend_313-313-24.png")
+            if img.exists():
+                col3.image(str(img), use_container_width=True)
+            else:
+                col3.warning("Image not found: app/assets/C/sarx/"
+                             "sarimax_seb_sn_trend_313-313-24.png")
 
     with st.expander("Details sur modèle Deep Learning", expanded=False):
         col1, col2, col3 = st.columns([1, 1, 1])
         col1.markdown("""
         - 🧠 **Deep Learning (Granite TTM)** :
-        - Déjà très bon et généralisable en *zero-shot* sans **aucune
-        données exogène**:
-            - R² train = `0.873` | R² test = `0.891`
-        - Améliorable en *fine-tuning* aux possibilités **très nombreuses**
+          - Déjà très bon et généralisable en *zero-shot* :
+            - R² train = `0.873` | R² test = `0.891` obtenu sans **aucune
+            données exogène**
+          - Améliorable en *fine-tuning* aux possibilités **très nombreuses**
         (incluant le **transfert learning** et la **prédiction parallèle
         (multi-tête)**):
-            - Nos meilleurs résultats: R² train = `0.855` | R² test = `0.871`
-            (obtenu avec une FCM de taille 168 (= 1 semaine soit 29M de poids
-            à régler) et entrainé sur 60% de **toutes les données de comptage
+            - R² train = `0.855` | R² test = `0.871`
+            obtenu avec une FCM de taille 168 (= 1 semaine soit **29M de poids**
+            à affiner) et entrainé sur 60% de **toutes les données de comptage
             disponibles**
         """)
 
@@ -627,14 +772,14 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
         if img.exists():
             col2.image(str(img), use_container_width=True)
         else:
-            col2.warning("Image not found: app/assets/C/dl"
+            col2.warning("Image not found: app/assets/C/dl/"
                          "deep_learning_granite_ttm_arch.png")
 
         img = Path("app/assets/C/dl/deep_learning_int_preds.png")
         if img.exists():
             col3.image(str(img), use_container_width=True)
         else:
-            col3.warning("Image not found: app/assets/C/dl"
+            col3.warning("Image not found: app/assets/C/dl/"
                          "deep_learning_int_preds.png")
 
         with st.expander("Meilleurs résultats : **zeroshot**", expanded=False):
@@ -643,27 +788,27 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             if img.exists():
                 col1.image(str(img), use_container_width=True)
             else:
-                col1.warning("Image not found: app/assets/C/dl"
+                col1.warning("Image not found: app/assets/C/dl/"
                              "deep_learning_preds.png")
 
             img = Path("app/assets/C/dl/deep_learning_wides_preds.png")
             if img.exists():
                 col2.image(str(img), use_container_width=True)
             else:
-                col2.warning("Image not found: app/assets/C/dl"
+                col2.warning("Image not found: app/assets/C/dl/"
                              "deep_learning_wides_preds.png")
 
             img = Path("app/assets/C/dl/deep_learning_rot.png")
             if img.exists():
                 col3.image(str(img), use_container_width=True)
             else:
-                col3.warning("Image not found: app/assets/C/dl"
+                col3.warning("Image not found: app/assets/C/dl/"
                              "deep_learning_rot.png")
             img = Path("app/assets/C/dl/deep_learning_trend.png")
             if img.exists():
                 col3.image(str(img), use_container_width=True)
             else:
-                col3.warning("Image not found: app/assets/C/dl"
+                col3.warning("Image not found: app/assets/C/dl/"
                              "deep_learning_trend.png")
 
 with st.expander("🔚 D - Conclusion & Ouverture (< 1 min)", expanded=False):
