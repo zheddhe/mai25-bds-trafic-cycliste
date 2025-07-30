@@ -61,10 +61,11 @@ with st.sidebar:
     with st.spinner("⏳ Chargement du dataset en cours..."):
         df_raw = cached_load_dataset_visualization(uploaded_file)
 
+    source = "(personnalisées)" if uploaded_file else "(génériques)"
     if df_raw is not None and isinstance(df_raw, pd.DataFrame):
-        source = "(personnalisées)" if uploaded_file else "(génériques)"
-        st.success(f"✅ Données chargées avec succès {source}.")
+        st.success(f"✅ Données {source} chargées avec succès.")
     else:
+        st.error(f"❌ Données {source} non chargée.")
         st.stop()
 
 st.markdown("")

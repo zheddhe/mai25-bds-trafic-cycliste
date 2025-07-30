@@ -245,10 +245,11 @@ with st.sidebar:
     )
     with st.spinner("⏳ Chargement du dataset en cours..."):
         df = cached_load_dataset_ml(uploaded_file)
+    source = "(personnalisées)" if uploaded_file else "(génériques)"
     if df is not None and isinstance(df, pd.DataFrame):
-        source = "(personnalisées)" if uploaded_file else "(génériques)"
-        st.success(f"✅ Données chargées avec succès {source}.")
+        st.success(f"✅ Données {source} chargées avec succès.")
     else:
+        st.error(f"❌ Données {source} non chargée.")
         st.stop()
 
     grouped = df.groupby(["nom_du_site_de_comptage", "orientation_compteur"])
