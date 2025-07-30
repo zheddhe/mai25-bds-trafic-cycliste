@@ -11,7 +11,7 @@ A -> Rémy [1 min max]
         Nous avons mis en place une démarche de modélisation exploratoire et réalisé un laboratoire d'expérimentation
         avec la présente application.
 
-        Sans plus Attendre Elias je laisse la parole à Elias pour aborder l'exploration des données
+        Sans plus Attendre, je laisse la parole à Elias pour aborder l'exploration des données
 
 
 B.1.Détails sur le Nettoyage -> Elias
