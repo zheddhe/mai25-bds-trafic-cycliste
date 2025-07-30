@@ -301,7 +301,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
                      expanded=False):
 
         col1, col2 = st.columns([0.4, 0.6])
-        img = Path("app/assets/B/comptage_total_site.png")
+        img = Path("app/assets/B/comptage_total_site_old.png")
         if img.exists():
             col1.image(str(img), use_container_width=True)
         else:
@@ -341,7 +341,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                      expanded=False):
         st.markdown("""
         - Variable cible: `comptage_horaire`
-        - Métrique utilisées: `R²`, `RMSE`, `MAE` + Pente de la dérive des résidus
+        - Métriques utilisées: `R²`, `RMSE`, `MAE` + Pente de la dérive des résidus
         - Extraction de variables explicatives additionnelles **spécifiques aux séries
         temporelles**
           - **AR** (*auto-régressives*) et **MM** (*moyennes mobiles*) depuis les
@@ -474,7 +474,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         with st.expander("Meilleurs résultats:",
                          expanded=False):
-            col1, col2, col3 = st.columns([1, 1, 1])
+            col1, col3 = st.columns([1, 1])
             img = Path("app/assets/C/xgb/xgboost_seb_sn_preds.png")
             if img.exists():
                 col1.image(str(img), use_container_width=True)
@@ -482,12 +482,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                 col1.warning("Image not found: app/assets/C/xgb/"
                              "xgboost_seb_sn_preds.png")
 
-            img = Path("app/assets/C/xgb/xgboost_seb_sn_wide_preds.png")
-            if img.exists():
-                col2.image(str(img), use_container_width=True)
-            else:
-                col2.warning("Image not found: app/assets/C/xgb/"
-                             "xgboost_seb_sn_wide_preds.png")
+            # img = Path("app/assets/C/xgb/xgboost_seb_sn_wide_preds.png")
+            # if img.exists():
+            #     col2.image(str(img), use_container_width=True)
+            # else:
+            #     col2.warning("Image not found: app/assets/C/xgb/"
+            #                  "xgboost_seb_sn_wide_preds.png")
 
             img = Path("app/assets/C/xgb/xgboost_seb_sn_rot.png")
             if img.exists():
@@ -495,12 +495,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             else:
                 col3.warning("Image not found: app/assets/C/xgb/"
                              "xgboost_seb_sn_rot.png")
-            img = Path("app/assets/C/xgb/xgboost_seb_sn_trend.png")
-            if img.exists():
-                col3.image(str(img), use_container_width=True)
-            else:
-                col3.warning("Image not found: app/assets/C/xgb/"
-                             "xgboost_seb_sn_trend.png")
+            # img = Path("app/assets/C/xgb/xgboost_seb_sn_trend.png")
+            # if img.exists():
+            #     col3.image(str(img), use_container_width=True)
+            # else:
+            #     col3.warning("Image not found: app/assets/C/xgb/"
+            #                  "xgboost_seb_sn_trend.png")
 
     st.markdown("### 3. Performances explicatives avec AR/MM (avec valeurs réelles"
                 " de la cible)")
@@ -565,7 +565,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         with st.expander("Meilleurs résultats:",
                          expanded=False):
-            col1, col2, col3 = st.columns([1, 1, 1])
+            col1, col3 = st.columns([1, 1])
             img = Path("app/assets/C/rf/random_forest_seb_sn_preds_armm.png")
             if img.exists():
                 col1.image(str(img), use_container_width=True)
@@ -573,12 +573,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                 col1.warning("Image not found: app/assets/C/rf/"
                              "random_forest_seb_sn_preds_armm.png")
 
-            img = Path("app/assets/C/rf/random_forest_seb_sn_wide_preds_armm.png")
-            if img.exists():
-                col2.image(str(img), use_container_width=True)
-            else:
-                col2.warning("Image not found: app/assets/C/rf/"
-                             "random_forest_seb_sn_wide_preds_armm.png")
+            # img = Path("app/assets/C/rf/random_forest_seb_sn_wide_preds_armm.png")
+            # if img.exists():
+            #     col2.image(str(img), use_container_width=True)
+            # else:
+            #     col2.warning("Image not found: app/assets/C/rf/"
+            #                  "random_forest_seb_sn_wide_preds_armm.png")
 
             img = Path("app/assets/C/rf/random_forest_seb_sn_rot_armm.png")
             if img.exists():
@@ -586,12 +586,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             else:
                 col3.warning("Image not found: app/assets/C/rf/"
                              "random_forest_seb_sn_rot_armm.png")
-            img = Path("app/assets/C/rf/random_forest_seb_sn_trend_armm.png")
-            if img.exists():
-                col3.image(str(img), use_container_width=True)
-            else:
-                col3.warning("Image not found: app/assets/C/rf/"
-                             "random_forest_seb_sn_trend_armm.png")
+            # img = Path("app/assets/C/rf/random_forest_seb_sn_trend_armm.png")
+            # if img.exists():
+            #     col3.image(str(img), use_container_width=True)
+            # else:
+            #     col3.warning("Image not found: app/assets/C/rf/"
+            #                  "random_forest_seb_sn_trend_armm.png")
 
     st.markdown("### 4. Performances prédictives avec AR/MM en conditions réelles"
                 " **step-by-step**")
@@ -655,7 +655,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         with st.expander("Meilleurs résultats:",
                          expanded=False):
-            col1, col2, col3 = st.columns([1, 1, 1])
+            col1, col3 = st.columns([1, 1])
             img = Path("app/assets/C/rf/random_forest_seb_sn_preds_forecast.png")
             if img.exists():
                 col1.image(str(img), use_container_width=True)
@@ -663,12 +663,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                 col1.warning("Image not found: app/assets/C/rf/"
                              "random_forest_seb_sn_preds_forecast.png")
 
-            img = Path("app/assets/C/rf/random_forest_seb_sn_wide_preds_forecast.png")
-            if img.exists():
-                col2.image(str(img), use_container_width=True)
-            else:
-                col2.warning("Image not found: app/assets/C/rf/"
-                             "random_forest_seb_sn_wide_preds_forecast.png")
+            # img = Path("app/assets/C/rf/random_forest_seb_sn_wide_preds_forecast.png")
+            # if img.exists():
+            #     col2.image(str(img), use_container_width=True)
+            # else:
+            #     col2.warning("Image not found: app/assets/C/rf/"
+            #                  "random_forest_seb_sn_wide_preds_forecast.png")
 
             img = Path("app/assets/C/rf/random_forest_seb_sn_rot_forecast.png")
             if img.exists():
@@ -676,12 +676,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             else:
                 col3.warning("Image not found: app/assets/C/rf/"
                              "random_forest_seb_sn_rot_forecast.png")
-            img = Path("app/assets/C/rf/random_forest_seb_sn_trend_forecast.png")
-            if img.exists():
-                col3.image(str(img), use_container_width=True)
-            else:
-                col3.warning("Image not found: app/assets/C/rf/"
-                             "random_forest_seb_sn_trend_forecast.png")
+            # img = Path("app/assets/C/rf/random_forest_seb_sn_trend_forecast.png")
+            # if img.exists():
+            #     col3.image(str(img), use_container_width=True)
+            # else:
+            #     col3.warning("Image not found: app/assets/C/rf/"
+            #                  "random_forest_seb_sn_trend_forecast.png")
 
     st.markdown("### 5. Performances prédictives de modèles spécifiques avancés")
     st.markdown(f"""
@@ -724,7 +724,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
         with st.expander("Meilleurs résultats : **(p,d,q)=(3,1,3)"
                          " (P,D,Q,S)=(3,1,3,24)**",
                          expanded=False):
-            col1, col2, col3 = st.columns([1, 1, 1])
+            col1, col3 = st.columns([1, 1])
             img = Path("app/assets/C/sarx/sarimax_seb_sn_preds_313-313-24.png")
             if img.exists():
                 col1.image(str(img), use_container_width=True)
@@ -732,12 +732,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                 col1.warning("Image not found: app/assets/C/sarx/"
                              "sarimax_seb_sn_preds_313-313-24.png")
 
-            img = Path("app/assets/C/sarx/sarimax_seb_sn_wide_preds_313-313-24.png")
-            if img.exists():
-                col2.image(str(img), use_container_width=True)
-            else:
-                col2.warning("Image not found: app/assets/C/sarx/"
-                             "sarimax_seb_sn_wide_preds_313-313-24.png")
+            # img = Path("app/assets/C/sarx/sarimax_seb_sn_wide_preds_313-313-24.png")
+            # if img.exists():
+            #     col2.image(str(img), use_container_width=True)
+            # else:
+            #     col2.warning("Image not found: app/assets/C/sarx/"
+            #                  "sarimax_seb_sn_wide_preds_313-313-24.png")
 
             img = Path("app/assets/C/sarx/sarimax_seb_sn_rot_313-313-24.png")
             if img.exists():
@@ -745,12 +745,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             else:
                 col3.warning("Image not found: app/assets/C/sarx/"
                              "sarimax_seb_sn_rot_313-313-24.png")
-            img = Path("app/assets/C/sarx/sarimax_seb_sn_trend_313-313-24.png")
-            if img.exists():
-                col3.image(str(img), use_container_width=True)
-            else:
-                col3.warning("Image not found: app/assets/C/sarx/"
-                             "sarimax_seb_sn_trend_313-313-24.png")
+            # img = Path("app/assets/C/sarx/sarimax_seb_sn_trend_313-313-24.png")
+            # if img.exists():
+            #     col3.image(str(img), use_container_width=True)
+            # else:
+            #     col3.warning("Image not found: app/assets/C/sarx/"
+            #                  "sarimax_seb_sn_trend_313-313-24.png")
 
     with st.expander("Details sur modèle Deep Learning", expanded=False):
         col1, col2, col3 = st.columns([1, 1, 1])
@@ -761,7 +761,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             données exogène**
           - Améliorable en *fine-tuning* aux possibilités **très nombreuses**
         (incluant le **transfert learning** et la **prédiction parallèle
-        (multi-tête)**):
+        (multi-canal)**):
             - R² train = `0.855` | R² test = `0.871`
             obtenu avec une FCM de taille 168 (= 1 semaine soit **29M de poids**
             à affiner) et entrainé sur 60% de **toutes les données de comptage
@@ -783,7 +783,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                          "deep_learning_int_preds.png")
 
         with st.expander("Meilleurs résultats : **zeroshot**", expanded=False):
-            col1, col2, col3 = st.columns([1, 1, 1])
+            col1, col3 = st.columns([1, 1])
             img = Path("app/assets/C/dl/deep_learning_preds.png")
             if img.exists():
                 col1.image(str(img), use_container_width=True)
@@ -791,12 +791,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                 col1.warning("Image not found: app/assets/C/dl/"
                              "deep_learning_preds.png")
 
-            img = Path("app/assets/C/dl/deep_learning_wides_preds.png")
-            if img.exists():
-                col2.image(str(img), use_container_width=True)
-            else:
-                col2.warning("Image not found: app/assets/C/dl/"
-                             "deep_learning_wides_preds.png")
+            # img = Path("app/assets/C/dl/deep_learning_wides_preds.png")
+            # if img.exists():
+            #     col2.image(str(img), use_container_width=True)
+            # else:
+            #     col2.warning("Image not found: app/assets/C/dl/"
+            #                  "deep_learning_wides_preds.png")
 
             img = Path("app/assets/C/dl/deep_learning_rot.png")
             if img.exists():
@@ -804,12 +804,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             else:
                 col3.warning("Image not found: app/assets/C/dl/"
                              "deep_learning_rot.png")
-            img = Path("app/assets/C/dl/deep_learning_trend.png")
-            if img.exists():
-                col3.image(str(img), use_container_width=True)
-            else:
-                col3.warning("Image not found: app/assets/C/dl/"
-                             "deep_learning_trend.png")
+            # img = Path("app/assets/C/dl/deep_learning_trend.png")
+            # if img.exists():
+            #     col3.image(str(img), use_container_width=True)
+            # else:
+            #     col3.warning("Image not found: app/assets/C/dl/"
+            #                  "deep_learning_trend.png")
 
 with st.expander("🔚 D - Conclusion & Ouverture (< 1 min)", expanded=False):
     st.markdown("""

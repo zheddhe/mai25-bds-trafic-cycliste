@@ -28,8 +28,8 @@ B.3.Analyse statistique univariée du comptage horaire -> Rémy
         (statistique de test = 80094.4).
 
         NB : la non normalité implique que le test ANOVA n'est pas pertinent
-        et Kruskal-Wallis permet de conclure que les variables catégorielles
-        restantes (météo / vacances scolaires) variance suffisante
+        et Kruskal-Wallis a permis néamoins de conclure que les variables catégorielles
+        restantes (météo / vacances scolaires) ont une variance suffisante
 
 B.3.Data Visualisation du comptage horaire -> Elias
         Voici des visualisations clés du trafic cycliste : elles révèlent que le comptage moyen est le plus élevé les mardis et jeudis,
