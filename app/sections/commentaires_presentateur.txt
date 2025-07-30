@@ -143,7 +143,7 @@ C.5.Details Performance en conditions réelles sur modèle Deep Learning -> Rém
         On finit ici par les résultats obtenu sur modèle Deep learning exploré en toute fin de projet
         [Résumer le schéma du modèle et illustrer l'horizon de prédiction de 96 max (4j avec un lag de 1h)]
         Illustrer avec le compteur sébastopol
-        
+
         Je laisse enfin la parole à Elias pour conclure notre présentation
 
 

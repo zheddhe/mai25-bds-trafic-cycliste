@@ -707,11 +707,13 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             de tous nos modèles)
           - **Inconvénients**:
             - **Extrêmement couteux** en temps de calcul en entraînement
-            - **impossible** à calculer sur une saisonnalité trop profonde ou d'ordre
-            trop élevé notamment ceux détectés par les analyses ACF (corrélation
-            complète) et PACF (corrélation partielle) sur saison pourtant courte
-            de 24 heures
-            - **Faible en généralisation** notamment sur les évolutions atypiques
+              - **impossible** de mettre en oeuvre les ordres élevés détectés suite à
+              l'analyse ACF (corrélation complète) et PACF (corrélation partielle)
+              - **impossible** également d'expolorer des saisons plus longues (ou comme
+              on le suppose également: à saisonnalité multiple)
+            - **Très faible en généralisation** notamment sur les évolutions atypiques
+              - R² train = `0.907` | R² test = `0.645` obtenus avec notre meilleures
+              combinaison de saison et d'ordre *calculable*
         """)
 
         img = Path("app/assets/C/sarx/sarimax_seasonal_decompose.png")
