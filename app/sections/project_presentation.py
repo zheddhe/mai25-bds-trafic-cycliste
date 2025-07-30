@@ -414,9 +414,9 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             else:
                 col7.warning("Image not found: app/assets/C/dl/deep_learning.png")
 
-    st.markdown("### 2. Performances sans AR/MM")
+    st.markdown("### 2. Performances explicatives sans AR/MM")
 
-    with st.expander("Details Performances sans AR/MM", expanded=False):
+    with st.expander("Details Performances explivatives sans AR/MM", expanded=False):
 
         col1, col2 = st.columns([1, 2])
         col1.markdown("""
@@ -602,7 +602,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
     réutilisées récursivement pour ce calcul (*qui est du coup **bien plus couteux***)
     """)
 
-    with st.expander("Details sur modèles standards",
+    with st.expander("Details Performance en conditions réelles sur modèles standards",
                      expanded=False):
 
         col1, col2 = st.columns([1, 2])
@@ -691,7 +691,8 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
     - via la **fenêtre de contexte mobile** (FCM) pour les Tiny Time Mixers (TTM)
     pour le modèle de **Deep Learning** [Granite d'IBM]({URL_PAPIER_GRANITE})
     """)
-    with st.expander("Details sur modèle SARIMAX", expanded=False):
+    with st.expander("Details Performance en conditions réelles sur modèle SARIMAX",
+                     expanded=False):
         col1, col2, col3 = st.columns([1, 1, 1])
         col1.markdown("""
         - ❌ **SARIMAX** :
@@ -752,7 +753,9 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             #     col3.warning("Image not found: app/assets/C/sarx/"
             #                  "sarimax_seb_sn_trend_313-313-24.png")
 
-    with st.expander("Details sur modèle Deep Learning", expanded=False):
+    with st.expander("Details Performance en conditions réelles sur modèle"
+                     " Deep Learning",
+                     expanded=False):
         col1, col2, col3 = st.columns([1, 1, 1])
         col1.markdown("""
         - 🧠 **Deep Learning (Granite TTM)** :
