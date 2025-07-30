@@ -48,8 +48,7 @@ différents types de statistiques mesurant la qualité et la pertinence des donn
 comptage vélo avec des paramètres de regroupement personnalisables.
 """)
 st.info("""
-👈 Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
-drive via le menu
+👈 Le dataset est préchargé mais vous pouvez forcer son rechargement via le menu
 """)
 
 with st.sidebar:

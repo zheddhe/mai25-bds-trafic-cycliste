@@ -39,8 +39,7 @@ Cette page vous permet de plonger dans différentes visualisation ces données d
 comptage vélo avec des paramètres personnalisables et des graphiques interactifs.
 """)
 st.info("""
-👈 Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
-drive via le menu
+👈 Le dataset est préchargé mais vous pouvez forcer son rechargement via le menu
 """)
 
 with st.sidebar:

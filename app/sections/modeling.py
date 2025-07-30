@@ -220,8 +220,7 @@ Cette page vous permet de tester différents modèles de régression
 sur les données de comptage vélo avec des options personnalisables.
 """)
 st.info("""
-👈 Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
-drive via le menu
+👈 Le dataset est préchargé mais vous pouvez forcer son rechargement via le menu
 """)
 
 # --- Chargement des données ---
