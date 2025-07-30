@@ -320,10 +320,10 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
 
         col1, col2 = st.columns([0.4, 0.6])
         col1.markdown("""
-        #### Comptage total par site
+        #### Cartographie du comptage total par site
         Une **disparité significative** du volume total de vélos
         enregistrés par les compteurs est observée entre **le centre et la
-        périphérie** de Paris, ainsi qu'entre **le nord-est et le sud-est**.
+        périphérie** de Paris, ainsi qu'entre **le nord-est et le sud-ouest**.
 
         Cependant, la **disparité** du maillage des compteurs ne permet pas de
         tirer des conclusions certaines sur la seule base de la
@@ -331,7 +331,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         """)
 
         col2.markdown("""
-        #### Comptage horaire par Site de comptage
+        #### Distribution du comptage horaire par site
         On peut constater que le trafic est globalement **disparate** avec présence
         systématique d'outlier comme **schéma de répartition standard**:
         - Une station n'a que des **relevés nuls**: `108 avenue Denfert Rochereau`
