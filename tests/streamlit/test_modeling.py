@@ -15,7 +15,7 @@ def enable_test_mode():
 
 
 def test_cached_load_dataset_ml_returns_empty_structure():
-    df = am.cached_load_dataset_ml()
+    df = am.cached_load_dataset_ml(None)
     assert isinstance(df, pd.DataFrame)
     assert set(df.columns) >= {
         "nom_du_site_de_comptage", "orientation_compteur", "comptage_horaire"

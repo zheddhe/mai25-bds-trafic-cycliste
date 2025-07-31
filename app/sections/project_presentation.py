@@ -217,7 +217,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
             col3.warning("Image not found: app/assets/B/Top_10_stations_old.png")
 
         col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
-        col1.markdown("#### Comptage moyen par jour de la semaine")
+        col1.markdown("#### Répartition du comptage moyen par jour")
         col1.markdown("""
         Ce graphique met en lumière les différences d’intensité du trafic
         cycliste selon les jours de la semaine, en moyenne horaire.
@@ -232,7 +232,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         potentiellement dû à un démarrage de semaine plus progressif.
         """)
 
-        col2.markdown("#### Heures avec le plus fort comptage total")
+        col2.markdown("#### Heures d'affluence pour le comptage total")
         col2.markdown("""
         Ce graphique met en évidence les dix heures les plus fréquentées
         sur l’ensemble des stations.
@@ -320,10 +320,10 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
 
         col1, col2 = st.columns([0.4, 0.6])
         col1.markdown("""
-        #### Comptage total par site
+        #### Cartographie du comptage total par site
         Une **disparité significative** du volume total de vélos
         enregistrés par les compteurs est observée entre **le centre et la
-        périphérie** de Paris, ainsi qu'entre **le nord-est et le sud-est**.
+        périphérie** de Paris, ainsi qu'entre **le nord-est et le sud-ouest**.
 
         Cependant, la **disparité** du maillage des compteurs ne permet pas de
         tirer des conclusions certaines sur la seule base de la
@@ -331,12 +331,12 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         """)
 
         col2.markdown("""
-        #### Comptage horaire par Site de comptage
+        #### Distribution du comptage horaire par site
         On peut constater que le trafic est globalement **disparate** avec présence
-        systématique d'outlier comme **schéma de répartition standard**:
+        systématique d'outlier comme **schéma de répartition standard**
+        - Les valeurs médianes sont **très faibles** mettant d'autant plus en évidence
+        des **outliers nombreux**
         - Une station n'a que des **relevés nuls**: `108 avenue Denfert Rochereau`
-        - Médianes **très faible** mettant d'autant plus en évidence les
-        **outliers haut** par exemple: `Totem Cours la Reine` et `132 Rue Lecourbe`
         """)
 
 
@@ -347,7 +347,8 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                      expanded=False):
         st.markdown("""
         - Variable cible: `comptage_horaire`
-        - Métriques utilisées: `R²`, `RMSE`, `MAE` + Pente de la dérive des résidus
+        - Métriques utilisées: `R²`, `RMSE`, `MAE` + observation des résidus dans
+        le temps et de leur dérive
         - Extraction de variables explicatives additionnelles **spécifiques aux séries
         temporelles**
           - **AR** (*auto-régressives*) et **MM** (*moyennes mobiles*) depuis les
@@ -695,7 +696,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
     prédites calculées de la variable cible et auto-calculent leur contexte mobile
     - via la **saisonnalité/AR/MA** pour le modèle **SARIMAX**
     - via la **fenêtre de contexte mobile** (FCM) pour les Tiny Time Mixers (TTM)
-    pour le modèle de **Deep Learning** [Granite d'IBM]({URL_PAPIER_GRANITE})
+    du modèle de **Deep Learning** [Granite d'IBM]({URL_PAPIER_GRANITE})
     """)
     with st.expander("Details Performance en conditions réelles sur modèle SARIMAX",
                      expanded=False):
@@ -707,11 +708,15 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             de tous nos modèles)
           - **Inconvénients**:
             - **Extrêmement couteux** en temps de calcul en entraînement
-            - **impossible** à calculer sur une saisonnalité trop profonde ou d'ordre
-            trop élevé notamment ceux détectés par les analyses ACF (corrélation
-            complète) et PACF (corrélation partielle) sur saison pourtant courte
-            de 24 heures
-            - **Faible en généralisation** notamment sur les évolutions atypiques
+              - **impossible** de mettre en oeuvre les ordres élevés détectés suite à
+              l'analyse ACF (corrélation complète) et PACF (corrélation partielle)
+              - **impossible** également d'explorer des saisons **plus longues**
+              (ou comme on le suppose également des **saisonnalités multiples**)
+              - **impossible** de traiter les données complètes d'un compteur
+              (**complexité en O(n²)**)
+            - **Très faible en généralisation** notamment sur les évolutions atypiques
+              - R² train = `0.907` | R² test = `0.645` obtenus avec notre meilleure
+              combinaison de saison et d'ordre **calculable**
         """)
 
         img = Path("app/assets/C/sarx/sarimax_seasonal_decompose.png")

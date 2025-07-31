@@ -14,7 +14,7 @@ def enable_test_mode():
 
 
 def test_dataset_exploration_structure():
-    df = de.cached_load_dataset_exploration()
+    df = de.cached_load_dataset_exploration(None)
     df = cast(pd.DataFrame, df)
     assert df.shape == (2, 4)
     assert sorted(df.columns) == sorted([

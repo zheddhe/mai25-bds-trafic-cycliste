@@ -17,41 +17,6 @@ from app.utils.model_logic import (
 import os
 
 
-@st.cache_data(show_spinner=True)
-def cached_load_dataset_ml():
-    if os.environ.get("IS_TESTING") == "1":
-        return pd.DataFrame(columns=["nom_du_site_de_comptage",
-                                     "orientation_compteur", "comptage_horaire"])
-    return load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
-
-
-@st.cache_data(show_spinner=True)
-def cached_train_model(df_compteur,
-                       model_type,
-                       scaler_type,
-                       target_col,
-                       drop_columns,
-                       temp_feats,
-                       test_ratio,
-                       forecast):
-    if os.environ.get("IS_TESTING") == "1":
-        return {
-            "y_test": [1, 2],
-            "y_test_pred": [1.1, 1.9],
-            "X_test_dates": pd.date_range("2025-04-01", periods=2, freq="h")
-        }
-    return train_timeseries_model(
-        df_compteur=df_compteur,
-        model_type=model_type,
-        scaler_type=scaler_type,
-        target_col=target_col,
-        drop_columns=drop_columns,
-        temp_feats=temp_feats,
-        test_ratio=test_ratio,
-        forecast=forecast,
-    )
-
-
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_ml_ready_data"
 DEFAULT_TEST_PERIOD = ('2025-04-01', '2025-04-14')
@@ -214,25 +179,54 @@ AVAILABLE_MODELS = [
     "ElasticNet (*)",
 ]
 
+
+@st.cache_data(show_spinner=True)
+def cached_load_dataset_ml(uploaded_file):
+    if os.environ.get("IS_TESTING") == "1":
+        return pd.DataFrame(columns=["nom_du_site_de_comptage",
+                                     "orientation_compteur", "comptage_horaire"])
+    if uploaded_file:
+        df = pd.read_csv(uploaded_file, sep=",", index_col=0)
+    else:
+        df = load_dataset_from_config(DATASET_NAME, sep=",", index_col=0)
+    return df
+
+
+@st.cache_data(show_spinner=True)
+def cached_train_model(df_compteur,
+                       model_type,
+                       scaler_type,
+                       target_col,
+                       drop_columns,
+                       temp_feats,
+                       test_ratio,
+                       forecast):
+    if os.environ.get("IS_TESTING") == "1":
+        return {
+            "y_test": [1, 2],
+            "y_test_pred": [1.1, 1.9],
+            "X_test_dates": pd.date_range("2025-04-01", periods=2, freq="h")
+        }
+    return train_timeseries_model(
+        df_compteur=df_compteur,
+        model_type=model_type,
+        scaler_type=scaler_type,
+        target_col=target_col,
+        drop_columns=drop_columns,
+        temp_feats=temp_feats,
+        test_ratio=test_ratio,
+        forecast=forecast,
+    )
+
+
 st.title("🧪 Laboratoire d'évaluation des modèles")
 st.markdown("""
-Cette page vous permet de tester différents modèles de régression
+Cette section vous permet de tester différents modèles de régression
 sur les données de comptage vélo avec des options personnalisables.
 """)
 st.info("""
-👈 Le dataset est préchargé mais vous pouvez forcer son rechargement depuis google
-drive via le menu
+👈 Le dataset est préchargé mais vous pouvez forcer son rechargement via le menu
 """)
-
-# --- Chargement des données ---
-with st.spinner("⏳ Chargement du dataset en cours..."):
-    df = cached_load_dataset_ml()
-    if df is None or not isinstance(df, pd.DataFrame):
-        st.error("❌ Erreur lors du chargement des données.")
-        st.stop()
-
-st.success(f"✅ Données [{DATASET_NAME}] chargées avec succès.")
-grouped = df.groupby(["nom_du_site_de_comptage", "orientation_compteur"])
 
 # --- Enrichissement du menu ---
 with st.sidebar:
@@ -241,6 +235,24 @@ with st.sidebar:
     if st.button("🔁 Rechargement du Dataset"):
         cached_load_dataset_ml.clear()  # type: ignore
         st.rerun()
+
+    # --- Chargement des données ---
+    uploaded_file = st.file_uploader(
+        "Personnaliser le dataset",
+        type=["csv"],
+        accept_multiple_files=False,
+        label_visibility="collapsed",
+    )
+    with st.spinner("⏳ Chargement du dataset en cours..."):
+        df = cached_load_dataset_ml(uploaded_file)
+    source = "(personnalisées)" if uploaded_file else "(génériques)"
+    if df is not None and isinstance(df, pd.DataFrame):
+        st.success(f"✅ Données {source} chargées avec succès.")
+    else:
+        st.error(f"❌ Données {source} non chargée.")
+        st.stop()
+
+    grouped = df.groupby(["nom_du_site_de_comptage", "orientation_compteur"])
 
     st.header("🔧 Paramètres")
 
@@ -284,7 +296,8 @@ with st.sidebar:
 >
 > (**) Prédiction récursive **_couteuse_** avec ré-infusion des AR/MM recalculées sur la
 base des valeurs prédites (et non pas réelles) de la **variable cible**
-""")
+    """)
+
     # --- Sélection des variables explicatives ---
     with st.expander("❌ **Variables explicatives à exclure**"):
         df_checkbox = pd.DataFrame({

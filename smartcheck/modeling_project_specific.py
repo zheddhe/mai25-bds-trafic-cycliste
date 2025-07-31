@@ -332,8 +332,7 @@ def train_timeseries_model(
         if best_model.alpha < 0.01 or best_model.l1_ratio < 0.2:
             logger.warning(
                 "Faible régularisation détectée : le modèle peut surajuster "
-                "ou mal converger. Envisager Ridge ou un resserrage de l’espace "
-                "de recherche.")
+                "ou mal converger")
     y_train_pred = pipe_model.predict(X_train)
 
     if ar_transformer:

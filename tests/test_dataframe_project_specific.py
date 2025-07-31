@@ -20,6 +20,7 @@ from smartcheck.dataframe_project_specific import (
     extract_datetime_periodic_features,
     train_test_split_time_aware,
     train_test_split_time_aware_sarimax,
+    get_missing_periods,
 )
 
 
@@ -806,3 +807,66 @@ class TestTrainTestSplitTimeAwareSarimax:
                 target_col="y",
                 test_size=0.2
             )
+
+
+class TestGetMissingPeriods:
+    """Unit tests for get_missing_periods"""
+
+    @pytest.fixture
+    def input_df(self):
+        return pd.DataFrame({
+            "date_et_heure_de_comptage": [
+                "2023-01-01T08:00:00+0100",
+                "2023-01-01T09:00:00+0100",
+                # missing 10:00 and 11:00
+                "2023-01-01T12:00:00+0100",
+                "2023-01-01T13:00:00+0100",
+                "2023-01-01T14:00:00+0100",
+                "2023-01-01T14:00:00+0100",  # duplicate
+            ],
+            "nom_du_site_de_comptage": [
+                "Pont Austerlitz"] * 6,
+            "orientation_compteur": [
+                "Nord"] * 6,
+            "comptage_horaire": [
+                10, 20, 25, 30, 35, 40
+            ]
+        })
+
+    def test_missing_period_detected(self, input_df):
+        result = get_missing_periods(input_df)
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape[0] == 1
+        row = result.iloc[0]
+        assert row["site"] == "Pont Austerlitz"
+        assert row["direction"] == "Nord"
+        assert row["start"].hour == 10
+        assert row["end"].hour == 11
+        assert row["label"] == "Pont Austerlitz - Nord"
+
+    def test_multiple_groups(self):
+        df = pd.DataFrame({
+            "date_et_heure_de_comptage": [
+                "2023-01-01T08:00:00+0100",
+                "2023-01-01T09:00:00+0100",
+                "2023-01-01T12:00:00+0100",
+                "2023-01-01T13:00:00+0100",
+                "2023-01-01T08:00:00+0100",
+                "2023-01-01T09:00:00+0100",
+                "2023-01-01T10:00:00+0100",
+                "2023-01-01T11:00:00+0100",
+            ],
+            "nom_du_site_de_comptage": [
+                "Site C"] * 4 + ["Site D"] * 4,
+            "orientation_compteur": [
+                "Est"] * 4 + ["Sud"] * 4,
+            "comptage_horaire": [
+                5, 10, 15, 20,
+                1, 2, 3, 4,
+            ]
+        })
+        result = get_missing_periods(df)
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) == 1
+        labels = set(result["label"])
+        assert labels == {"Site C - Est"}
