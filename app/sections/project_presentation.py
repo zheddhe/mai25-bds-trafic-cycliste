@@ -278,7 +278,8 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         plus **élevé** et plus **variable hors vacances scolaires**.
 
         Pendant les périodes de vacances, l'activité diminue,
-        particulièrement pendant les **vacances de Noël** et de la **Toussaint**.
+        particulièrement pendant les **vacances de Noël** et le pont de
+        **L'Ascension**.
 
         Cela indique que les vacances scolaires sont un facteur clé
         influençant l'usage du vélo.
@@ -707,6 +708,9 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             - Très rapide en calcul de prédiction (le plus rapide
             de tous nos modèles)
           - **Inconvénients**:
+            - **Très faible en généralisation** notamment sur les évolutions atypiques
+              - R² train = `0.907` | R² test = `0.645` obtenus avec notre meilleure
+              combinaison de saison et d'ordre **calculable**
             - **Extrêmement couteux** en temps de calcul en entraînement
               - **impossible** de mettre en oeuvre les ordres élevés détectés suite à
               l'analyse ACF (corrélation complète) et PACF (corrélation partielle)
@@ -714,9 +718,6 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
               (ou comme on le suppose également des **saisonnalités multiples**)
               - **impossible** de traiter les données complètes d'un compteur
               (**complexité en O(n²)**)
-            - **Très faible en généralisation** notamment sur les évolutions atypiques
-              - R² train = `0.907` | R² test = `0.645` obtenus avec notre meilleure
-              combinaison de saison et d'ordre **calculable**
         """)
 
         img = Path("app/assets/C/sarx/sarimax_seasonal_decompose.png")
