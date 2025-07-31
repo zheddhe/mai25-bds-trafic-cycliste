@@ -217,7 +217,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
             col3.warning("Image not found: app/assets/B/Top_10_stations_old.png")
 
         col1, col2, col3 = st.columns([0.34, 0.34, 0.33])
-        col1.markdown("#### Comptage moyen par jour de la semaine")
+        col1.markdown("#### Répartition du comptage moyen par jour")
         col1.markdown("""
         Ce graphique met en lumière les différences d’intensité du trafic
         cycliste selon les jours de la semaine, en moyenne horaire.
@@ -232,7 +232,7 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         potentiellement dû à un démarrage de semaine plus progressif.
         """)
 
-        col2.markdown("#### Heures avec le plus fort comptage total")
+        col2.markdown("#### Heures d'affluence pour le comptage total")
         col2.markdown("""
         Ce graphique met en évidence les dix heures les plus fréquentées
         sur l’ensemble des stations.
@@ -333,10 +333,10 @@ with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=F
         col2.markdown("""
         #### Distribution du comptage horaire par site
         On peut constater que le trafic est globalement **disparate** avec présence
-        systématique d'outlier comme **schéma de répartition standard**:
+        systématique d'outlier comme **schéma de répartition standard**
+        - Les valeurs médianes sont **très faibles** mettant d'autant plus en évidence
+        des **outliers nombreux**
         - Une station n'a que des **relevés nuls**: `108 avenue Denfert Rochereau`
-        - Médianes **très faible** mettant d'autant plus en évidence les
-        **outliers haut** par exemple: `Totem Cours la Reine` et `132 Rue Lecourbe`
         """)
 
 

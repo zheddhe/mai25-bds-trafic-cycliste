@@ -1,0 +1,8 @@
+Le MAPE (Mean Absolute Percentage Error) : erreur en pourcentage de la vraie valeurs
+- sensible à la division par zero (même avec le sMAPE)
+- déséquilibre entre sur et sous prédiction (le sMAPE corrige ce point)
+MAPE=
+ 1     n     |y_pred(i) - y(i)|
+--- *  ∑  -------------------------- * 100
+ n    i=1  (|y(i)| + |y_pred(i)|)/2
+​
