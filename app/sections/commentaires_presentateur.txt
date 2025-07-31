@@ -81,6 +81,7 @@ C.1.Details Objectifs et Régression temporelle supervisée -> Elias
         telles que les composantes auto-régressives (AR), les moyennes mobiles (MM), et les oscillatoires 
         (périodes quotidiennes ou hebdomadaires). 
         Présentation des différentes métriques = R2, RMSE , 
+        La chrononologie de l'étude des modèles indique que nous sommes parti du plus simple 
         Le projet a exploré un éventail de modèles de régression, allant des modèles linéaires (Linéaire, ElasticNet, KNN) 
         aux ensembles (RandomForest, XGBoost), en passant par les modèles de séries temporelles (SARIMAX) et le Deep Learning.
 
@@ -117,9 +118,10 @@ Le modèle SARIMAX, bien que très rapide en calcul de prédiction, présente de
 Il est extrêmement coûteux en temps d'entraînement, ne peut pas gérer des saisonnalités 
 trop profondes non détectées par les analyses ACF/PACF (comme une saison de plus de 24 heures),
  et s'avère faible en généralisation face aux évolutions atypiques. 
- Ajouter analyse ACF &  PACF
+ Ajouter analyse ACF &  PACF : correlation complète & partielle 
  L'image illustre également la décomposition saisonnière additive du comptage horaire, 
  séparant les composantes observées, la tendance, la saisonnalité et les résidus.
+ Le modèle suit globalement bien les valeurs réelles 
 
 C.5.Details Performance en conditions réelles sur modèle Deep Learning -> Rémy
         excellent en zero-shot
