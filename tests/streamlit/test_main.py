@@ -1,11 +1,13 @@
 import importlib.util
+import importlib
 import os
 import pytest
 from pathlib import Path
+from unittest.mock import patch
 from streamlit.testing.v1 import AppTest
 
-PAGES_DIR = Path(__file__).resolve().parent.parent.parent / "app" / "sections"
-APP_FILE = Path(__file__).resolve().parent.parent.parent / "app" / "main.py"
+PAGES_DIR = Path("app/sections/")
+APP_FILE = Path("app/main.py")
 
 PAGES_TO_TEST = [
     "home.py",
@@ -18,20 +20,30 @@ PAGES_TO_TEST = [
 
 @pytest.mark.parametrize("filename", PAGES_TO_TEST)
 def test_streamlit_page_loads(filename):
-    os.environ["IS_TESTING"] = "1"  # Activation du mode test
+    os.environ["IS_TESTING"] = "1"
     path = PAGES_DIR / filename
     spec = importlib.util.spec_from_file_location("page_module", path)
     assert spec is not None, f"spec is None for file: {path}"
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None, f"spec.loader is None for file: {path}"
     spec.loader.exec_module(module)
-    del os.environ["IS_TESTING"]  # Nettoyage
+    del os.environ["IS_TESTING"]
+
+
+def test_app_home_error_when_file_missing():
+    at = AppTest.from_file(str(APP_FILE))
+    with patch("app.config.PAGES_DIR", Path("/fake/pages")), \
+         patch("pathlib.Path.exists", return_value=False), \
+         patch("streamlit.error") as mock_error:
+        at.run()
+    expected_path = Path("/fake/pages/home.py")
+    mock_error.assert_called_once_with(
+        f"❌ Page 'home' not found at {expected_path}"
+    )
 
 
 def test_app_home_title_displayed():
-    os.environ["IS_TESTING"] = "1"
     at = AppTest.from_file(str(APP_FILE))
     at.run()
     titles = [t.value for t in at.title]
     assert "🚲 Application Trafic Cycliste" in titles
-    del os.environ["IS_TESTING"]

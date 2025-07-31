@@ -31,6 +31,11 @@ from smartcheck.preprocessing_project_specific import (
     AutoregressiveFeaturesTransformer,
 )
 
+SEARCH_SPACE_ELASTICNET = {
+    'alpha': (1e-3, 100.0, 'log-uniform'),
+    'l1_ratio': (0.1, 1.0)
+}
+
 
 logger = logging.getLogger(__name__)
 
@@ -299,13 +304,9 @@ def train_timeseries_model(
         model = Ridge(max_iter=10000, random_state=1)
     elif model_type == "ElasticNet (*)":
         tscv = TimeSeriesSplit(n_splits=5)
-        search_space = {
-            'alpha': (1e-3, 100.0, 'log-uniform'),
-            'l1_ratio': (0.1, 1.0)
-        }
         model = BayesSearchCV(
             estimator=ElasticNet(max_iter=20000),
-            search_spaces=search_space,
+            search_spaces=SEARCH_SPACE_ELASTICNET,
             cv=tscv,
             n_iter=25,
             scoring='neg_mean_squared_error',

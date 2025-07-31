@@ -8,6 +8,7 @@ from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
+# from skopt import BayesSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
@@ -92,6 +93,15 @@ class TestComputeResidualsPlot:
         assert fig2 is not None
         assert isinstance(slope, float)
 
+    def test_with_null_period(self, dummy_data):
+        dates, y_true, y_pred = dummy_data
+        periode = ("2024-01-01", "2024-01-01")
+        fig1, fig2, slope = compute_residuals_plot("TestCounter", dates, y_true, y_pred,
+                                                   periode)
+        assert fig1 is not None
+        assert fig2 is not None
+        assert isinstance(slope, float)
+
     def test_with_period(self, dummy_data):
         dates, y_true, y_pred = dummy_data
         periode = ("2024-01-01", "2024-01-03")
@@ -111,6 +121,7 @@ class TestInterpretModel:
         KNeighborsRegressor,
         RandomForestRegressor,
         XGBRegressor,
+        # BayesSearchCV,
     ])
     def test_model_interpretation(self, model_class):
         X = pd.DataFrame({"x1": np.random.rand(40), "x2": np.random.rand(40)})
