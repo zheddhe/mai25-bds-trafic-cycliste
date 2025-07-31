@@ -38,23 +38,29 @@ mai25-bds-trafic-cycliste/
 ├── app/                    # Streamlit app
 │   ├── main.py             # main entry point of the app
 │   ├── config.py
+│   ├── assets/             # all static resources for the app (images...)
+│   │   └── ...
 │   ├── utils/
 │   │   ├── model_logic.py
 │   │   └── streamlit_helpers.py
 │   └── sections/
 │       ├── home.py
+│       ├── project_presentation.py
 │       ├── data_visualization.py
 │       ├── data_exploration.py
 │       └── modeling.py
 ├── smartcheck/             # Project Core logic
 │   ├── logger_config.py                    # Log management tools
+│   ├── paths.py                            # Path management tools
 │   ├── dataframe_common.py                 # Shared data loading tools
+│   ├── dataframe_project_specific.py       # Advanced project specific feature engineering tools
 │   ├── classification_common.py            # Classification Modeling tools
 │   ├── meta_search_common.py               # Multi-strategy hyperparameter tuning tools
-│   ├── dataframe_project_specific.py       # Advanced project specific feature engineering tools
+│   ├── modeling_project_specific.py        # Advanced project specific modeling tools
 │   ├── preprocessing_project_specific.py   # Advanced project specific transformers
+│   ├── deep_learning_project_specific.py   # Advanced project specific deep learning tools
 │   └── resources/
-│       └── config.yaml
+│       └── config.yaml                     # Configuration resources (reusable google file paths)
 ├── tests/                  # Unit tests (pytest for core and app)
 ├── notebooks/              # Jupyter notebooks (not packaged)
 ├── README.md               # Project documentation
@@ -136,11 +142,11 @@ streamlit run app/main.py
 
 You can navigate between pages from the sidebar:
 
-- 🏠 Introduction au projet
+- 🏠 Présentation de l'application
 - ⚙️ Démarche projet et résultats
-- 🔍 Exploration des données
-- 📈 Visualisation et Statistiques
-- 🧪 Évaluation des modèles
+- 🔍 Exploration statistique **intéractive** des données
+- 📈 Visualisations **intéractives** des données
+- 🧪 Laboratoire **intéractif** de modélisation
 
 ---
 
@@ -177,5 +183,5 @@ CI workflows are handled by GitHub Actions:
 ## 👥 Contributors
 
 - Rémy Canal – [@remy.canal](mailto:remy.canal@live.fr)  
-- Elias Djouadi  
+- Elias Djouadi – [@elias.djouadi](mailto:elias.djouadi@gmail.com)
 - Raphaël Parmentier
