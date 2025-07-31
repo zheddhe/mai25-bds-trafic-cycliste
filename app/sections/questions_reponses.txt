@@ -6,3 +6,8 @@ MAPE=
 --- *  ∑  -------------------------- * 100
  n    i=1  (|y(i)| + |y_pred(i)|)/2
 ​
+
+R² coefficient de déterminationon 
+- peut être trompeur en série temporelle (amélioré par les motifs répétés)
+- on doit considéré qu'un R² conséquent est nécessaire pour parler de performance
+- doit être corroboré par l'analyse des résidus dans le temps

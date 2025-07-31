@@ -347,7 +347,8 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                      expanded=False):
         st.markdown("""
         - Variable cible: `comptage_horaire`
-        - Métriques utilisées: `R²`, `RMSE`, `MAE` + Pente de la dérive des résidus
+        - Métriques utilisées: `R²`, `RMSE`, `MAE` + observation des résidus dans
+        le temps et de leur dérive
         - Extraction de variables explicatives additionnelles **spécifiques aux séries
         temporelles**
           - **AR** (*auto-régressives*) et **MM** (*moyennes mobiles*) depuis les
@@ -695,7 +696,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
     prédites calculées de la variable cible et auto-calculent leur contexte mobile
     - via la **saisonnalité/AR/MA** pour le modèle **SARIMAX**
     - via la **fenêtre de contexte mobile** (FCM) pour les Tiny Time Mixers (TTM)
-    pour le modèle de **Deep Learning** [Granite d'IBM]({URL_PAPIER_GRANITE})
+    du modèle de **Deep Learning** [Granite d'IBM]({URL_PAPIER_GRANITE})
     """)
     with st.expander("Details Performance en conditions réelles sur modèle SARIMAX",
                      expanded=False):
@@ -709,11 +710,13 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             - **Extrêmement couteux** en temps de calcul en entraînement
               - **impossible** de mettre en oeuvre les ordres élevés détectés suite à
               l'analyse ACF (corrélation complète) et PACF (corrélation partielle)
-              - **impossible** également d'expolorer des saisons plus longues (ou comme
-              on le suppose également: à saisonnalité multiple)
+              - **impossible** également d'explorer des saisons **plus longues**
+              (ou comme on le suppose également des **saisonnalités multiples**)
+              - **impossible** de traiter les données complètes d'un compteur
+              (**complexité en O(n²)**)
             - **Très faible en généralisation** notamment sur les évolutions atypiques
-              - R² train = `0.907` | R² test = `0.645` obtenus avec notre meilleures
-              combinaison de saison et d'ordre *calculable*
+              - R² train = `0.907` | R² test = `0.645` obtenus avec notre meilleure
+              combinaison de saison et d'ordre **calculable**
         """)
 
         img = Path("app/assets/C/sarx/sarimax_seasonal_decompose.png")
