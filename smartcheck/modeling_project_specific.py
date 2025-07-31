@@ -230,6 +230,15 @@ def train_timeseries_model(
 
     Returns a dict containing trained model, train/test data, and predictions.
     """
+    logger.info(f"Train timeseries with [df_len={len(df_compteur)}"
+                f" | model_type={model_type}]"
+                f" | scaler_type={scaler_type}]"
+                f" | drop_columns={drop_columns}]"
+                f" | apply_datetime={apply_datetime}]"
+                f" | temp_feats={temp_feats}]"
+                f" | test_ratio={test_ratio}]"
+                f" | forecast={forecast}]")
+
     df = df_compteur.copy()
 
     if apply_datetime:
@@ -321,20 +330,22 @@ def train_timeseries_model(
         ("prep", preprocessing),
         ("reg", model)
     ])
-    logger.info(f"Pipeline Model specs used: {pipe_model}")
+    logger.debug(f"Pipeline Model specs used: {pipe_model}")
 
     pipe_model.fit(X_train, y_train)
+    logger.debug("Training achieved")
 
     if model_type == "ElasticNet (*)":
         fitted_model = pipe_model.named_steps['reg']
         best_model = fitted_model.best_estimator_
-        logger.info(f"Meilleur alpha : {best_model.alpha}")
-        logger.info(f"Meilleur l1_ratio : {best_model.l1_ratio}")
+        logger.info(f"Bayesian grid search results [Best alpha={best_model.alpha}]"
+                    f" | [Best l1_ratio={best_model.l1_ratio}]")
         if best_model.alpha < 0.01 or best_model.l1_ratio < 0.2:
             logger.warning(
-                "Faible régularisation détectée : le modèle peut surajuster "
-                "ou mal converger")
+                "Low regularization detected: the model may overfit or fail to "
+                "converge properly.")
     y_train_pred = pipe_model.predict(X_train)
+    logger.debug("Prediction achieved")
 
     if ar_transformer:
         if not forecast:

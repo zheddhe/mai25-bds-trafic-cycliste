@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import logging
 from smartcheck.dataframe_common import (
     load_dataset_from_config,
     apply_percent_range_selection,
@@ -179,6 +180,8 @@ AVAILABLE_MODELS = [
     "ElasticNet (*)",
 ]
 
+logger = logging.getLogger(__name__)
+
 
 @st.cache_data(show_spinner=True)
 def cached_load_dataset_ml(uploaded_file):
@@ -245,7 +248,7 @@ with st.sidebar:
     )
     with st.spinner("⏳ Chargement du dataset en cours..."):
         df = cached_load_dataset_ml(uploaded_file)
-    source = "(personnalisées)" if uploaded_file else "(génériques)"
+    source = "(personnalisées)" if uploaded_file else "(originales)"
     if df is not None and isinstance(df, pd.DataFrame):
         st.success(f"✅ Données {source} chargées avec succès.")
     else:
@@ -377,6 +380,7 @@ with st.spinner("⏳ Entraînement des modèles en cours..."):
     metrics_table = []
     for compteur_id, df_compteur in grouped:
         if compteur_id in selected_sites:
+            logger.info(f"Training and prediction started for counter [{compteur_id}]")
             res = cached_train_model(
                 df_compteur=apply_percent_range_selection(
                     df_compteur,
@@ -390,6 +394,7 @@ with st.spinner("⏳ Entraînement des modèles en cours..."):
                 test_ratio=1 - split,
                 forecast=use_forecast,
             )
+            logger.info(f"Training and prediction done for counter [{compteur_id}]")
             results[compteur_id] = res
             train_metrics = compute_metrics(res["y_train"],
                                             res["y_train_pred"])
