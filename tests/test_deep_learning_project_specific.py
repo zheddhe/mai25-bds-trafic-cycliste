@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import os
+import pytest
 from unittest.mock import patch, MagicMock, mock_open
 from smartcheck.deep_learning_project_specific import (
     df_split_time_aware,
@@ -240,6 +241,30 @@ class TestLoadModelFromCheckpoint:
                 dummy_model_class, "some_dir", device="cpu"
             )
         assert model == dummy_model
+
+    def test_load_model_from_checkpoint_missing_config(self):
+        dummy_model = MagicMock()
+        dummy_model_class = MagicMock()
+        dummy_model_class.from_pretrained.return_value = dummy_model
+
+        with patch("os.path.isfile", side_effect=[True, False]):
+            with pytest.raises(FileNotFoundError) as excinfo:
+                load_model_from_checkpoint(
+                    dummy_model_class, "some_dir", device="cpu"
+                )
+        assert "Fichier de configuration introuvable" in str(excinfo.value)
+
+    def test_load_model_from_checkpoint_missing_weights(self):
+        dummy_model = MagicMock()
+        dummy_model_class = MagicMock()
+        dummy_model_class.from_pretrained.return_value = dummy_model
+
+        with patch("os.path.isfile", side_effect=[False, True]):
+            with pytest.raises(FileNotFoundError) as excinfo:
+                load_model_from_checkpoint(
+                    dummy_model_class, "some_dir", device="cpu"
+                )
+        assert "Fichier de poids introuvable" in str(excinfo.value)
 
 
 class TestSummarizeModuleStructure:
