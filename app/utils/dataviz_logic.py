@@ -40,16 +40,16 @@ def cached_load_dataset_visualization(uploaded_file):
 def manage_dataset_visualization(st_module=None) -> pd.DataFrame:
     st = st_module or __import__("streamlit")
 
-    if st.button("🔁 Rechargement du Dataset", key="reload_button"):
-        cached_load_dataset_visualization.clear()  # type: ignore
-        st.rerun()
-
     uploaded_file = st.file_uploader(
         "Personnaliser le dataset",
         type=["csv"],
         accept_multiple_files=False,
         label_visibility="collapsed",
     )
+
+    if st.button("🔁 Rechargement du Dataset", key="reload_button"):
+        cached_load_dataset_visualization.clear()  # type: ignore
+        st.rerun()
 
     with st.spinner("⏳ Chargement du dataset en cours..."):
         df_raw = cached_load_dataset_visualization(uploaded_file)

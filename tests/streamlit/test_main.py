@@ -5,7 +5,7 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch
 from streamlit.testing.v1 import AppTest
-from app.utils import dataviz_logic
+from app.utils import dataviz_logic, dataexpl_logic
 
 PAGES_DIR = Path("app/sections/")
 APP_FILE = Path("app/main.py")
@@ -24,6 +24,9 @@ def test_streamlit_page_loads(filename):
     os.environ["IS_TESTING"] = "1"
     if filename == "data_visualization.py":
         dataviz_logic.cached_load_dataset_visualization.clear()  # type: ignore
+    if filename == "data_exploration.py":
+        dataexpl_logic.cached_load_dataset_exploration.clear()  # type: ignore
+        dataexpl_logic.cached_get_missing_periods.clear()  # type: ignore
     path = PAGES_DIR / filename
     spec = importlib.util.spec_from_file_location("page_module", path)
     assert spec is not None, f"spec is None for file: {path}"
