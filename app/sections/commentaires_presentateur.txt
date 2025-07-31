@@ -80,6 +80,7 @@ C.1.Details Objectifs et Régression temporelle supervisée -> Elias
         La méthodologie inclut l'extraction de variables explicatives spécifiques aux séries temporelles, 
         telles que les composantes auto-régressives (AR), les moyennes mobiles (MM), et les oscillatoires 
         (périodes quotidiennes ou hebdomadaires). 
+        Présentation des différentes métriques = R2, RMSE , 
         Le projet a exploré un éventail de modèles de régression, allant des modèles linéaires (Linéaire, ElasticNet, KNN) 
         aux ensembles (RandomForest, XGBoost), en passant par les modèles de séries temporelles (SARIMAX) et le Deep Learning.
 
@@ -98,6 +99,7 @@ C.3.Details Performances explicatives avec AR/MM -> Elias
         Le KNN est bon à l'entraînement mais montre un problème de généralisation (R² test ~0.814).
         La régression linéaire est jugée honnête et stable (R² test ~0.789), 
         tandis qu'ElasticNet n'apporte pas d'amélioration significative par rapport à la régression linéaire.
+        Rajouter analyse sur le compteur choisi
 
 C.4.Details Performance en conditions réelles sur modèles standards -> Rémy
         Jusqu'à présent nous avions été cléments avec nos modèles en leur permettant d'avoir une vue indirecte
@@ -109,11 +111,13 @@ C.4.Details Performance en conditions réelles sur modèles standards -> Rémy
         [zoom sur sébastopol]
 
 C.5.Details Performance en conditions réelles sur modèle SARIMAX -> Elias
-        
+Transition à faire pour le C5 : 
+
 Le modèle SARIMAX, bien que très rapide en calcul de prédiction, présente des inconvénients majeurs. 
 Il est extrêmement coûteux en temps d'entraînement, ne peut pas gérer des saisonnalités 
 trop profondes non détectées par les analyses ACF/PACF (comme une saison de plus de 24 heures),
  et s'avère faible en généralisation face aux évolutions atypiques. 
+ Ajouter analyse ACF &  PACF
  L'image illustre également la décomposition saisonnière additive du comptage horaire, 
  séparant les composantes observées, la tendance, la saisonnalité et les résidus.
 
