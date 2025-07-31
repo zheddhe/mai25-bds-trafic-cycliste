@@ -399,9 +399,9 @@ class TestTrainTimeseriesModel:
                 temp_feats=[0, 0, 1]
             )
 
-        assert "Meilleur alpha" in caplog.text
-        assert "Meilleur l1_ratio" in caplog.text
-        assert "Faible régularisation détectée" in caplog.text
+        assert "Best alpha" in caplog.text
+        assert "Best l1_ratio" in caplog.text
+        assert "Low regularization detected" in caplog.text
         assert isinstance(
             result["pipe"].named_steps["reg"], MagicMock
         )
