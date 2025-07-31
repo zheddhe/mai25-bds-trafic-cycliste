@@ -221,7 +221,7 @@ def cached_train_model(df_compteur,
 
 st.title("🧪 Laboratoire d'évaluation des modèles")
 st.markdown("""
-Cette page vous permet de tester différents modèles de régression
+Cette section vous permet de tester différents modèles de régression
 sur les données de comptage vélo avec des options personnalisables.
 """)
 st.info("""

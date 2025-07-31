@@ -48,7 +48,7 @@ DATASET_NAME = "velo_comptage_refactored_data"
 
 st.title("🔍 Exploration statistique intéractive des données")
 st.markdown("""
-Cette page vous permet d'explorer les données afin d'observer
+Cette section vous permet d'explorer les données afin d'observer
 différents types de statistiques mesurant la qualité et la pertinence des données de
 comptage vélo avec des paramètres de regroupement personnalisables.
 """)
@@ -79,7 +79,7 @@ with st.sidebar:
         st.stop()
 
 with st.expander("🚨 Identification des doublons et des discontinuités"
-                 "dans les périodes de relevé horaire"):
+                 "dans les périodes de relevé horaire", expanded=True):
     obs_dup = df_raw.duplicated(
         subset=["nom_du_site_de_comptage",
                 "orientation_compteur",
@@ -111,11 +111,11 @@ with st.expander("🚨 Identification des doublons et des discontinuités"
     fig.update_layout(showlegend=False, height=800)
     st.plotly_chart(fig, use_container_width=True)
 
-with st.expander("📊 Statistiques descriptives globales"):
+with st.expander("📊 Statistiques descriptives globales", expanded=True):
     st.dataframe(df_raw.describe(include='all').T)
 
-with st.expander("🧮 Statistiques simples après regroupements autour de "
-                 "la variable cible (comptage horaire)"):
+with st.expander("🧮 Statistiques numériques descriptives après regroupements autour de "
+                 "la variable cible (comptage horaire)", expanded=True):
     group_column = st.multiselect(
         "📌 Groupe d’agrégation",
         [

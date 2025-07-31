@@ -39,7 +39,7 @@ def cached_load_dataset_visualization(uploaded_file):
 
 st.title("📈 Visualisations intéractives des données")
 st.markdown("""
-Cette page vous permet de plonger dans différentes visualisation ces données de
+Cette section vous permet de plonger dans différentes visualisation ces données de
 comptage vélo avec des paramètres personnalisables et des graphiques interactifs.
 """)
 st.info("""
