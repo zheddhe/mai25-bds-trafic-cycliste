@@ -312,6 +312,9 @@ def run_evaluation_per_compteur(results, train_config, st_module=None):
 def display_metrics_table(metrics_table, st_module=None, show_mean=True):
     st = st_module or __import__("streamlit")
 
+    if not metrics_table:
+        return
+
     df_metrics = pd.DataFrame(metrics_table)
 
     styled_df = (
@@ -394,6 +397,14 @@ def display_train_parameters(train_config, st_module=None):
                 disabled=True,
                 num_rows="dynamic"
             )
+
+    # Controls of the parameters
+    if not train_config["selected_sites"]:
+        st.warning("Sélectionnez au moins un compteur à modéliser.")
+        st.stop()
+    if train_config["range"][0] == train_config["range"][1]:
+        st.warning("La plage sélectionnée est vide.")
+        st.stop()
 
 
 def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
@@ -527,7 +538,7 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
     return train_config
 
 
-def manage_training(df, train_config) -> Tuple[Dict, List]:
+def manage_training(train_config, df) -> Tuple[Dict, List]:
     grouped = df.groupby(["nom_du_site_de_comptage", "orientation_compteur"])
     results = {}
     metrics_table = []

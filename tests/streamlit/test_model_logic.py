@@ -281,7 +281,7 @@ def test_manage_training_single_site(
     ]
 
     # --- Act ---
-    results, metrics_table = manage_training(fake_df, train_config)
+    results, metrics_table = manage_training(train_config, fake_df)
 
     # --- Assert ---
     assert compteur_id in results

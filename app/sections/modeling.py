@@ -17,30 +17,22 @@ st.info("""
 👈 Le dataset est préchargé mais vous pouvez forcer son rechargement via le menu
 """)
 
-# --- Enrichissement du menu ---
 with st.sidebar:
+    # --- Enrichissement du menu ---
     df = manage_dataset_modeling(st)
     train_config = manage_sidebar_modeling_parameters(st)
 
 display_train_parameters(train_config, st)
 
-# --- Controles Generaux avant entrainement et rendu
-if not train_config["selected_sites"]:
-    st.warning("Sélectionnez au moins un compteur à modéliser.")
-    st.stop()
-if train_config["range"][0] == train_config["range"][1]:
-    st.warning("La plage sélectionnée est vide.")
-    st.stop()
 
-# --- Entrainement des compteurs sélectionnés
 with st.spinner("⏳ Entraînement des modèles en cours..."):
-    results, metrics_table = manage_training(df, train_config)
+    # --- Entrainement des compteurs sélectionnés
+    results, metrics_table = manage_training(train_config, df)
 
-# --- Synthèse globale des performances ---
-if metrics_table:
+    # --- Synthèse globale des performances ---
     st.markdown("## 🧾 Synthèse des métriques de modélisation")
     display_metrics_table(metrics_table, st_module=st)
 
-# --- Rapports par compteur ---
-st.markdown("## 🎯 Rapports par compteur")
-run_evaluation_per_compteur(results, train_config, st_module=st)
+    # --- Rapports par compteur ---
+    st.markdown("## 🎯 Rapports par compteur")
+    run_evaluation_per_compteur(results, train_config, st_module=st)
