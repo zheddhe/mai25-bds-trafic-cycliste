@@ -709,8 +709,9 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             de tous nos modèles)
           - **Inconvénients**:
             - **Très faible en généralisation** notamment sur les évolutions atypiques
-              - R² train = `0.907` | R² test = `0.645` obtenus avec notre meilleure
-              combinaison de saison et d'ordre **calculable**
+              ##### **R² train = 0.907 | R² test = 0.645**
+              ➡️ obtenus avec notre meilleure combinaison de saison et d'ordre
+              **calculable**
             - **Extrêmement couteux** en temps de calcul en entraînement
               - **impossible** de mettre en oeuvre les ordres élevés détectés suite à
               l'analyse ACF (corrélation complète) et PACF (corrélation partielle)
@@ -772,13 +773,13 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
         col1.markdown("""
         - 🧠 **Deep Learning (Granite TTM)**:
           - Déjà très bon et généralisable en *zero-shot*:
-            - R² train = `0.873` | R² test = `0.891` obtenu sans **aucune
-            données exogène**
+            ##### **R² train = 0.873 | R² test = 0.891**
+            ➡️ obtenu sans **aucune données exogène**
           - Améliorable en *fine-tuning* aux possibilités théoriques **très
         nombreuses** (**transfert learning** entre compteurs, **prédiction parallèle
         (multi-canal)**, **pas** de prédiction, **mixage des variables**...):
-            - R² train = `0.855` | R² test = `0.871`
-            obtenu avec une FCM de taille 168 (= 1 semaine soit **29M de poids**
+            ##### **R² train = 0.855 | R² test = 0.871**
+            ➡️ obtenu avec une FCM de taille 168 (= 1 semaine soit **29M de poids**
             à affiner) et entrainé sur 60% de **tous les compteurs
             disponibles**
         """)
