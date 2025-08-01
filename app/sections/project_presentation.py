@@ -838,9 +838,7 @@ with st.expander("🔚 D - Conclusion & Ouverture (< 1 min)", expanded=False):
       - **profondeur** des données (8 ans d’archives disponible sur OpenData Paris)
       - **multiplication** des sources d'entraînement (via le transfert learning).
     - Exploiter la prédiction **multi-canal** de l'architecture Granite TTM
-      (nécessite une **adaptation de la structure des données** - X colonnes
-      `comptage_horaire` pour une même heure donnée pour capter les influences
-      géographiques mutuelles)
+      pour capter les influences géographiques mutuelles.
     """)
     st.info("""
     👈 Les sections suivantes permettent d'explorer nos résultats intéractivement:

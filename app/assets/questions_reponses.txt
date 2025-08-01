@@ -11,3 +11,7 @@ R² coefficient de détermination
 - peut être trompeur en série temporelle (amélioré par les motifs répétés)
 - on doit considéré qu'un R² conséquent est nécessaire pour parler de performance
 - doit être corroboré par l'analyse des résidus dans le temps
+
+
+Comment exploiter le multi canal 
+Nécessite une adaptation de la structure des données - X colonnes comptage_horaire pour une même heure donnée
