@@ -774,12 +774,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
           - Déjà très bon et généralisable en *zero-shot*:
             - R² train = `0.873` | R² test = `0.891` obtenu sans **aucune
             données exogène**
-          - Améliorable en *fine-tuning* aux possibilités **très nombreuses**
-        (incluant le **transfert learning** et la **prédiction parallèle
-        (multi-canal)**):
+          - Améliorable en *fine-tuning* aux possibilités théoriques **très
+        nombreuses** (**transfert learning** entre compteurs, **prédiction parallèle
+        (multi-canal)**, **pas** de prédiction, **mixage des variables**...):
             - R² train = `0.855` | R² test = `0.871`
             obtenu avec une FCM de taille 168 (= 1 semaine soit **29M de poids**
-            à affiner) et entrainé sur 60% de **toutes les données de comptage
+            à affiner) et entrainé sur 60% de **tous les compteurs
             disponibles**
         """)
 
@@ -838,9 +838,7 @@ with st.expander("🔚 D - Conclusion & Ouverture (< 1 min)", expanded=False):
       - **profondeur** des données (8 ans d’archives disponible sur OpenData Paris)
       - **multiplication** des sources d'entraînement (via le transfert learning).
     - Exploiter la prédiction **multi-canal** de l'architecture Granite TTM
-      (nécessite une **adaptation de la structure des données** - X colonnes
-      `comptage_horaire` pour une même heure donnée pour capter les influences
-      géographiques mutuelles)
+      pour capter les influences géographiques mutuelles.
     """)
     st.info("""
     👈 Les sections suivantes permettent d'explorer nos résultats intéractivement:
