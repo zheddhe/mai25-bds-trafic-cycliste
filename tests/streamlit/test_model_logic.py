@@ -1,11 +1,83 @@
 import pandas as pd
 import numpy as np
+from io import StringIO
+from typing import cast
 import matplotlib.pyplot as plt
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, Mock
 from app.utils.model_logic import (
+    cached_load_dataset_ml,
+    cached_train_model,
+    manage_dataset_modeling,
     run_evaluation_per_compteur,
     display_metrics_table,
+    manage_training,
 )
+
+
+def test_cached_load_dataset_ml_uploaded_file(monkeypatch):
+    monkeypatch.delenv("IS_TESTING", raising=False)
+    cached_load_dataset_ml.clear()  # type: ignore
+    csv_data = "index,col1\n0,foo\n1,bar"
+    uploaded_file = StringIO(csv_data)
+
+    df = cached_load_dataset_ml(uploaded_file)
+
+    assert isinstance(df, pd.DataFrame)
+    assert list(df.columns) == ["col1"]
+    assert df.shape == (2, 1)
+
+
+@patch("app.utils.model_logic.load_dataset_from_config")
+def test_cached_load_dataset_ml_from_config(mock_loader, monkeypatch):
+    monkeypatch.delenv("IS_TESTING", raising=False)
+    cached_load_dataset_ml.clear()  # type: ignore
+    mock_df = pd.DataFrame({"x": [1]})
+    mock_loader.return_value = mock_df
+
+    df = cached_load_dataset_ml(None)
+    df = cast(pd.DataFrame, df)
+
+    mock_loader.assert_called_once()
+    assert df.equals(mock_df)
+
+
+@patch("app.utils.model_logic.train_timeseries_model")
+def test_cached_train_model(mock_trainer, monkeypatch):
+    monkeypatch.delenv("IS_TESTING", raising=False)
+    mock_result = {"first": 1, "second": 2}
+    mock_trainer.return_value = mock_result
+    df_mock = pd.DataFrame({
+        "feature": [1, 2, 3],
+        "comptage_horaire": [100, 120, 140]
+    })
+    mock_train_inputs = {
+        "df_compteur": df_mock,
+        "model_type": "linear",
+        "scaler_type": "standard",
+        "target_col": "comptage_horaire",
+        "drop_columns": [],
+        "temp_feats": [1, 1, 1],
+        "test_ratio": 0.2,
+        "forecast": False
+    }
+    results = cached_train_model(**mock_train_inputs)
+
+    mock_trainer.assert_called_once()
+    assert results == mock_result
+
+
+def test_manage_dataset_reload_triggers_clear_and_rerun(monkeypatch):
+    monkeypatch.setenv("IS_TESTING", "1")
+    mock_st = Mock()
+    mock_st.button.return_value = True  # simulate click
+    mock_st.spinner.return_value.__enter__ = lambda s: None
+    mock_st.spinner.return_value.__exit__ = lambda s, exc, val, tb: None
+    mock_st.rerun = Mock()
+    with patch("app.utils.model_logic."
+               "cached_load_dataset_ml.clear") as mock_clear:
+        manage_dataset_modeling(mock_st)
+        mock_clear.assert_called_once()
+        mock_st.rerun.assert_called_once()
 
 
 @patch("app.utils.model_logic.plot_predictions")
@@ -15,9 +87,16 @@ def test_run_evaluation_resid_and_interp(
     mock_interp, mock_resid, mock_plot
 ):
     # --- Données factices cohérentes ---
+
+    train_config = {
+        "show_metrics": False,
+        "show_preds": False,
+        "show_resid": True,
+        "show_interp": True,
+        "selected_dates": ("2025-04-01", "2025-04-16"),
+    }
+    compteur_id = ('102 boulevard de Magenta', 'SE-NO')
     fake_dates = pd.date_range("2025-04-01", periods=2, freq="h")
-    compteur_id = ("27 quai de la Tournelle", "SE-NO")
-    site_labels = {compteur_id: "Tournelle - SE-NO"}
     fake_result = {
         "y_test": [1, 2],
         "y_test_pred": [1.1, 1.9],
@@ -43,12 +122,7 @@ def test_run_evaluation_resid_and_interp(
     # --- Exécution ---
     run_evaluation_per_compteur(
         results=results,
-        site_labels=site_labels,
-        show_metrics=False,
-        show_preds=False,
-        show_resid=True,
-        show_interp=True,
-        periode_limite=("2025-04-01", "2025-04-16"),
+        train_config=train_config,
         st_module=st_mock,
     )
 
@@ -72,8 +146,14 @@ def test_run_evaluation_metrics_and_preds(
     mock_plot_predictions
 ):
     # --- Setup data ---
-    compteur_id = ("Magenta", "NE-SO")
-    site_labels = {compteur_id: "Magenta - NE-SO"}
+    train_config = {
+        "show_metrics": True,
+        "show_preds": True,
+        "show_resid": False,
+        "show_interp": False,
+        "selected_dates": ("2025-04-01", "2025-04-16"),
+    }
+    compteur_id = ('102 boulevard de Magenta', 'SE-NO')
     fake_dates = pd.date_range("2025-04-01", periods=2, freq="h")
     results = {
         compteur_id: {
@@ -100,12 +180,7 @@ def test_run_evaluation_metrics_and_preds(
     # --- Run function ---
     run_evaluation_per_compteur(
         results=results,
-        site_labels=site_labels,
-        show_metrics=True,
-        show_preds=True,
-        show_resid=False,
-        show_interp=False,
-        periode_limite=("2025-04-01", "2025-04-16"),
+        train_config=train_config,
         st_module=st_mock,
     )
 
@@ -158,3 +233,59 @@ def test_display_metrics_table_basic():
     assert np.isclose(mean_df["R2_train"], 0.88)
     assert np.isclose(mean_df["R2_test"], 0.835)
     assert expected_row_count == 2
+
+
+@patch("app.utils.model_logic.apply_percent_range_selection")
+@patch("app.utils.model_logic.compute_metrics")
+@patch("app.utils.model_logic.cached_train_model")
+def test_manage_training_single_site(
+    mock_cached_train_model,
+    mock_compute_metrics,
+    mock_apply_range,
+):
+    # --- Arrange ---
+    compteur_id = ('102 boulevard de Magenta', 'SE-NO')
+    # compteur_name = "Magenta_SE-NO"
+    fake_df = pd.DataFrame({
+        "nom_du_site_de_comptage": [compteur_id[0]] * 4,
+        "orientation_compteur": [compteur_id[1]] * 4,
+        "comptage_horaire": [100, 150, 130, 160]
+    })
+
+    train_config = {
+        "selected_sites": [compteur_id],
+        "range": (10, 90),
+        "model": "linear",
+        "scaler": "standard",
+        "drop_cols": [],
+        "ar_nb": 3,
+        "mm_nb": 2,
+        "mm_season": 1,
+        "split": 0.8,
+        "use_forecast": False
+    }
+
+    mock_df_selected = fake_df.copy()
+    mock_apply_range.return_value = mock_df_selected
+
+    mock_cached_train_model.return_value = {
+        "y_train": [100, 150],
+        "y_train_pred": [98, 151],
+        "y_test": [130, 160],
+        "y_test_pred": [128, 159]
+    }
+
+    mock_compute_metrics.side_effect = [
+        {"R2": 0.95, "RMSE": 2.0, "MAE": 1.5},
+        {"R2": 0.90, "RMSE": 2.5, "MAE": 2.0}
+    ]
+
+    # --- Act ---
+    results, metrics_table = manage_training(fake_df, train_config)
+
+    # --- Assert ---
+    assert compteur_id in results
+    assert isinstance(metrics_table, list)
+    assert len(metrics_table) == 1
+    assert metrics_table[0]["R2_train"] == 0.95
+    assert metrics_table[0]["R2_test"] == 0.90

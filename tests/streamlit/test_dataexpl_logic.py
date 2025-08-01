@@ -11,6 +11,7 @@ from app.utils.dataexpl_logic import (
 
 def test_cached_load_dataset_exploration_uploaded_file(monkeypatch):
     monkeypatch.delenv("IS_TESTING", raising=False)
+    cached_load_dataset_exploration.clear()  # type: ignore
     csv_data = "index,col1\n0,foo\n1,bar"
     uploaded_file = StringIO(csv_data)
 
@@ -24,6 +25,7 @@ def test_cached_load_dataset_exploration_uploaded_file(monkeypatch):
 @patch("app.utils.dataexpl_logic.load_dataset_from_config")
 def test_cached_load_dataset_exploration_from_config(mock_loader, monkeypatch):
     monkeypatch.delenv("IS_TESTING", raising=False)
+    cached_load_dataset_exploration.clear()  # type: ignore
     mock_df = pd.DataFrame({"x": [1]})
     mock_loader.return_value = mock_df
 
@@ -35,7 +37,7 @@ def test_cached_load_dataset_exploration_from_config(mock_loader, monkeypatch):
 
 
 @patch("app.utils.dataexpl_logic.get_missing_periods")
-def test_cached_get_missing_periods_from_config(mock_loader, monkeypatch):
+def test_cached_get_missing_periods(mock_loader, monkeypatch):
     monkeypatch.delenv("IS_TESTING", raising=False)
     mock_df = pd.DataFrame({"x": [1]})
     mock_loader.return_value = mock_df

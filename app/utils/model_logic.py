@@ -2,23 +2,27 @@ import os
 import pandas as pd
 import numpy as np
 import streamlit as st
-from typing import Dict
+import logging
+from typing import Dict, Tuple, List
 import matplotlib.pyplot as plt
 from smartcheck.modeling_project_specific import (
     compute_metrics,
     plot_predictions,
     compute_residuals_plot,
     interpret_model,
+    train_timeseries_model,
 )
 from smartcheck.dataframe_common import (
     load_dataset_from_config,
-    # apply_percent_range_selection,
+    apply_percent_range_selection,
 )
+
+logger = logging.getLogger(__name__)
 
 # --- Constants and helpers ---
 DATASET_NAME = "velo_comptage_ml_ready_data"
-DEFAULT_TEST_PERIOD = ('2025-04-01', '2025-04-14')
-MAX_TEST_PERIOD = ('2024-03-01', '2025-04-14')
+DEFAULT_TEST_PERIOD = ('2025-04-01', '2025-04-15')
+MAX_TEST_PERIOD = ('2024-03-01', '2025-04-15')
 SITE_LABELS = {
     ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol_S-N",
     ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol_N-S",
@@ -218,32 +222,42 @@ def manage_dataset_modeling(st_module=None) -> pd.DataFrame:
     return df
 
 
-def run_evaluation_per_compteur(results, site_labels,
-                                show_metrics, show_preds,
-                                show_resid, show_interp,
-                                periode_limite,
-                                st_module=None):
-    """
-    Affiche les rapports pour chaque compteur selon les flags fournis.
-    Cette fonction est isolée pour faciliter les tests unitaires.
+@st.cache_data(show_spinner=True)
+def cached_train_model(df_compteur,
+                       model_type,
+                       scaler_type,
+                       target_col,
+                       drop_columns,
+                       temp_feats,
+                       test_ratio,
+                       forecast):
+    if os.environ.get("IS_TESTING") == "1":
+        return {
+            "y_test": [1, 2],
+            "y_test_pred": [1.1, 1.9],
+            "X_test_dates": pd.date_range("2025-04-01", periods=2, freq="h")
+        }
+    return train_timeseries_model(
+        df_compteur=df_compteur,
+        model_type=model_type,
+        scaler_type=scaler_type,
+        target_col=target_col,
+        drop_columns=drop_columns,
+        temp_feats=temp_feats,
+        test_ratio=test_ratio,
+        forecast=forecast,
+    )
 
-    Args:
-        results (dict): Dictionnaire {compteur_id: result_data}.
-        site_labels (dict): Dictionnaire {compteur_id: label}.
-        show_metrics (bool): Afficher les métriques.
-        show_preds (bool): Afficher les prédictions.
-        show_resid (bool): Afficher les résidus.
-        show_interp (bool): Afficher l'interprétation.
-        periode_limite (tuple): Période d'affichage (start_date, end_date).
-    """
+
+def run_evaluation_per_compteur(results, train_config, st_module=None):
 
     st = st_module or __import__("streamlit")
 
     for compteur_id, res in results.items():
-        label = site_labels[compteur_id]
+        label = SITE_LABELS[compteur_id]
         with st.expander(f"📉 Rapport pour {label}"):
 
-            if show_metrics:
+            if train_config["show_metrics"]:
                 st.markdown("### 📈 Métriques")
                 metrics_table = []
                 train_metrics = compute_metrics(res["y_train"], res["y_train_pred"])
@@ -259,26 +273,26 @@ def run_evaluation_per_compteur(results, site_labels,
                 metrics_table.append(combined_row)
                 display_metrics_table(metrics_table, st_module=st, show_mean=False)
 
-            if show_preds:
+            if train_config["show_preds"]:
                 st.markdown("### 🔮 Prédictions")
                 fig = plot_predictions(
                     compteur=label,
                     dates=res["X_test_dates"],
                     y_true=res["y_test"],
                     y_pred=res["y_test_pred"],
-                    periode_limite=periode_limite,
+                    periode_limite=train_config["selected_dates"],
                 )
                 st.pyplot(fig)
                 plt.close(fig)
 
-            if show_resid:
+            if train_config["show_resid"]:
                 st.markdown("### 🧾 Résidus")
                 fig1, fig2, slope = compute_residuals_plot(
                     compteur=label,
                     dates=res["X_test_dates"],
                     y_true=res["y_test"],
                     y_pred=res["y_test_pred"],
-                    periode_limite=periode_limite,
+                    periode_limite=train_config["selected_dates"],
                 )
                 st.pyplot(fig1)
                 plt.close(fig1)
@@ -286,7 +300,7 @@ def run_evaluation_per_compteur(results, site_labels,
                 st.pyplot(fig2)
                 plt.close(fig2)
 
-            if show_interp:
+            if train_config["show_interp"]:
                 st.markdown("### 🧠 Interprétation")
                 interp_figs = interpret_model(res)
                 if interp_figs:
@@ -332,11 +346,7 @@ def display_metrics_table(metrics_table, st_module=None, show_mean=True):
         st.dataframe(styled_mean, use_container_width=True, hide_index=True)
 
 
-def display_train_parameters(
-    train_config,
-    available_columns,
-    st_module=None
-):
+def display_train_parameters(train_config, st_module=None):
     st = st_module or __import__("streamlit")
 
     with st.expander("Résumé des paramètres d'entrainement courants",
@@ -367,10 +377,10 @@ def display_train_parameters(
             """)
         with col2:
             df_cols_exclues = pd.DataFrame({
-                "Variables": available_columns,
+                "Variables": AVAILABLE_COLUMNS,
                 "Exclue": [
                     col in train_config["drop_cols"]
-                    for col in available_columns
+                    for col in AVAILABLE_COLUMNS
                 ]
             })
             st.data_editor(
@@ -395,66 +405,81 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
     label_options = list(SITE_LABELS.values())
     label_default_options = list(SITE_LABELS_DEFAULT.values())
     selected_labels = st.multiselect(
-        "🎯 Compteurs à modéliser",
+        "🎯 Choix des compteurs à modéliser",
         label_options,
         default=label_default_options
     )
     selected_sites = [k for k, v in SITE_LABELS.items() if v in selected_labels]
 
     # --- Sélection des modèles ---
-    model = st.radio("Modèle", AVAILABLE_MODELS, key="model_rad")
+    with st.expander("Relatifs à la **Modélisation**", expanded=True):
+        model = st.radio("Type de modèle", AVAILABLE_MODELS, key="model_rad")
+        st.info("(*) Entrainement **_couteux_** avec"
+                " recherche **Bayesienne** d'hyperparamètres")
 
     # --- Sélection des paramètres d'auto regression/moyenne mobile ---
-    ar_nb = st.slider("Nb d'Auto-Régression", 0, 7, 0, 1, key="ar_nb_sld")
-    mm_nb = st.slider("Nb de Moyennes Mobiles", 0, 7, 0, 1, key="ar_mm_nb")
-    mm_season = st.number_input("Taille de la fenêtre mobile (1 lag = 1 heure)",
-                                min_value=2, max_value=24*7,
-                                value=24, key="mm_season_inp")
-    use_forecast = st.checkbox("Prédiction dynamique des AR/MM (**)",
-                               value=False,
-                               key="use_forecast_cb")
-
-    # --- Sélection du scaler ---
-    scaler = st.radio("Mise à l'échelle",
-                      ("MinMaxScaler", "StandardScaler", "RobustScaler"),
-                      key="scaler_rad")
-
-    # --- Echantillonnage du dataset + répartition train/test ---
-    range = st.slider("Portion du dataset d'origine à utiliser", 0.0, 100.0,
-                      (0.0, 100.0), 0.1, format="%.1f %%", key="range_sld")
-    split = st.slider("Répartition Train/Test", 0.1, 0.9, 0.75, 0.05,
-                      key="split_sld")
-
-    # --- Explications
-    st.markdown("""
-    > (*) Entrainement **_couteux_** avec recherche **Bayesienne** d'hyperparamètres
-    >
-    > (**) Prédiction récursive **_couteuse_** avec ré-infusion des AR/MM recalculées
-    sur la base des valeurs prédites (et non pas réelles) de la **variable cible**
-    """)
-
-    # --- Sélection des variables explicatives ---
-    with st.expander("❌ **Variables explicatives à exclure**"):
-        df_checkbox = pd.DataFrame({
-            "Variable": AVAILABLE_COLUMNS,
-            "Exclue": [
-                col in EXCLUDED_COLUMNS_DEFAULT
-                for col in AVAILABLE_COLUMNS
-            ]
-        })
-        st.markdown("🔒 Les colonnes suivantes sont obligatoires:")
-        st.code("\n".join(MANDATORY_COLUMNS), language="markdown")
-        edited_df = st.data_editor(
-            df_checkbox,
-            column_config={
-                "Exclue": st.column_config.CheckboxColumn("Exclue")
-            },
-            hide_index=True,
-            use_container_width=True,
-            num_rows="fixed",
-            key="edited_df_de"
+    with st.expander("Spécifiques aux **Séries temporelles**", expanded=True):
+        ar_nb = st.slider(
+            "Nombre d'**A**uto-**R**égression (**AR**)", 0, 7, 0, 1,
+            key="ar_nb_sld"
         )
-        drop_cols = edited_df.loc[edited_df["Exclue"], "Variable"].tolist()
+        mm_nb = st.slider(
+            "Nombre de **M**oyennes **M**obiles (**MM**)", 0, 7, 0, 1,
+            key="ar_mm_nb"
+        )
+        mm_season = st.number_input(
+            "Taille de la fenêtre mobile (1 lag = 1 heure)",
+            min_value=2, max_value=24*7,
+            value=24, key="mm_season_inp"
+        )
+        use_forecast = st.checkbox(
+            "Prédiction dynamique des AR/MM (**)",
+            value=False,
+            key="use_forecast_cb"
+        )
+        st.info("(**) Prédiction récursive **_couteuse_** avec ré-infusion des AR/MM "
+                "recalculées sur la base des valeurs prédites de la **variable cible**")
+
+    with st.expander("Relatifs au **Preprocessing**", expanded=True):
+        # --- Sélection du scaler ---
+        scaler = st.radio(
+            "Mise à l'échelle",
+            ("MinMaxScaler", "StandardScaler", "RobustScaler"),
+            key="scaler_rad"
+        )
+
+        # --- Echantillonnage du dataset + répartition train/test ---
+        range = st.slider(
+            "Portion du dataset d'origine à utiliser", 0.0, 100.0,
+            (0.0, 100.0), 0.1, format="%.1f %%", key="range_sld"
+        )
+        split = st.slider(
+            "Répartition Train/Test", 0.1, 0.9, 0.75, 0.05,
+            key="split_sld"
+        )
+
+        # --- Sélection des variables explicatives ---
+        with st.expander("❌ **Variables explicatives à exclure**"):
+            df_checkbox = pd.DataFrame({
+                "Variable": AVAILABLE_COLUMNS,
+                "Exclue": [
+                    col in EXCLUDED_COLUMNS_DEFAULT
+                    for col in AVAILABLE_COLUMNS
+                ]
+            })
+            st.markdown("🔒 Les colonnes suivantes sont obligatoires:")
+            st.code("\n".join(MANDATORY_COLUMNS), language="markdown")
+            edited_df = st.data_editor(
+                df_checkbox,
+                column_config={
+                    "Exclue": st.column_config.CheckboxColumn("Exclue")
+                },
+                hide_index=True,
+                use_container_width=True,
+                num_rows="fixed",
+                key="edited_df_de"
+            )
+            drop_cols = edited_df.loc[edited_df["Exclue"], "Variable"].tolist()
 
     # --- Option des rapports ---
     with st.expander("📊 Option des rapports"):
@@ -500,3 +525,48 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
     }
 
     return train_config
+
+
+def manage_training(df, train_config) -> Tuple[Dict, List]:
+    grouped = df.groupby(["nom_du_site_de_comptage", "orientation_compteur"])
+    results = {}
+    metrics_table = []
+    for compteur_id, df_compteur in grouped:
+        if compteur_id in train_config["selected_sites"]:
+            logger.info(f"Training and prediction started for counter [{compteur_id}]")
+            res = cached_train_model(
+                df_compteur=apply_percent_range_selection(
+                    df_compteur,
+                    train_config["range"],
+                ),
+                model_type=train_config["model"],
+                scaler_type=train_config["scaler"],
+                target_col="comptage_horaire",
+                drop_columns=train_config["drop_cols"],
+                temp_feats=[
+                    train_config["ar_nb"],
+                    train_config["mm_nb"],
+                    train_config["mm_season"],
+                ],
+                test_ratio=1 - train_config["split"],
+                forecast=train_config["use_forecast"],
+            )
+            logger.info(f"Training and prediction done for counter [{compteur_id}]")
+            results[compteur_id] = res
+            train_metrics = compute_metrics(res["y_train"],
+                                            res["y_train_pred"])
+            test_metrics = compute_metrics(res["y_test"],
+                                           res["y_test_pred"])
+            combined_row = {
+                "compteur": SITE_LABELS[compteur_id],
+                "description": compteur_id,
+                "R2_train": train_metrics.get("R2", None),
+                "RMSE_train": train_metrics.get("RMSE", None),
+                "MAE_train": train_metrics.get("MAE", None),
+                "R2_test": test_metrics.get("R2", None),
+                "RMSE_test": test_metrics.get("RMSE", None),
+                "MAE_test": test_metrics.get("MAE", None),
+            }
+            metrics_table.append(combined_row)
+
+    return results, metrics_table
