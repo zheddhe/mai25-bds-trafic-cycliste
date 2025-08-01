@@ -108,6 +108,7 @@ C.3. *** ELIAS *** (Details Performances explicatives avec AR/MM)
         La régression linéaire est jugée honnête et stable (R² test ~0.789), 
         tandis qu'ElasticNet n'apporte pas d'amélioration significative par rapport à la régression linéaire.
         Rajouter analyse sur le compteur choisi
+        Importance de la variable auto régressive à mettre en avant sur les features
 
 
 C.4. *** REMY *** (Details Performance en conditions réelles sur modèles standards) 
@@ -152,3 +153,5 @@ D. *** ELIAS *** (Conclusion)
         8 ans d'archives disponibles sur OpenData Paris et en multipliant les sources d'entraînement via le transfer learning. 
         Une autre direction est l'exploitation de la prédiction multi-canal de l'architecture Granite TTM, 
         ce qui nécessitera une adaptation de la structure des données pour mieux capter les influences géographiques mutuelles.
+        Caler la partie interactive en conclusion finale (pour potentiellement aiguiller les questions)
+        
