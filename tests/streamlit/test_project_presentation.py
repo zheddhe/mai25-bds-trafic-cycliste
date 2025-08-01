@@ -12,6 +12,6 @@ def test_warning_called_for_missing_images():
         importlib.reload(project_presentation)
 
         # number of warning blocks
-        expected_calls = 47
+        expected_calls = 49
 
         assert mock_warning.call_count == expected_calls

@@ -482,7 +482,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         with st.expander("Meilleurs résultats:",
                          expanded=False):
-            col1, col3 = st.columns([1, 1])
+            col1, col2, col3 = st.columns([1, 1, 1])
             img = Path("app/assets/C/xgb/xgboost_seb_sn_preds.png")
             if img.exists():
                 col1.image(str(img), use_container_width=True)
@@ -490,12 +490,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                 col1.warning("Image not found: app/assets/C/xgb/"
                              "xgboost_seb_sn_preds.png")
 
-            # img = Path("app/assets/C/xgb/xgboost_seb_sn_wide_preds.png")
-            # if img.exists():
-            #     col2.image(str(img), use_container_width=True)
-            # else:
-            #     col2.warning("Image not found: app/assets/C/xgb/"
-            #                  "xgboost_seb_sn_wide_preds.png")
+            img = Path("app/assets/C/xgb/xgboost_seb_sn_feats.png")
+            if img.exists():
+                col2.image(str(img), use_container_width=True)
+            else:
+                col2.warning("Image not found: app/assets/C/xgb/"
+                             "xgboost_seb_sn_feats.png")
 
             img = Path("app/assets/C/xgb/xgboost_seb_sn_rot.png")
             if img.exists():
@@ -573,7 +573,7 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
 
         with st.expander("Meilleurs résultats:",
                          expanded=False):
-            col1, col3 = st.columns([1, 1])
+            col1, col2, col3 = st.columns([1, 1, 1])
             img = Path("app/assets/C/rf/random_forest_seb_sn_preds_armm.png")
             if img.exists():
                 col1.image(str(img), use_container_width=True)
@@ -581,12 +581,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
                 col1.warning("Image not found: app/assets/C/rf/"
                              "random_forest_seb_sn_preds_armm.png")
 
-            # img = Path("app/assets/C/rf/random_forest_seb_sn_wide_preds_armm.png")
-            # if img.exists():
-            #     col2.image(str(img), use_container_width=True)
-            # else:
-            #     col2.warning("Image not found: app/assets/C/rf/"
-            #                  "random_forest_seb_sn_wide_preds_armm.png")
+            img = Path("app/assets/C/rf/random_forest_seb_sn_feats_armm.png")
+            if img.exists():
+                col2.image(str(img), use_container_width=True)
+            else:
+                col2.warning("Image not found: app/assets/C/rf/"
+                             "random_forest_seb_sn_feats_armm.png")
 
             img = Path("app/assets/C/rf/random_forest_seb_sn_rot_armm.png")
             if img.exists():
