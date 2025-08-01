@@ -8,7 +8,7 @@ A -> *** REMY *** (Introduction)
         Je vais commencer par introduire notre modeste équipe composée d'Elias et moi même, et nous saluons et
         remercions Raphaël qui a participé au tout début avant d'être contraint d'arrêter la formation
 
-        Donc ce projet vise à modéliser l'évolution du trafic cycliste horaire de la ville de Paris qui équipée de compteurs 
+        Donc ce projet vise à modéliser l'évolution du trafic cycliste horaire de la ville de Paris qui est équipée de compteurs 
         permanents, le but : identifier les facteurs qui influencent son évolution et permettre à la ville d'adapter les aménagements cyclistes
 
         Nous avons mis en place une démarche de modélisation exploratoire et assemblé via cette application streamlit
@@ -33,14 +33,12 @@ B.2. *** REMY *** (Détails sur l'Enrichissement)
 TR >>>> Il est important de noter qu'au cours de notre processus d'analyse et de modélisation
         nous avons naturellement identifié d'autre ajustements, nous le verrons au fil de la présentation.
 
-
 B.3.a *** REMY(bis) *** (Analyse statistique du comptage horaire)
         Une fois cet enrichissement opéré nous avons plongé dans l'étude statistique
-        et la représentation visuelle de nos données en se focalisant sur le comptage horaire
-
-        Notamment une étude statistique de sa distribution
+        et la représentation visuelle de nos données, en se focalisant sur le comptage horaire
+        et notamment, une étude statistique de sa distribution
         [...]
-TR >>>> Après cette vue statistique, Elias va nous montrer une vue plus graphique
+TR >>>> Après cette vue statistique, Elias va continuer sur la visualisation de la répartition
 
 
 B.3.b *** ELIAS *** (Data Visualisation du comptage horaire)
@@ -89,7 +87,7 @@ C.1. *** ELIAS *** (Details Objectifs et Régression temporelle supervisée)
 
 
 C.2. *** REMY *** (Details Performances explicatives sans AR/MM)
-        Donc abordons l'analyse des résultats en comparant systématiquement les performances
+        Donc nous allons aborder l'analyse des résultats en comparant systématiquement les performances
         sur un même ensemble de 9 compteurs dans différentes conditions.
         
         La première est l'utilisation de nos données sans ajout des composantes AR ou MM
@@ -120,7 +118,7 @@ C.4. *** REMY *** (Details Performance en conditions réelles sur modèles stand
         [Analyser/résumer les résultats]
         [zoom sur sébastopol]
 
-TR >>>> Et donc maintenant je laisse la parole à Elias pour introduire les deux derniers modèles exploré pendant ce projet
+TR >>>> Et donc maintenant je laisse la parole à Elias pour introduire les deux derniers modèles plus avancés exploré pendant ce projet
 
 
 C.5.a *** ELIAS *** (Details Performance en conditions réelles sur modèle SARIMAX) 
@@ -136,7 +134,7 @@ C.5.a *** ELIAS *** (Details Performance en conditions réelles sur modèle SARI
 
 
 C.5.b *** REMY *** (Details Performance en conditions réelles sur modèle Deep Learning) 
-        On finit ici par les résultats obtenu sur modèle Deep learning exploré en toute fin de projet
+        On finit ici par les résultats obtenu sur du Deep learning exploré en toute fin de projet
 
         [Résumer le schéma du modèle et illustrer l'horizon de prédiction de 96 max (4j avec un lag de 1h)]
         [Illustrer avec le compteur sébastopol]

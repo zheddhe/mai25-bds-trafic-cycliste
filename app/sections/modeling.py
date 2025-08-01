@@ -19,8 +19,6 @@ from app.utils.model_logic import (
 )
 
 # --- Constants and helpers ---
-DEFAULT_TEST_PERIOD = ('2025-04-01', '2025-04-14')
-MAX_TEST_PERIOD = ('2024-03-01', '2025-04-14')
 SITE_LABELS = {
     ('Totem 73 boulevard de Sébastopol', 'S-N'): "Sébastopol_S-N",
     ('Totem 73 boulevard de Sébastopol', 'N-S'): "Sébastopol_N-S",

@@ -774,12 +774,12 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
           - Déjà très bon et généralisable en *zero-shot*:
             - R² train = `0.873` | R² test = `0.891` obtenu sans **aucune
             données exogène**
-          - Améliorable en *fine-tuning* aux possibilités **très nombreuses**
-        (incluant le **transfert learning** et la **prédiction parallèle
-        (multi-canal)**):
+          - Améliorable en *fine-tuning* aux possibilités théoriques **très
+        nombreuses** (**transfert learning** entre compteurs, **prédiction parallèle
+        (multi-canal)**, **pas** de prédiction, **mixage des variables**...):
             - R² train = `0.855` | R² test = `0.871`
             obtenu avec une FCM de taille 168 (= 1 semaine soit **29M de poids**
-            à affiner) et entrainé sur 60% de **toutes les données de comptage
+            à affiner) et entrainé sur 60% de **tous les compteurs
             disponibles**
         """)
 
