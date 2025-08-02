@@ -1,7 +1,9 @@
-import pandas as pd
-import numpy as np
 from io import StringIO
 from typing import cast
+from datetime import datetime
+import pytest
+import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from unittest.mock import MagicMock, patch, Mock
 from app.utils.model_logic import (
@@ -12,6 +14,7 @@ from app.utils.model_logic import (
     display_global_metrics_table,
     display_counter_metrics_table,
     manage_training,
+    display_train_parameters,
 )
 
 
@@ -291,15 +294,87 @@ def test_manage_dataset_triggers_error_and_empty_df(monkeypatch):
     monkeypatch.setenv("IS_TESTING", "1")
     cached_load_dataset_ml.clear()  # type: ignore
     mock_st = Mock()
-    mock_st.button.return_value = False  # simulate button not clicked
+    mock_st.button.return_value = False
     mock_st.spinner.return_value.__enter__ = lambda s: None
     mock_st.spinner.return_value.__exit__ = lambda s, exc, val, tb: None
     mock_st.stop = Mock()
+
     with patch("app.utils.model_logic."
                "cached_load_dataset_ml",
                return_value=None):
         df_result = manage_dataset_modeling(mock_st)
+
     mock_st.error.assert_called_once()
     mock_st.stop.assert_called_once()
     assert isinstance(df_result, pd.DataFrame)
     assert df_result.empty
+
+
+@pytest.fixture
+def base_train_config():
+    return {
+        "model": "XGBoost",
+        "scaler": "StandardScaler",
+        "ar_nb": 3,
+        "mm_nb": 2,
+        "mm_season": 24,
+        "use_forecast": True,
+        "range": [10, 90],
+        "split": 0.8,
+        "selected_dates": [
+            datetime(2025, 1, 1),
+            datetime(2025, 2, 1)
+        ],
+        "show_metrics": True,
+        "show_preds": True,
+        "show_resid": True,
+        "show_interp": False,
+        "drop_cols": [],
+        "selected_sites": ["Site A"],
+    }
+
+
+def test_display_train_parameters_warns_if_no_sites(base_train_config):
+    config = base_train_config.copy()
+    config["selected_sites"] = []
+    mock_st = Mock()
+    mock_st.expander.return_value.__enter__ = lambda s: mock_st
+    mock_st.expander.return_value.__exit__ = lambda s, exc, val, tb: None
+    col_mock1 = Mock()
+    col_mock1.__enter__ = lambda s: Mock()
+    col_mock1.__exit__ = lambda s, exc, val, tb: None
+    col_mock2 = Mock()
+    col_mock2.__enter__ = lambda s: Mock()
+    col_mock2.__exit__ = lambda s, exc, val, tb: None
+    mock_st.columns.return_value = [col_mock1, col_mock2]
+    mock_st.stop = Mock()
+
+    display_train_parameters(config, st_module=mock_st)
+
+    mock_st.warning.assert_called_once_with(
+        "Sélectionnez au moins un compteur à modéliser."
+    )
+    mock_st.stop.assert_called_once()
+
+
+def test_display_train_parameters_warns_if_range_is_empty(base_train_config):
+    config = base_train_config.copy()
+    config["range"] = [50, 50]  # simulate empty range
+    mock_st = Mock()
+    mock_st.expander.return_value.__enter__ = lambda s: mock_st
+    mock_st.expander.return_value.__exit__ = lambda s, exc, val, tb: None
+    col_mock1 = Mock()
+    col_mock1.__enter__ = lambda s: Mock()
+    col_mock1.__exit__ = lambda s, exc, val, tb: None
+    col_mock2 = Mock()
+    col_mock2.__enter__ = lambda s: Mock()
+    col_mock2.__exit__ = lambda s, exc, val, tb: None
+    mock_st.columns.return_value = [col_mock1, col_mock2]
+    mock_st.stop = Mock()
+
+    display_train_parameters(config, st_module=mock_st)
+
+    mock_st.warning.assert_called_once_with(
+        "La plage sélectionnée est vide."
+    )
+    mock_st.stop.assert_called_once()
