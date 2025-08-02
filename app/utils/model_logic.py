@@ -259,26 +259,36 @@ def display_report_per_counter(results, train_config, st_module=None):
 
             if train_config["show_metrics"]:
                 st.markdown("### 📈 Métriques")
-                metrics_table = []
+                counter_metrics_table = []
                 train_metrics = compute_metrics(res["y_train"], res["y_train_pred"])
                 test_metrics = compute_metrics(res["y_test"], res["y_test_pred"])
+                train_dates = res.get(
+                    "X_train_dates"
+                ).get("date_et_heure_de_comptage_local")
+                combined_train = {
+                    "Plage": "Train",
+                    "Début période": train_dates.min(),
+                    "Fin période": train_dates.max(),
+                    "Nb échantillons": train_dates.count(),
+                    "R²": train_metrics.get("R2", None),
+                    "RMSE": train_metrics.get("RMSE", None),
+                    "MAE": train_metrics.get("MAE", None),
+                }
+                counter_metrics_table.append(combined_train)
                 test_dates = res.get(
                     "X_test_dates"
                 ).get("date_et_heure_de_comptage_local")
-                logger.info(test_dates)
-                combined_row = {
-                    "R² train": train_metrics.get("R2", None),
-                    "RMSE train": train_metrics.get("RMSE", None),
-                    "MAE train": train_metrics.get("MAE", None),
-                    "Début période test": test_dates.min(),
-                    "Fin période test": test_dates.max(),
-                    "Nb prédictions test": test_dates.count(),
-                    "R² test": test_metrics.get("R2", None),
-                    "RMSE test": test_metrics.get("RMSE", None),
-                    "MAE test": test_metrics.get("MAE", None),
+                combined_test = {
+                    "Plage": "Test",
+                    "Début période": test_dates.min(),
+                    "Fin période": test_dates.max(),
+                    "Nb échantillons": test_dates.count(),
+                    "R²": test_metrics.get("R2", None),
+                    "RMSE": test_metrics.get("RMSE", None),
+                    "MAE": test_metrics.get("MAE", None),
                 }
-                metrics_table.append(combined_row)
-                display_metrics_table(metrics_table, st_module=st, show_mean=False)
+                counter_metrics_table.append(combined_test)
+                display_counter_metrics_table(counter_metrics_table, st_module=st)
 
             if train_config["show_preds"]:
                 st.markdown("### 🔮 Prédictions")
@@ -316,7 +326,29 @@ def display_report_per_counter(results, train_config, st_module=None):
                         plt.close(fig)
 
 
-def display_metrics_table(metrics_table, st_module=None, show_mean=True):
+def display_counter_metrics_table(counter_metrics_table, st_module=None):
+    st = st_module or __import__("streamlit")
+
+    if not counter_metrics_table:
+        return
+
+    df_metrics = pd.DataFrame(counter_metrics_table)
+
+    styled_df = (
+        df_metrics.style
+        .format(precision=3)
+        .background_gradient(
+            subset=["R²"],
+            cmap="RdYlGn",  # green = good, red = bad
+            vmin=0.0,
+            vmax=1.0,
+        )
+    )
+
+    st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+
+def display_global_metrics_table(metrics_table, st_module=None, show_mean=True):
     st = st_module or __import__("streamlit")
 
     if not metrics_table:

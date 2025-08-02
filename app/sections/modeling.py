@@ -1,7 +1,7 @@
 import streamlit as st
 from app.utils.model_logic import (
     display_report_per_counter,
-    display_metrics_table,
+    display_global_metrics_table,
     manage_dataset_modeling,
     manage_sidebar_modeling_parameters,
     display_train_parameters,
@@ -30,7 +30,7 @@ with st.spinner("⏳ Entraînement des modèles en cours..."):
 
 # --- Synthèse globale des performances ---
 st.markdown("## 🧾 Synthèse des métriques de modélisation")
-display_metrics_table(metrics_table, st_module=st)
+display_global_metrics_table(metrics_table, st_module=st)
 
 # --- Rapports par compteur ---
 st.markdown("## 🎯 Rapports par compteur")
