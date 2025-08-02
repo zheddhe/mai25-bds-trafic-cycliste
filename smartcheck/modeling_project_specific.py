@@ -61,7 +61,7 @@ SEARCH_SPACES_RANDOM_FOREST = {
     'max_depth': Integer(3, 30),
     'min_samples_split': Integer(2, 20),
     'min_samples_leaf': Integer(1, 20),
-    'max_features': Categorical(['auto', 'sqrt', 'log2']),
+    'max_features': Categorical(['sqrt', 'log2']),
 }
 
 logger = logging.getLogger(__name__)
