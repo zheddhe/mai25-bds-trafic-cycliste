@@ -249,7 +249,7 @@ def cached_train_model(df_compteur,
     )
 
 
-def run_evaluation_per_compteur(results, train_config, st_module=None):
+def display_report_per_counter(results, train_config, st_module=None):
 
     st = st_module or __import__("streamlit")
 
@@ -262,13 +262,20 @@ def run_evaluation_per_compteur(results, train_config, st_module=None):
                 metrics_table = []
                 train_metrics = compute_metrics(res["y_train"], res["y_train_pred"])
                 test_metrics = compute_metrics(res["y_test"], res["y_test_pred"])
+                test_dates = res.get(
+                    "X_test_dates"
+                ).get("date_et_heure_de_comptage_local")
+                logger.info(test_dates)
                 combined_row = {
-                    "R2_train": train_metrics.get("R2", None),
-                    "RMSE_train": train_metrics.get("RMSE", None),
-                    "MAE_train": train_metrics.get("MAE", None),
-                    "R2_test": test_metrics.get("R2", None),
-                    "RMSE_test": test_metrics.get("RMSE", None),
-                    "MAE_test": test_metrics.get("MAE", None),
+                    "R² train": train_metrics.get("R2", None),
+                    "RMSE train": train_metrics.get("RMSE", None),
+                    "MAE train": train_metrics.get("MAE", None),
+                    "Début période test": test_dates.min(),
+                    "Fin période test": test_dates.max(),
+                    "Nb prédictions test": test_dates.count(),
+                    "R² test": test_metrics.get("R2", None),
+                    "RMSE test": test_metrics.get("RMSE", None),
+                    "MAE test": test_metrics.get("MAE", None),
                 }
                 metrics_table.append(combined_row)
                 display_metrics_table(metrics_table, st_module=st, show_mean=False)
@@ -321,7 +328,7 @@ def display_metrics_table(metrics_table, st_module=None, show_mean=True):
         df_metrics.style
         .format(precision=3)
         .background_gradient(
-            subset=["R2_train", "R2_test"],
+            subset=["R² train", "R² test"],
             cmap="RdYlGn",  # green = good, red = bad
             vmin=0.0,
             vmax=1.0,
@@ -341,7 +348,7 @@ def display_metrics_table(metrics_table, st_module=None, show_mean=True):
             mean_row.style
             .format(precision=4)
             .background_gradient(
-                subset=["R2_train", "R2_test"],
+                subset=["R² train", "R² test"],
                 cmap="RdYlGn", vmin=0.0, vmax=1.0,
             )
         )
@@ -360,9 +367,9 @@ def display_train_parameters(train_config, st_module=None):
             st.markdown(f"""
             - **Modèle utilisé** : `{train_config['model']}`
             - **Mise à l'échelle utilisé** : `{train_config['scaler']}`
-            - **Nb d'Auto-régression** : `{train_config['ar_nb']}`
-            - **Nb de Moyenne mobile** : `{train_config['mm_nb']}`
-            - **Taille de la fenêtre (heures)** : `{train_config['mm_season']}`
+            - **Nb d'Auto-régressives** : `{train_config['ar_nb']}`
+            - **Nb de Moyennes mobiles** : `{train_config['mm_nb']}`
+            - **Taille fenêtre mobile (heures)** : `{train_config['mm_season']}`
             - **Prédiction dynamique des AR/MM** : `{train_config['use_forecast']}`
             - **Portion du dataset d'origine** : `{portion}%`
             (entre `{train_config['range'][0]}%` et
@@ -428,29 +435,6 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
         st.info("(*) Entrainement **_couteux_** avec"
                 " recherche **Bayesienne** d'hyperparamètres")
 
-    # --- Sélection des paramètres d'auto regression/moyenne mobile ---
-    with st.expander("Spécifiques aux **Séries temporelles**", expanded=True):
-        ar_nb = st.slider(
-            "Nombre d'**A**uto-**R**égression (**AR**)", 0, 7, 0, 1,
-            key="ar_nb_sld"
-        )
-        mm_nb = st.slider(
-            "Nombre de **M**oyennes **M**obiles (**MM**)", 0, 7, 0, 1,
-            key="ar_mm_nb"
-        )
-        mm_season = st.number_input(
-            "Taille de la fenêtre mobile (1 lag = 1 heure)",
-            min_value=2, max_value=24*7,
-            value=24, key="mm_season_inp"
-        )
-        use_forecast = st.checkbox(
-            "Prédiction dynamique des AR/MM (**)",
-            value=False,
-            key="use_forecast_cb"
-        )
-        st.info("(**) Prédiction récursive **_couteuse_** avec ré-infusion des AR/MM "
-                "recalculées sur la base des valeurs prédites de la **variable cible**")
-
     with st.expander("Relatifs au **Preprocessing**", expanded=True):
         # --- Sélection du scaler ---
         scaler = st.radio(
@@ -491,6 +475,29 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
                 key="edited_df_de"
             )
             drop_cols = edited_df.loc[edited_df["Exclue"], "Variable"].tolist()
+
+    # --- Sélection des paramètres d'auto regression/moyenne mobile ---
+    with st.expander("Relatifs aux **Séries temporelles**", expanded=True):
+        ar_nb = st.slider(
+            "Nombre de variables **A**uto-**R**égressives (**AR**)", 0, 7, 0, 1,
+            key="ar_nb_sld"
+        )
+        mm_nb = st.slider(
+            "Nombre de variables **M**oyennes **M**obiles (**MM**)", 0, 7, 0, 1,
+            key="ar_mm_nb"
+        )
+        mm_season = st.number_input(
+            "Taille de fenêtre pour moyennes mobiles (1 lag = 1 heure)",
+            min_value=2, max_value=24*7,
+            value=24, key="mm_season_inp"
+        )
+        use_forecast = st.checkbox(
+            "Prédiction dynamique des AR/MM (*)",
+            value=False,
+            key="use_forecast_cb"
+        )
+        st.info("(*) Prédiction récursive **_couteuse_** avec ré-infusion des AR/MM "
+                "recalculées sur la base des valeurs prédites de la **variable cible**")
 
     # --- Option des rapports ---
     with st.expander("📊 Option des rapports"):
@@ -571,12 +578,12 @@ def manage_training(train_config, df) -> Tuple[Dict, List]:
             combined_row = {
                 "compteur": SITE_LABELS[compteur_id],
                 "description": compteur_id,
-                "R2_train": train_metrics.get("R2", None),
-                "RMSE_train": train_metrics.get("RMSE", None),
-                "MAE_train": train_metrics.get("MAE", None),
-                "R2_test": test_metrics.get("R2", None),
-                "RMSE_test": test_metrics.get("RMSE", None),
-                "MAE_test": test_metrics.get("MAE", None),
+                "R² train": train_metrics.get("R2", None),
+                "RMSE train": train_metrics.get("RMSE", None),
+                "MAE train": train_metrics.get("MAE", None),
+                "R² test": test_metrics.get("R2", None),
+                "RMSE test": test_metrics.get("RMSE", None),
+                "MAE test": test_metrics.get("MAE", None),
             }
             metrics_table.append(combined_row)
 

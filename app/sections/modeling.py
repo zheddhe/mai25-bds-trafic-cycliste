@@ -1,6 +1,6 @@
 import streamlit as st
 from app.utils.model_logic import (
-    run_evaluation_per_compteur,
+    display_report_per_counter,
     display_metrics_table,
     manage_dataset_modeling,
     manage_sidebar_modeling_parameters,
@@ -24,15 +24,15 @@ with st.sidebar:
 
 display_train_parameters(train_config, st)
 
-
+# --- Entrainement des compteurs sélectionnés
 with st.spinner("⏳ Entraînement des modèles en cours..."):
-    # --- Entrainement des compteurs sélectionnés
     results, metrics_table = manage_training(train_config, df)
 
-    # --- Synthèse globale des performances ---
-    st.markdown("## 🧾 Synthèse des métriques de modélisation")
-    display_metrics_table(metrics_table, st_module=st)
+# --- Synthèse globale des performances ---
+st.markdown("## 🧾 Synthèse des métriques de modélisation")
+display_metrics_table(metrics_table, st_module=st)
 
-    # --- Rapports par compteur ---
-    st.markdown("## 🎯 Rapports par compteur")
-    run_evaluation_per_compteur(results, train_config, st_module=st)
+# --- Rapports par compteur ---
+st.markdown("## 🎯 Rapports par compteur")
+with st.spinner("⏳ Construction des rapports en cours..."):
+    display_report_per_counter(results, train_config, st_module=st)

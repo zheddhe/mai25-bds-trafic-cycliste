@@ -8,7 +8,7 @@ from app.utils.model_logic import (
     cached_load_dataset_ml,
     cached_train_model,
     manage_dataset_modeling,
-    run_evaluation_per_compteur,
+    display_report_per_counter,
     display_metrics_table,
     manage_training,
 )
@@ -83,7 +83,7 @@ def test_manage_dataset_reload_triggers_clear_and_rerun(monkeypatch):
 @patch("app.utils.model_logic.plot_predictions")
 @patch("app.utils.model_logic.compute_residuals_plot")
 @patch("app.utils.model_logic.interpret_model")
-def test_run_evaluation_resid_and_interp(
+def test_display_report_resid_and_interp(
     mock_interp, mock_resid, mock_plot
 ):
     # --- Données factices cohérentes ---
@@ -120,7 +120,7 @@ def test_run_evaluation_resid_and_interp(
     st_mock.expander.return_value.__enter__.return_value = True
 
     # --- Exécution ---
-    run_evaluation_per_compteur(
+    display_report_per_counter(
         results=results,
         train_config=train_config,
         st_module=st_mock,
@@ -140,7 +140,7 @@ def test_run_evaluation_resid_and_interp(
 @patch("app.utils.model_logic.plot_predictions")
 @patch("app.utils.model_logic.compute_metrics")
 @patch("app.utils.model_logic.display_metrics_table")
-def test_run_evaluation_metrics_and_preds(
+def test_display_report_metrics_and_preds(
     mock_display_metrics,
     mock_compute_metrics,
     mock_plot_predictions
@@ -155,13 +155,16 @@ def test_run_evaluation_metrics_and_preds(
     }
     compteur_id = ('102 boulevard de Magenta', 'SE-NO')
     fake_dates = pd.date_range("2025-04-01", periods=2, freq="h")
+    df_fake_dates = pd.DataFrame({
+        "date_et_heure_de_comptage_local": [fake_dates]
+    })
     results = {
         compteur_id: {
             "y_train": [10, 15],
             "y_train_pred": [11, 14],
             "y_test": [12, 13],
             "y_test_pred": [13, 12],
-            "X_test_dates": fake_dates,
+            "X_test_dates": df_fake_dates,
         }
     }
 
@@ -178,7 +181,7 @@ def test_run_evaluation_metrics_and_preds(
     ]
 
     # --- Run function ---
-    run_evaluation_per_compteur(
+    display_report_per_counter(
         results=results,
         train_config=train_config,
         st_module=st_mock,
@@ -201,20 +204,20 @@ def test_display_metrics_table_basic():
     # --- Données de test ---
     metrics_table = [
         {
-            "R2_train": 0.91,
-            "RMSE_train": 12.5,
-            "MAE_train": 9.3,
-            "R2_test": 0.87,
-            "RMSE_test": 15.0,
-            "MAE_test": 11.0,
+            "R² train": 0.91,
+            "RMSE train": 12.5,
+            "MAE train": 9.3,
+            "R² test": 0.87,
+            "RMSE test": 15.0,
+            "MAE test": 11.0,
         },
         {
-            "R2_train": 0.85,
-            "RMSE_train": 14.0,
-            "MAE_train": 10.2,
-            "R2_test": 0.80,
-            "RMSE_test": 18.2,
-            "MAE_test": 12.5,
+            "R² train": 0.85,
+            "RMSE train": 14.0,
+            "MAE train": 10.2,
+            "R² test": 0.80,
+            "RMSE test": 18.2,
+            "MAE test": 12.5,
         },
     ]
 
@@ -230,8 +233,8 @@ def test_display_metrics_table_basic():
     # --- Vérification contenu table moyenne ---
     mean_df = pd.DataFrame(metrics_table).select_dtypes(include=np.number).mean()
     expected_row_count = len(metrics_table)
-    assert np.isclose(mean_df["R2_train"], 0.88)
-    assert np.isclose(mean_df["R2_test"], 0.835)
+    assert np.isclose(mean_df["R² train"], 0.88)
+    assert np.isclose(mean_df["R² test"], 0.835)
     assert expected_row_count == 2
 
 
@@ -287,5 +290,5 @@ def test_manage_training_single_site(
     assert compteur_id in results
     assert isinstance(metrics_table, list)
     assert len(metrics_table) == 1
-    assert metrics_table[0]["R2_train"] == 0.95
-    assert metrics_table[0]["R2_test"] == 0.90
+    assert metrics_table[0]["R² train"] == 0.95
+    assert metrics_table[0]["R² test"] == 0.90
