@@ -63,7 +63,8 @@ def test_cached_train_model(mock_trainer, monkeypatch):
         "drop_columns": [],
         "temp_feats": [1, 1, 1],
         "test_ratio": 0.2,
-        "forecast": False
+        "forecast": False,
+        "use_gridsearch": False,
     }
     results = cached_train_model(**mock_train_inputs)
 
@@ -129,7 +130,9 @@ def test_display_report_resid_and_interp(
     mock_resid.assert_called_once()
     mock_interp.assert_called_once()
     assert st_mock.pyplot.call_count == 3  # fig2 (resid), fig3 (resid), fig4 (interp)
-    assert st_mock.info.call_args[0][0].startswith("Dérive des résidus")
+    assert st_mock.info.call_args[0][0].startswith(
+        "**Pente** de la **dérive** des résidus"
+    )
 
     for fig in [fig1, fig2, fig3, fig4]:
         plt.close(fig)
@@ -157,6 +160,7 @@ def test_display_report_metrics_and_preds(
     })
     results = {
         compteur_id: {
+            "best_params": None,
             "y_train": [10, 15],
             "y_train_pred": [11, 14],
             "y_test": [12, 13],
@@ -260,6 +264,7 @@ def test_manage_training_single_site(
         "selected_sites": [compteur_id],
         "range": (10, 90),
         "model": "linear",
+        "use_gridsearch": False,
         "scaler": "standard",
         "drop_cols": [],
         "ar_nb": 3,
@@ -314,6 +319,7 @@ def test_manage_dataset_triggers_error_and_empty_df(monkeypatch):
 def base_train_config():
     return {
         "model": "XGBoost",
+        "use_gridsearch": False,
         "scaler": "StandardScaler",
         "ar_nb": 3,
         "mm_nb": 2,

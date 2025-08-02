@@ -178,8 +178,9 @@ AVAILABLE_MODELS = [
     "KNN",
     "RandomForest",
     "XGBoost",
-    "ElasticNet (*)",
+    "ElasticNet",
 ]
+ITER_GRID_SEARCH = 25
 
 
 @st.cache_data(show_spinner=True)
@@ -230,7 +231,8 @@ def cached_train_model(df_compteur,
                        drop_columns,
                        temp_feats,
                        test_ratio,
-                       forecast):
+                       forecast,
+                       use_gridsearch):
     if os.environ.get("IS_TESTING") == "1":
         return {
             "y_test": [1, 2],
@@ -246,6 +248,7 @@ def cached_train_model(df_compteur,
         temp_feats=temp_feats,
         test_ratio=test_ratio,
         forecast=forecast,
+        iter_grid_search=ITER_GRID_SEARCH if use_gridsearch else 0,
     )
 
 
@@ -288,7 +291,11 @@ def display_report_per_counter(results, train_config, st_module=None):
                     "MAE": test_metrics.get("MAE", None),
                 }
                 counter_metrics_table.append(combined_test)
-                display_counter_metrics_table(counter_metrics_table, st_module=st)
+                display_counter_metrics_table(
+                    counter_metrics_table,
+                    best_params=res["best_params"],
+                    st_module=st
+                )
 
             if train_config["show_preds"]:
                 st.markdown("### 🔮 Prédictions")
@@ -313,7 +320,7 @@ def display_report_per_counter(results, train_config, st_module=None):
                 )
                 st.pyplot(fig1)
                 plt.close(fig1)
-                st.info(f"Dérive des résidus : pente = {slope:.4f}")
+                st.info(f"**Pente** de la **dérive** des résidus: [{slope:.4f}]")
                 st.pyplot(fig2)
                 plt.close(fig2)
 
@@ -326,14 +333,17 @@ def display_report_per_counter(results, train_config, st_module=None):
                         plt.close(fig)
 
 
-def display_counter_metrics_table(counter_metrics_table, st_module=None):
+def display_counter_metrics_table(
+    counter_metrics_table,
+    best_params=None,
+    st_module=None
+):
     st = st_module or __import__("streamlit")
 
     if not counter_metrics_table:
         return
 
     df_metrics = pd.DataFrame(counter_metrics_table)
-
     styled_df = (
         df_metrics.style
         .format(precision=3)
@@ -344,8 +354,12 @@ def display_counter_metrics_table(counter_metrics_table, st_module=None):
             vmax=1.0,
         )
     )
-
     st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+    if best_params:
+        df_params = pd.DataFrame([best_params])
+        st.info("**Meilleurs paramètres** trouvés lors de la recherche par grille"
+                f" **Bayesienne**:\n{df_params.to_markdown(index=False)}")
 
 
 def display_global_metrics_table(metrics_table, st_module=None, show_mean=True):
@@ -355,7 +369,6 @@ def display_global_metrics_table(metrics_table, st_module=None, show_mean=True):
         return
 
     df_metrics = pd.DataFrame(metrics_table)
-
     styled_df = (
         df_metrics.style
         .format(precision=3)
@@ -366,7 +379,6 @@ def display_global_metrics_table(metrics_table, st_module=None, show_mean=True):
             vmax=1.0,
         )
     )
-
     st.dataframe(styled_df, use_container_width=True, hide_index=True)
 
     if show_mean:
@@ -398,11 +410,14 @@ def display_train_parameters(train_config, st_module=None):
         with col1:
             st.markdown(f"""
             - **Modèle utilisé** : `{train_config['model']}`
+            - **Recherche Bayesienne des hyperparamètres** :
+            `{train_config['use_gridsearch']}`
             - **Mise à l'échelle utilisé** : `{train_config['scaler']}`
             - **Nb d'Auto-régressives** : `{train_config['ar_nb']}`
             - **Nb de Moyennes mobiles** : `{train_config['mm_nb']}`
             - **Taille fenêtre mobile (heures)** : `{train_config['mm_season']}`
-            - **Prédiction dynamique des AR/MM** : `{train_config['use_forecast']}`
+            - **Calcul avec valeurs prédites des AR/MM** :
+            `{train_config['use_forecast']}`
             - **Portion du dataset d'origine** : `{portion}%`
             (entre `{train_config['range'][0]}%` et
             `{train_config['range'][1]}%`)
@@ -419,7 +434,7 @@ def display_train_parameters(train_config, st_module=None):
             """)
         with col2:
             df_cols_exclues = pd.DataFrame({
-                "Variables": AVAILABLE_COLUMNS,
+                "Variables Explicatives": AVAILABLE_COLUMNS,
                 "Exclue": [
                     col in train_config["drop_cols"]
                     for col in AVAILABLE_COLUMNS
@@ -464,8 +479,12 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
     # --- Sélection des modèles ---
     with st.expander("Relatifs à la **Modélisation**", expanded=True):
         model = st.radio("Type de modèle", AVAILABLE_MODELS, key="model_rad")
-        st.info("(*) Entrainement **_couteux_** avec"
-                " recherche **Bayesienne** d'hyperparamètres")
+        use_gridsearch = st.checkbox(
+            "Recherche Bayesienne des hyperparamètres (*)",
+            value=False,
+            key="use_gridsearch_cb"
+        )
+        st.info("(*) La recherche est potentiellement très **longue**")
 
     with st.expander("Relatifs au **Preprocessing**", expanded=True):
         # --- Sélection du scaler ---
@@ -524,12 +543,11 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
             value=24, key="mm_season_inp"
         )
         use_forecast = st.checkbox(
-            "Prédiction dynamique des AR/MM (*)",
+            "Recalcul récursif des AR/MM en prédiction (*)",
             value=False,
             key="use_forecast_cb"
         )
-        st.info("(*) Prédiction récursive **_couteuse_** avec ré-infusion des AR/MM "
-                "recalculées sur la base des valeurs prédites de la **variable cible**")
+        st.info("(*) Ce mode de calcul peut être très **long**")
 
     # --- Option des rapports ---
     with st.expander("📊 Option des rapports"):
@@ -558,6 +576,7 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
 
     train_config = {
         "model": model,
+        "use_gridsearch": use_gridsearch,
         "scaler": scaler,
         "ar_nb": ar_nb,
         "mm_nb": mm_nb,
@@ -600,6 +619,7 @@ def manage_training(train_config, df) -> Tuple[Dict, List]:
                 ],
                 test_ratio=1 - train_config["split"],
                 forecast=train_config["use_forecast"],
+                use_gridsearch=train_config["use_gridsearch"],
             )
             logger.info(f"Training and prediction done for counter [{compteur_id}]")
             results[compteur_id] = res

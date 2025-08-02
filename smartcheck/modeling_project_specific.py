@@ -11,6 +11,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import TimeSeriesSplit
 from skopt import BayesSearchCV
+from skopt.space import Integer, Categorical, Real
 from xgboost import XGBRegressor
 from sklearn.base import BaseEstimator, RegressorMixin
 from statsmodels.tsa.statespace.sarimax import SARIMAX, SARIMAXResults
@@ -31,13 +32,50 @@ from smartcheck.preprocessing_project_specific import (
     AutoregressiveFeaturesTransformer,
 )
 
-SEARCH_SPACE_ELASTICNET = {
-    'alpha': (1e-3, 100.0, 'log-uniform'),
-    'l1_ratio': (0.1, 1.0)
+SEARCH_SPACES_LINEAR = {
+    'fit_intercept': Categorical([True, False]),
+    'positive': Categorical([False, True]),  # True = contraintes ≥ 0
+}
+SEARCH_SPACES_ELASTICNET = {
+    'alpha': Real(1e-3, 100.0, prior='log-uniform'),
+    'l1_ratio': Real(0.1, 1.0)
+}
+SEARCH_SPACES_KNN = {
+    'n_neighbors': Integer(1, 50),  # Taille du voisinage
+    'weights': Categorical(['uniform', 'distance']),
+    'p': Integer(1, 2),  # Distance : 1 = Manhattan, 2 = Euclidean
+}
+SEARCH_SPACES_XGB = {
+    'n_estimators': Integer(100, 1000),
+    'max_depth': Integer(3, 15),
+    'learning_rate': Real(1e-3, 0.3, prior='log-uniform'),
+    'subsample': Real(0.5, 1.0),
+    'colsample_bytree': Real(0.5, 1.0),
+    'gamma': Real(0, 10.0),
+    'reg_alpha': Real(1e-4, 10.0, prior='log-uniform'),  # L1
+    'reg_lambda': Real(1e-4, 10.0, prior='log-uniform'),  # L2
+    'min_child_weight': Integer(1, 20),
+}
+SEARCH_SPACES_RANDOM_FOREST = {
+    'n_estimators': Integer(100, 1000),
+    'max_depth': Integer(3, 30),
+    'min_samples_split': Integer(2, 20),
+    'min_samples_leaf': Integer(1, 20),
+    'max_features': Categorical(['auto', 'sqrt', 'log2']),
 }
 
-
 logger = logging.getLogger(__name__)
+
+
+def auto_adjust_n_iter(search_space: dict, requested_iter: int) -> int:
+    total = 1
+    for dim in search_space.values():
+        if isinstance(dim, Categorical):
+            total *= len(dim.categories)
+        else:
+            # pour Real / Integer : espace infini
+            return requested_iter  # on ne limite pas
+    return min(requested_iter, total)
 
 
 def compute_metrics(y_true: pd.Series, y_pred: pd.Series) -> Dict[str, float]:
@@ -143,7 +181,7 @@ def interpret_model(
 ) -> Optional[List[Figure]]:
     """
     Generates a feature importance bar chart for interpretable models,
-    including LinearRegression, ElasticNet, Ridge, Lasso, and XGBoost
+    including LinearRegression, ElasticNet, RandomForest and XGBoost
     (including when wrapped in BayesSearchCV).
 
     Returns a list with a single matplotlib Figure showing sorted feature
@@ -224,6 +262,7 @@ def train_timeseries_model(
     temp_feats: list[int] = [0, 0, 1],
     test_ratio: float = 0.2,
     forecast: bool = True,
+    iter_grid_search: int = 0,
 ) -> dict:
     """
     Full training logic on a single compteur, with optional AR features and split.
@@ -274,7 +313,7 @@ def train_timeseries_model(
         X_train, X_train_dates, y_train = ar_transformer.fit_transform(
             X_train, X_train_dates, y_train
         )
-        logger.info(f"AR({temp_feats[0]}) et MM({temp_feats[1]})"
+        logger.info(f"AR({temp_feats[0]}) et MM({temp_feats[1]}[{temp_feats[2]}h])"
                     " features are applied on train data")
 
     numeric_cols = X_train.select_dtypes(include="number").columns.tolist()
@@ -298,60 +337,57 @@ def train_timeseries_model(
 
     if model_type == "KNN":
         model = KNeighborsRegressor(n_jobs=-1)
+        search_spaces = SEARCH_SPACES_KNN
     elif model_type == "RandomForest":
         model = RandomForestRegressor(n_jobs=-1, random_state=1)
+        search_spaces = SEARCH_SPACES_RANDOM_FOREST
     elif model_type == "XGBoost":
-        model = XGBRegressor(
-            n_estimators=100,
-            max_depth=3,
-            learning_rate=0.1,
-            objective='reg:squarederror'
-        )
-    elif model_type == "Lasso":
-        model = Lasso(max_iter=10000, random_state=1)
-    elif model_type == "Ridge":
-        model = Ridge(max_iter=10000, random_state=1)
-    elif model_type == "ElasticNet (*)":
+        model = XGBRegressor(random_state=1)
+        search_spaces = SEARCH_SPACES_XGB
+    elif model_type == "ElasticNet":
+        search_spaces = SEARCH_SPACES_ELASTICNET
+        model = ElasticNet(max_iter=10000, tol=1e-4, random_state=1)
+    else:
+        search_spaces = SEARCH_SPACES_LINEAR
+        model = LinearRegression(n_jobs=-1)
+    if iter_grid_search > 0:
         tscv = TimeSeriesSplit(n_splits=5)
-        model = BayesSearchCV(
-            estimator=ElasticNet(max_iter=20000),
-            search_spaces=SEARCH_SPACE_ELASTICNET,
+        final_model = BayesSearchCV(
+            estimator=model,
+            search_spaces=search_spaces,
             cv=tscv,
-            n_iter=25,
+            n_iter=auto_adjust_n_iter(search_spaces, iter_grid_search),
             scoring='neg_mean_squared_error',
             n_jobs=-1,
-            # verbose=2,
             random_state=1
         )
     else:
-        model = LinearRegression()
+        final_model = model
 
     pipe_model = Pipeline([
         ("prep", preprocessing),
-        ("reg", model)
+        ("reg", final_model)
     ])
     logger.debug(f"Pipeline Model specs used: {pipe_model}")
 
     pipe_model.fit(X_train, y_train)
-    logger.debug("Training achieved")
+    logger.debug("Model training achieved")
 
-    if model_type == "ElasticNet (*)":
+    best_params = None
+    if iter_grid_search > 0:
         fitted_model = pipe_model.named_steps['reg']
-        best_model = fitted_model.best_estimator_
-        logger.info(f"Bayesian grid search results [Best alpha={best_model.alpha}]"
-                    f" | [Best l1_ratio={best_model.l1_ratio}]")
-        if best_model.alpha < 0.01 or best_model.l1_ratio < 0.2:
-            logger.warning(
-                "Low regularization detected: the model may overfit or fail to "
-                "converge properly.")
+        best_params = fitted_model.best_params_
+        logger.info(f"Bayesian grid search best params [{best_params}]")
     y_train_pred = pipe_model.predict(X_train)
-    logger.debug("Prediction achieved")
+    logger.debug("Predictions on Train data achieved")
 
     if ar_transformer:
         if not forecast:
             X_test, X_test_dates, y_test = ar_transformer.transform_with_known_y(
                 X_test, X_test_dates, y_test
             )
+            logger.info(f"AR({temp_feats[0]}) et MM({temp_feats[1]}[{temp_feats[2]}h])"
+                        " features are applied on test data")
             y_test_pred = pipe_model.predict(X_test)
         else:
             # Assemble full prediction base:
@@ -372,6 +408,7 @@ def train_timeseries_model(
             last_window_df = X_full.copy()
             last_window_df[target_col] = y_full
             last_window_df[timestamp_col] = dates_full
+            logger.info(f"recursive predict on an horizon of {len(y_test)} hour(s)")
             y_test_pred = recursive_forecast_model(
                 pipe_model,
                 ar_transformer,
@@ -381,12 +418,14 @@ def train_timeseries_model(
             )
     else:
         y_test_pred = pipe_model.predict(X_test)
+    logger.debug("Predictions on Test data achieved")
 
     return {
         "timestamp_col": timestamp_col,
         "target_col": target_col,
         "ar_transformer": ar_transformer,
         "pipe": pipe_model,
+        "best_params": best_params,
         "X_train": X_train,
         "X_train_dates": X_train_dates,
         "X_test": X_test,

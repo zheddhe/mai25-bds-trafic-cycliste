@@ -4,7 +4,7 @@ import pandas as pd
 import warnings
 from unittest.mock import patch, MagicMock
 from statsmodels.tools.sm_exceptions import ConvergenceWarning
-from sklearn.linear_model import LinearRegression, Lasso, Ridge
+from sklearn.linear_model import LinearRegression, ElasticNet
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
@@ -265,9 +265,8 @@ class TestTrainTimeseriesModel:
         "KNN",
         "RandomForest",
         "XGBoost",
-        "Lasso",
-        "Ridge",
-        "LinearRegression"
+        "LinearRegression",
+        "ElasticNet",
     ])
     def base_model_type(self, request):
         return request.param
@@ -369,25 +368,23 @@ class TestTrainTimeseriesModel:
             KNeighborsRegressor,
             RandomForestRegressor,
             XGBRegressor,
-            Lasso,
-            Ridge,
-            LinearRegression
+            LinearRegression,
+            ElasticNet,
         ))
 
     @patch("smartcheck.modeling_project_specific.Pipeline.fit")
     @patch("smartcheck.modeling_project_specific.Pipeline.predict")
-    def test_elasticnet_search_logs_warning(
+    def test_bayesian_search(
         self, mock_predict, mock_fit, simple_df, caplog
     ):
         mock_fit.return_value = None
         mock_predict.return_value = np.zeros(len(simple_df) // 5)
 
         mock_best_estimator = MagicMock()
-        mock_best_estimator.alpha = 0.005
-        mock_best_estimator.l1_ratio = 0.1
 
         mock_bayes_search = MagicMock()
         mock_bayes_search.best_estimator_ = mock_best_estimator
+        mock_bayes_search.best_params_ = mock_best_estimator
 
         with patch(
             "smartcheck.modeling_project_specific.BayesSearchCV",
@@ -395,13 +392,12 @@ class TestTrainTimeseriesModel:
         ):
             result = train_timeseries_model(
                 df_compteur=simple_df,
-                model_type="ElasticNet (*)",
-                temp_feats=[0, 0, 1]
+                model_type="ElasticNet",
+                temp_feats=[0, 0, 1],
+                iter_grid_search=10,
             )
 
-        assert "Best alpha" in caplog.text
-        assert "Best l1_ratio" in caplog.text
-        assert "Low regularization detected" in caplog.text
+        assert "Bayesian grid search best params" in caplog.text
         assert isinstance(
             result["pipe"].named_steps["reg"], MagicMock
         )
