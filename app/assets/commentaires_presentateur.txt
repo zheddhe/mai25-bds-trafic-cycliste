@@ -86,7 +86,8 @@ C.1. *** ELIAS *** (Details Objectifs et Régression temporelle supervisée)
         (périodes quotidiennes ou hebdomadaires). 
         Présentation des différentes métriques = R2, RMSE , 
         La chrononologie de l'étude des modèles indique que nous sommes parti du plus simple 
-        Le projet a exploré un éventail de modèles de régression, allant des modèles linéaires (Linéaire, ElasticNet, KNN) 
+        Le projet a exploré un éventail de modèles de régression, allant des modèles linéaires (Linéaire, ElasticNet) , 
+        avec un modèle basé sur les distances (KNN) 
         aux ensembles (RandomForest, XGBoost), en passant par les modèles de séries temporelles (SARIMAX) et le Deep Learning.
 
 
@@ -153,7 +154,7 @@ D. *** ELIAS *** (Conclusion)
         leur visualisation, la modélisation en apprentissage automatique, et une exploration du deep learning. 
         Pour les prochaines étapes, il est envisagé d'approfondir l'exploitation des réseaux de neurones en utilisant 
         8 ans d'archives disponibles sur OpenData Paris et en multipliant les sources d'entraînement via le transfer learning. 
-        Une autre direction est l'exploitation de la prédiction multi-canal de l'architecture Granite TTM, 
-        ce qui nécessitera une adaptation de la structure des données pour mieux capter les influences géographiques mutuelles.
+        Une autre direction est l'exploitation de la prédiction multi-canal de l'architecture Granite TTM,
+        pour capter les influences géographiques mutuelles.
         Caler la partie interactive en conclusion finale (pour potentiellement aiguiller les questions)
         
