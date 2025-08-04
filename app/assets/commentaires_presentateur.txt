@@ -9,7 +9,8 @@ A -> *** REMY *** (Introduction)
         remercions Raphaël qui a participé au tout début avant d'être contraint d'arrêter la formation
 
         Donc ce projet vise à modéliser l'évolution du trafic cycliste horaire de la ville de Paris qui est équipée de compteurs 
-        permanents, le but : identifier les facteurs qui influencent son évolution et permettre à la ville d'adapter les aménagements cyclistes
+        permanents, le but : identifier les facteurs qui influencent son évolution et permettre à la ville d'adapter les 
+        aménagements cyclistes en conséquence.
 
         Nous avons mis en place une démarche de modélisation exploratoire et assemblé via cette application streamlit
         un laboratoire d'expérimentation.
@@ -42,7 +43,7 @@ B.3.a *** REMY(bis) *** (Analyse statistique du comptage horaire)
 
         [...]
 
-TR >>>> Après cette vue statistique, Elias va continuer sur la visualisation de la répartition
+TR >>>> Après cette vue statistique, Elias va aborder la visualisation de la répartition
 
 
 B.3.b *** ELIAS *** (Data Visualisation du comptage horaire)
