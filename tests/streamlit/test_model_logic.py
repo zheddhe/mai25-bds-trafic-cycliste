@@ -160,7 +160,7 @@ def test_display_report_metrics_and_preds(
     })
     results = {
         compteur_id: {
-            "best_params": None,
+            "params": None,
             "y_train": [10, 15],
             "y_train_pred": [11, 14],
             "y_test": [12, 13],

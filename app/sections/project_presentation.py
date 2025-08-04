@@ -711,14 +711,14 @@ with st.expander("🧪 C - Modélisation (10 à 11 min)", expanded=False):
             - **Très faible en généralisation** notamment sur les évolutions atypiques
               ##### **R² train = 0.907 | R² test = 0.645**
               ➡️ obtenus avec notre meilleure combinaison de saison et d'ordre
-              **calculable**
+              raisonnablement **calculable**
             - **Extrêmement couteux** en temps de calcul en entraînement
               - **impossible** de mettre en oeuvre les ordres élevés détectés suite à
               l'analyse ACF (corrélation complète) et PACF (corrélation partielle)
               - **impossible** également d'explorer des saisons **plus longues**
               (ou comme on le suppose également des **saisonnalités multiples**)
-              - **impossible** de traiter les données complètes d'un compteur
-              (**complexité en O(n²)**)
+              - **difficile** de traiter les données complètes d'un compteur
+              à degré élevé (car **complexité en O(n.k²)**)
         """)
 
         img = Path("app/assets/C/sarx/sarimax_seasonal_decompose.png")
