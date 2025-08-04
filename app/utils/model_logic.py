@@ -268,12 +268,12 @@ def build_param_table(
     df = pd.DataFrame.from_dict(
         {
             "minimum": min_params,
-            "meilleur": best_params,
+            "MEILLEUR": best_params,
             "maximum": max_params
         },
         orient="index"
     )
-    df.index.name = "paramètre"
+    df.index.name = "Paramètre"
     return df
 
 
@@ -387,7 +387,7 @@ def display_counter_metrics_table(
             params["min_params"],
             params["max_params"]
         )
-        st.info("Résultat de la recherche des **Meilleurs paramètres**")
+        st.info("Résultat de la recherche Bayesienne des **Meilleurs paramètres**")
         st.dataframe(df_params, use_container_width=True, hide_index=False)
 
 
