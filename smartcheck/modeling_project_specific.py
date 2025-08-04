@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Optional, Tuple, cast, Union
+from typing import Dict, List, Optional, Tuple, cast, Union, Any
 from datetime import timedelta
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -65,6 +65,38 @@ SEARCH_SPACES_RANDOM_FOREST = {
 }
 
 logger = logging.getLogger(__name__)
+
+
+def extract_param_ranges(search_space) -> Dict[str, Dict[str, Any]]:
+    """
+    Extract min and max values from a BayesSearchCV search space.
+
+    Args:
+        search_space: skopt Space or dict (e.g., from BayesSearchCV.search_spaces_)
+
+    Returns:
+        Dict[str, Dict[str, Any]] with keys 'min_params' and 'max_params'
+    """
+    min_params = {}
+    max_params = {}
+
+    for param_name, dim in search_space.items():
+        if isinstance(dim, Real):
+            min_params[param_name] = dim.low
+            max_params[param_name] = dim.high
+        elif isinstance(dim, Integer):
+            min_params[param_name] = dim.low
+            max_params[param_name] = dim.high
+        elif isinstance(dim, Categorical):
+            min_params[param_name] = dim.categories[0]
+            max_params[param_name] = dim.categories[-1]
+        else:
+            raise ValueError(f"Unsupported dimension type: {type(dim)}")
+
+    return {
+        "min_params": min_params,
+        "max_params": max_params,
+    }
 
 
 def auto_adjust_n_iter(search_space: dict, requested_iter: int) -> int:
@@ -203,7 +235,9 @@ def interpret_model(
     if hasattr(prep, "get_feature_names_out"):
         features = prep.get_feature_names_out()
     else:
+        logger.warning("prep has no get_feature_names_out(), using fallback names.")
         features = [f"feat_{i}" for i in range(model.n_features_in_)]
+    logger.debug(features)
 
     # === Linear models: plot coefficients ===
     if isinstance(model, (LinearRegression, ElasticNet, Ridge, Lasso)):
@@ -373,11 +407,15 @@ def train_timeseries_model(
     pipe_model.fit(X_train, y_train)
     logger.debug("Model training achieved")
 
-    best_params = None
+    params = None
     if iter_grid_search > 0:
         fitted_model = pipe_model.named_steps['reg']
         best_params = fitted_model.best_params_
         logger.info(f"Bayesian grid search best params [{best_params}]")
+        params = {
+            "best_params": best_params,
+            **extract_param_ranges(search_spaces)
+        }
     y_train_pred = pipe_model.predict(X_train)
     logger.debug("Predictions on Train data achieved")
 
@@ -425,7 +463,7 @@ def train_timeseries_model(
         "target_col": target_col,
         "ar_transformer": ar_transformer,
         "pipe": pipe_model,
-        "best_params": best_params,
+        "params": params,
         "X_train": X_train,
         "X_train_dates": X_train_dates,
         "X_test": X_test,

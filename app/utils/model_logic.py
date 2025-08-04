@@ -167,9 +167,11 @@ AVAILABLE_COLUMNS_TO_EXCLUDE = [
     "date_et_heure_de_comptage_sin_month",
 ]
 AVAILABLE_COLUMNS = EXCLUDED_COLUMNS_DEFAULT+AVAILABLE_COLUMNS_TO_EXCLUDE
-MANDATORY_COLUMNS = [
+ID_COLUMNS = [
     "nom_du_site_de_comptage",
     "orientation_compteur",
+]
+MANDATORY_COLUMNS = [
     "date_et_heure_de_comptage_local",
     "comptage_horaire",
 ]
@@ -252,6 +254,29 @@ def cached_train_model(df_compteur,
     )
 
 
+def build_param_table(
+    best_params: dict,
+    min_params: dict,
+    max_params: dict
+) -> pd.DataFrame:
+    """
+    Format parameter search results into a comparative table.
+
+    Returns:
+        pd.DataFrame: DataFrame with rows: minimum, best, maximum
+    """
+    df = pd.DataFrame.from_dict(
+        {
+            "minimum": min_params,
+            "meilleur": best_params,
+            "maximum": max_params
+        },
+        orient="index"
+    )
+    df.index.name = "paramètre"
+    return df
+
+
 def display_report_per_counter(results, train_config, st_module=None):
 
     st = st_module or __import__("streamlit")
@@ -293,7 +318,7 @@ def display_report_per_counter(results, train_config, st_module=None):
                 counter_metrics_table.append(combined_test)
                 display_counter_metrics_table(
                     counter_metrics_table,
-                    best_params=res["best_params"],
+                    params=res["params"],
                     st_module=st
                 )
 
@@ -335,7 +360,7 @@ def display_report_per_counter(results, train_config, st_module=None):
 
 def display_counter_metrics_table(
     counter_metrics_table,
-    best_params=None,
+    params=None,
     st_module=None
 ):
     st = st_module or __import__("streamlit")
@@ -356,10 +381,14 @@ def display_counter_metrics_table(
     )
     st.dataframe(styled_df, use_container_width=True, hide_index=True)
 
-    if best_params:
-        df_params = pd.DataFrame([best_params])
-        st.info("**Meilleurs paramètres** trouvés lors de la recherche par grille"
-                f" **Bayesienne**:\n{df_params.to_markdown(index=False)}")
+    if params:
+        df_params = df_params = build_param_table(
+            params["best_params"],
+            params["min_params"],
+            params["max_params"]
+        )
+        st.info("Résultat de la recherche des **Meilleurs paramètres**")
+        st.dataframe(df_params, use_container_width=True, hide_index=False)
 
 
 def display_global_metrics_table(metrics_table, st_module=None, show_mean=True):
@@ -514,7 +543,7 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
                 ]
             })
             st.markdown("🔒 Les colonnes suivantes sont obligatoires:")
-            st.code("\n".join(MANDATORY_COLUMNS), language="markdown")
+            st.code("\n".join(MANDATORY_COLUMNS+ID_COLUMNS), language="markdown")
             edited_df = st.data_editor(
                 df_checkbox,
                 column_config={
@@ -526,6 +555,7 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
                 key="edited_df_de"
             )
             drop_cols = edited_df.loc[edited_df["Exclue"], "Variable"].tolist()
+            drop_cols = drop_cols+ID_COLUMNS
 
     # --- Sélection des paramètres d'auto regression/moyenne mobile ---
     with st.expander("Relatifs aux **Séries temporelles**", expanded=True):
@@ -602,12 +632,13 @@ def manage_training(train_config, df) -> Tuple[Dict, List]:
     metrics_table = []
     for compteur_id, df_compteur in grouped:
         if compteur_id in train_config["selected_sites"]:
+            df_cpt_ranged = apply_percent_range_selection(
+                df_compteur,
+                train_config["range"],
+            )
             logger.info(f"Training and prediction started for counter [{compteur_id}]")
             res = cached_train_model(
-                df_compteur=apply_percent_range_selection(
-                    df_compteur,
-                    train_config["range"],
-                ),
+                df_compteur=df_cpt_ranged,
                 model_type=train_config["model"],
                 scaler_type=train_config["scaler"],
                 target_col="comptage_horaire",
