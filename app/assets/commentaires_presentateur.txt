@@ -87,7 +87,7 @@ C.1. *** ELIAS *** (Details Objectifs et Régression temporelle supervisée)
         Présentation des différentes métriques = R2, RMSE , 
         La chrononologie de l'étude des modèles indique que nous sommes parti du plus simple 
         Le projet a exploré un éventail de modèles de régression, allant des modèles linéaires (Linéaire, ElasticNet) , 
-        avec un modèle basé sur les distances (KNN) 
+        avec un modèle basé sur les distances (KNN),
         aux ensembles (RandomForest, XGBoost), en passant par les modèles de séries temporelles (SARIMAX) et le Deep Learning.
 
 
