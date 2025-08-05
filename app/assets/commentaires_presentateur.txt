@@ -1,8 +1,22 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 A -> *** REMY *** (Introduction)
         Bonjour et bienvenue à tous pour cette présentation du projet trafic cycliste réalisé dans le cadre
-        de notre formation data scientist de mai 2025, elle durera 20 min et nous aborderons vos questions juste après
+        de notre formation data scientist de mai 2025, elle durera 20 min et nous aborderons vos questions à la toute fin
 
-        Après une courte introduction nous prendrons le temps d'explorer et visualiser les données du projet avant d'aborder 
+        Donc après une courte introduction nous prendrons le temps d'explorer et visualiser les données du projet avant d'aborder 
         la modélisation et ses résultats puis nous concluerons sur les ouvertures possibles.
 
         Je vais commencer par introduire notre modeste équipe composée d'Elias et moi même, et nous saluons et
@@ -36,6 +50,7 @@ B.2. *** REMY *** (Détails sur l'Enrichissement)
    >>>> Il est important de noter qu'au cours de notre processus d'analyse et de modélisation
         nous avons naturellement identifié d'autre ajustements que nous verrons au fil de la présentation.
 
+CONTINUE
 B.3.a *** REMY(bis) *** (Analyse statistique du comptage horaire)
         Donc une fois cet enrichissement opéré nous avons plongé dans l'étude statistique
         et la représentation visuelle de nos données, en se focalisant sur le comptage horaire
@@ -43,7 +58,7 @@ B.3.a *** REMY(bis) *** (Analyse statistique du comptage horaire)
 
         [...]
 
-TR >>>> Après cette vue statistique, Elias va aborder la visualisation de la répartition
+TR >>>> Après cette vue statistique, Elias va aborder quelques visualisations sur la répartition de notre comptage horaire
 
 
 B.3.b *** ELIAS *** (Data Visualisation du comptage horaire)
@@ -55,7 +70,7 @@ B.3.b *** ELIAS *** (Data Visualisation du comptage horaire)
         soulignant leur rôle de corridors majeurs, avec une présence notable de compteurs bidirectionnels 
         et une certaine diversité géographique des points de trafic intense.   
 
-
+CONTINUE
 B.3.c *** ELIAS(bis) *** (Data Visualisation Comptage Vs météo et Vacances scolaires)
         Ces deux visualisations montrent que le trafic significativement plus élevé et 
         variable hors périodes de vacances scolaires, avec une baisse notable durant ces congés, 
@@ -126,7 +141,8 @@ C.4. *** REMY *** (Details Performance en conditions réelles sur modèles stand
         [Analyser/résumer les résultats]
         [zoom sur sébastopol]
 
-TR >>>> Et donc maintenant je laisse la parole à ELIAS pour introduire les deux derniers modèles plus avancés exploré pendant ce projet
+TR >>>> Et donc maintenant je laisse la parole à ELIAS pour introduire les deux derniers modèles avancés plus pécifiques 
+        exploré pendant ce projet
 
 
 C.5.a *** ELIAS *** (Details Performance en conditions réelles sur modèle SARIMAX) 
