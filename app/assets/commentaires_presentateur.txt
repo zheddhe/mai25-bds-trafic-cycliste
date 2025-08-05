@@ -6,14 +6,14 @@ A -> *** REMY *** (Introduction)
         la modélisation et ses résultats puis nous concluerons sur les ouvertures possibles.
 
         Je vais commencer par introduire notre modeste équipe composée d'Elias et moi même, et nous saluons et
-        remercions Raphaël qui a participé au tout début avant d'être contraint d'arrêter la formation
+        remercions Raphaël qui a participé au tout début avant d'être contraint de mettre en pause la formation
 
         Donc ce projet vise à modéliser l'évolution du trafic cycliste horaire de la ville de Paris qui est équipée de compteurs 
         permanents, le but : identifier les facteurs qui influencent son évolution et permettre à la ville d'adapter les 
         aménagements cyclistes en conséquence.
 
         Nous avons mis en place une démarche de modélisation exploratoire et assemblé via cette application streamlit
-        un laboratoire d'expérimentation.
+        un laboratoire d'observation et d'expérimentation.
 
 TR >>>> Sans plus Attendre, je laisse la parole à Elias pour aborder l'exploration des données
 
@@ -34,10 +34,10 @@ B.2. *** REMY *** (Détails sur l'Enrichissement)
         [...]
 
    >>>> Il est important de noter qu'au cours de notre processus d'analyse et de modélisation
-        nous avons naturellement identifié d'autre ajustements, nous le verrons au fil de la présentation.
+        nous avons naturellement identifié d'autre ajustements que nous verrons au fil de la présentation.
 
 B.3.a *** REMY(bis) *** (Analyse statistique du comptage horaire)
-        Une fois cet enrichissement opéré nous avons plongé dans l'étude statistique
+        Donc une fois cet enrichissement opéré nous avons plongé dans l'étude statistique
         et la représentation visuelle de nos données, en se focalisant sur le comptage horaire
         et notamment, une étude statistique de sa distribution
 

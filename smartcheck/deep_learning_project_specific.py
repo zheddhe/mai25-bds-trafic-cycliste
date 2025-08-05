@@ -377,7 +377,9 @@ def fine_tune_model(
         fcm_use_mixer=True,
         fcm_context_length=fcm_context_length,
         enable_forecast_channel_mixing=True,
+        fcm_mix_layers=2,
         decoder_mode="mix_channel",
+        fcm_prepend_past=True,
     )
     logger.info(f"Bascule du modèle sur {device}")
     finetune_forecast_model.to(device)  # type: ignore

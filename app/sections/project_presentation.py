@@ -41,7 +41,7 @@ with st.expander("🎙️ A - Introduction (< 1 min)", expanded=False):
     👥 **Équipe**: Rémy Canal, Elias Djouadi, (Raphaël Parmentier)
     """)
 
-with st.expander("🔍 B - Exploration & Visualisation (8 à 9 min)", expanded=False):
+with st.expander("🔍 B - Exploration & Visualisation (7 à 8 min)", expanded=False):
     st.markdown("### B.1. Données sources & nettoyages")
     st.markdown(f"""
     - **940k+ observations** sur **13 mois glissants** – source

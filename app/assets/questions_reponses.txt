@@ -1,17 +1,44 @@
-Le MAPE (Mean Absolute Percentage Error) : erreur en pourcentage de la vraie valeurs
+*****************************
+Métriques utilisé/utilisables
+
+------------------------------------------
+Le MAPE (Mean Absolute Percentage Error) : 
+- erreur en pourcentage de la vraie valeurs:
 - sensible à la division par zero (même avec le sMAPE)
 - déséquilibre entre sur et sous prédiction (le sMAPE corrige ce point)
 MAPE=
  1     n     |y_pred(i) - y(i)|
 --- *  ∑  -------------------------- * 100
  n    i=1  (|y(i)| + |y_pred(i)|)/2
-​
 
+-------------------------------
 R² coefficient de détermination 
 - peut être trompeur en série temporelle (amélioré par les motifs répétés)
 - on doit considéré qu'un R² conséquent est nécessaire pour parler de performance
 - doit être corroboré par l'analyse des résidus dans le temps
 
 
-Comment exploiter le multi canal 
+
+**********************************
+Comment exploiter le multi canal :
 Nécessite une adaptation de la structure des données - X colonnes comptage_horaire pour une même heure donnée
+
+
+
+******************************
+Complexité du modèle SARIMAX :
+En O(n*k²) à l'entrainement
+k = espace d'état qui grossit avec le nombre d'ordre p, P, q, Q, d, D et le nombre de variables exogènes
+la taille de la saison agit sur la convergence et la taille de l'échantillon nécessaire au "start"
+
+
+
+****************************
+Légende Granite TTM-96 d'IBM
+fl (forecast length : horizon de prediction)
+sl (series length : contexte historique fourni)
+hf (hidden feature size : dimension)
+pl (patch length : taille )
+l (context length)
+fcm (forecast context mixer length : fenetre de contexte d'infusion des variables exogènes, au max 2*fcm+1)
+s (strides : incrément de prédiction doit être < fcm)

@@ -208,6 +208,7 @@ def manage_dataset_modeling(st_module=None) -> pd.DataFrame:
     )
     if st.button("🔁 Rechargement du Dataset"):
         cached_load_dataset_ml.clear()  # type: ignore
+        cached_train_model.clear()  # type: ignore
         st.rerun()
 
     with st.spinner("⏳ Chargement du dataset en cours..."):
@@ -506,7 +507,7 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
     selected_sites = [k for k, v in SITE_LABELS.items() if v in selected_labels]
 
     # --- Sélection des modèles ---
-    with st.expander("Relatifs à la **Modélisation**", expanded=True):
+    with st.expander("Relatifs à la **Modélisation**", expanded=False):
         model = st.radio("Type de modèle", AVAILABLE_MODELS, key="model_rad")
         use_gridsearch = st.checkbox(
             "Recherche Bayesienne des hyperparamètres (*)",
@@ -515,7 +516,7 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
         )
         st.info("(*) La recherche est potentiellement très **longue**")
 
-    with st.expander("Relatifs au **Preprocessing**", expanded=True):
+    with st.expander("Relatifs au **Preprocessing**", expanded=False):
         # --- Sélection du scaler ---
         scaler = st.radio(
             "Mise à l'échelle",
@@ -558,7 +559,7 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
             drop_cols = drop_cols+ID_COLUMNS
 
     # --- Sélection des paramètres d'auto regression/moyenne mobile ---
-    with st.expander("Relatifs aux **Séries temporelles**", expanded=True):
+    with st.expander("Relatifs aux **Séries temporelles**", expanded=False):
         ar_nb = st.slider(
             "Nombre de variables **A**uto-**R**égressives (**AR**)", 0, 7, 0, 1,
             key="ar_nb_sld"
@@ -580,7 +581,7 @@ def manage_sidebar_modeling_parameters(st_module=None) -> Dict:
         st.info("(*) Ce mode de calcul peut être très **long**")
 
     # --- Option des rapports ---
-    with st.expander("📊 Option des rapports"):
+    with st.expander("📊 Option des rapports", expanded=False):
         col_date_min, col_date_max = st.columns(2)
         with col_date_min:
             start_date = st.date_input("Début de l'affichage",
