@@ -55,6 +55,7 @@ def manage_dataset_exploration(st_module=None) -> pd.DataFrame:
 
     if st.button("🔁 Rechargement du Dataset", key="reload_button"):
         cached_load_dataset_exploration.clear()  # type: ignore
+        cached_get_missing_periods.clear()  # type: ignore
         st.rerun()
 
     with st.spinner("⏳ Chargement du dataset en cours..."):

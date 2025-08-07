@@ -20,7 +20,8 @@ with st.sidebar:
 
 with st.expander("🚨 Identification des doublons et des discontinuités"
                  "dans les périodes de relevé horaire", expanded=True):
-    display_duplicate_and_discontinuities(df_raw, st)
+    with st.spinner("⏳ Calcul des discontinuités temporelles en cours..."):
+        display_duplicate_and_discontinuities(df_raw, st)
 
 with st.expander("📊 Statistiques descriptives globales", expanded=True):
     st.dataframe(df_raw.describe(include='all').T)

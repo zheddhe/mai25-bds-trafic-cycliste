@@ -6,7 +6,6 @@ import subprocess
 from pathlib import Path
 
 PYTHON_VERSION = "3.12"
-PYTHON_VERSION_DL_TF = "3.9"
 
 
 def remove_paths(session, paths):
@@ -106,22 +105,3 @@ def package(session):
     session.install("build")
     session.run("python", "-m", "build")
     session.log("Package session complete.")
-
-
-@nox.session(python=PYTHON_VERSION_DL_TF, venv_backend="conda",
-             name=f"dl-tensorflow-{PYTHON_VERSION_DL_TF}")
-def deep_learning_tf(session):
-    """DL session for TensorFlow GPU with compatible Python."""
-    session.run("python", "-m", "pip", "install", "--upgrade", "pip", silent=True)
-    # Installation depuis conda, build GPU officielle
-    session.conda_install(
-        "-c", "pytorch",
-        "-c", "defaults",
-        "tensorflow=2.10.0=gpu_py39h9bca9fa_0",
-    )
-    session.install("-e", ".[py39, test, dev]", silent=False)
-    session.run(
-        "python", "-c", "import tensorflow as tf; "
-        "print('TF GPUs:', tf.config.list_physical_devices('GPU'))"
-    )
-    session.log("TensorFlow GPU environment ready.")

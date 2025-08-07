@@ -46,18 +46,16 @@ mai25-bds-trafic-cycliste/
 │   └── sections/
 │       ├── home.py
 │       ├── project_presentation.py
-│       ├── data_visualization.py
 │       ├── data_exploration.py
+│       ├── data_visualization.py
 │       └── modeling.py
 ├── smartcheck/             # Project Core logic
 │   ├── logger_config.py                    # Log management tools
 │   ├── paths.py                            # Path management tools
 │   ├── dataframe_common.py                 # Shared data loading tools
 │   ├── dataframe_project_specific.py       # Advanced project specific feature engineering tools
-│   ├── classification_common.py            # Classification Modeling tools
-│   ├── meta_search_common.py               # Multi-strategy hyperparameter tuning tools
-│   ├── modeling_project_specific.py        # Advanced project specific modeling tools
 │   ├── preprocessing_project_specific.py   # Advanced project specific transformers
+│   ├── modeling_project_specific.py        # Advanced project specific modeling tools
 │   ├── deep_learning_project_specific.py   # Advanced project specific deep learning tools
 │   └── resources/
 │       └── config.yaml                     # Configuration resources (reusable google file paths)
@@ -94,9 +92,6 @@ pip install nox
 ```bash
 # Rebuild and complete virtual env for standard streamlit application and notebooks with pytorch (+ trigger test/flake8)
 nox -s build-3.12 --reuse-existing
-
-# Rebuild and complete virtual env for tensorflow deep learning notebooks (restricted to python 3.9)
-nox -s dl-tensorflow-3.9 --reuse-existing
 
 # Activate the conda env listed via:
 conda env list
@@ -155,7 +150,7 @@ You can navigate between pages from the sidebar:
 The `notebooks/` folder contains various exploratory notebooks (school and project related), showcasing:
 
 - 🧼 Data cleaning and preprocessing strategies  
-- 📊 Exploratory Data Analysis with Matplotlib, Plotly, Seaborn, and Bokeh  
+- 📊 Exploratory Data Analysis with Matplotlib, Plotly, Seaborn  
 - 🎯 Resampling methods and hyperparameter tuning (GridSearch, RandomizedSearch, BayesSearch)  
 - 🧠 Training and evaluation of baseline and advanced ML models  
 - 🤖 Neural network experimentation with tensorflow and pytorch  
