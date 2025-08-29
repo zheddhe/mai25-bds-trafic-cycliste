@@ -111,10 +111,14 @@ def auto_adjust_n_iter(search_space: dict, requested_iter: int) -> int:
 
 
 def compute_metrics(y_true: pd.Series, y_pred: pd.Series) -> Dict[str, float]:
+    yt = np.array(pd.Series(y_true).to_numpy(copy=False),
+                  dtype=np.float64, copy=True, order="C")
+    yp = np.array(pd.Series(y_pred).to_numpy(copy=False),
+                  dtype=np.float64, copy=True, order="C")
     return {
-        "R2": r2_score(y_true, y_pred),
-        "RMSE": root_mean_squared_error(y_true, y_pred),
-        "MAE": mean_absolute_error(y_true, y_pred),
+        "R2": r2_score(yt, yp),
+        "RMSE": root_mean_squared_error(yt, yp),
+        "MAE": mean_absolute_error(yt, yp),
     }
 
 
