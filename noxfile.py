@@ -4,19 +4,21 @@ import shutil
 import re
 import subprocess
 from pathlib import Path
+import glob
 
 PYTHON_VERSION = "3.12"
 
 
 def remove_paths(session, paths):
     for path in paths:
-        p = Path(path)
-        if p.exists():
-            if p.is_dir():
-                shutil.rmtree(p)
-            else:
-                p.unlink()
-            session.log(f"Removed {path}")
+        for target in glob.glob(path):  # <--- expansion des patterns
+            p = Path(target)
+            if p.exists():
+                if p.is_dir():
+                    shutil.rmtree(p)
+                else:
+                    p.unlink()
+                session.log(f"Removed {p}")
     for pyc in Path(".").rglob("*.pyc"):
         pyc.unlink()
     for cover in Path(".").rglob("*,cover"):
