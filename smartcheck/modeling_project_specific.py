@@ -325,8 +325,6 @@ def train_timeseries_model(
         df = tr_date.transform(df)
         timestamp_col = timestamp_col+"_local"
 
-    df = df.sort_values(timestamp_col)
-
     if drop_columns:
         df = df.drop(columns=[col for col in drop_columns if col in df.columns])
 
