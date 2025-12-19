@@ -176,10 +176,10 @@ MANDATORY_COLUMNS = [
     "comptage_horaire",
 ]
 AVAILABLE_MODELS = [
-    "LinearRegression",
-    "KNN",
-    "RandomForest",
     "XGBoost",
+    "RandomForest",
+    "KNN",
+    "LinearRegression",
     "ElasticNet",
 ]
 ITER_GRID_SEARCH = 25
